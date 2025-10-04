@@ -1,0 +1,82 @@
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: ${smoke_pin}
+      inverted: true
+      mode:
+        input: true
+        pullup: false
+    name: "Smoke"
+    icon: mdi:smoke-detector-variant
+    id: smoke_sensor
+    filters:
+      - delayed_on_off:
+          time_on: 200ms
+          time_off: 200ms
+    on_press:
+      then:
+        - if:
+            condition:
+              or:
+                - switch.is_on: smoke_switch
+            then:
+              - switch.turn_on: siren
+              - delay: 10s
+              - switch.turn_off: siren
+  - platform: gpio
+    pin:
+      number: ${motion_pin}
+      inverted: ${motion_pin_inverted}
+      mode:
+        input: true
+        pullup: false
+    name: "Motion"
+    icon: mdi:motion-sensor
+    id: motion_sensor
+    filters:
+      - delayed_on_off:
+          time_on: 200ms
+          time_off: 200ms
+    on_press:
+      then:
+        - if:
+            condition:
+              or:
+                - switch.is_on: motion_switch
+            then:
+              - switch.turn_on: siren
+              - delay: 8s
+              - switch.turn_off: siren
+switch:
+  - platform: gpio
+    name: Siren
+    id: siren
+    icon: mdi:bullhorn
+    pin:
+      number: ${siren_pin}
+      inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
+    name: Smoke Switch
+    icon: mdi:smoke-detector-variant-off
+    id: smoke_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
+    name: Motion Switch
+    icon: mdi:motion-sensor-off
+    id: motion_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+#  - platform: homeassistant
+#    id: ${friendly_name_short}_motion_ha
+#    entity_id: automation.${friendly_name_short}_motion
+#    name: "${friendly_name} motion HA"
+#    restore_mode: RESTORE_DEFAULT_OFF
+#    internal: false
+#  - platform: homeassistant
+#    id: ${friendly_name_short}_smoke_ha
+#    entity_id: input_boolean.${friendly_name_short}_smoke
+#    name: "${friendly_name} smoke HA"
+#    restore_mode: RESTORE_DEFAULT_OFF
+#    internal: false

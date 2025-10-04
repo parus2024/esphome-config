@@ -1,0 +1,191 @@
+# Use the blue LED as a status light.
+#   Blink slowly = Temporary issue (WiFi/MQTT disconnected, sensor unavailable, ...)
+#   Blink quickly = Error encountered
+status_led:
+  pin: ${status_led_pin} #checked
+
+# Configure the IR receiver. Handy to pickup confirmation messages
+# from your AC (or capture commands from the actual remote)
+remote_receiver:
+  id: rcvr
+  pin: 
+    number: ${remote_receiver_pin}
+    inverted: True
+  dump: all
+
+# Configure the IR LED: this one sends commands to other devices
+remote_transmitter:
+  pin: ${remote_transmitter_pin}
+  carrier_duty_percent: 50%
+# это пин к которому подключен датчик. update_interval: задается в секундах. Время через которое будет опрашиваться датчик.
+one_wire:
+  - platform: gpio
+    pin: GPIO12
+
+# Import the state of sensor from Home Assistant into ESPHome. If you don't have a temperature sensor in the room, delete this component.
+sensor:
+  - platform: dallas_temp
+    address: 0xf30760bf0164ff28
+    name: ${friendly_name} temperature
+    id: toshiba_temperature
+    update_interval: 10s
+    icon: "mdi:thermometer"
+# https://esphome.io/components/climate/ir_climate.html?highlight=climate
+climate:
+  - platform: toshiba
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    icon: mdi:air-conditioner
+    id: ${friendly_name_short}
+    name: ${friendly_name}
+    receiver_id: rcvr
+    # Add a reference to the temperature sensor here
+    sensor: toshiba_temperature # if you don't have a temperature sensor in the room, delete this line.
+    on_state:
+      - lambda: |-
+          auto call = id(climate_mode).make_call();
+          if (x.mode == CLIMATE_MODE_COOL) {
+              call.set_option("COOL");
+              call.perform();
+          }
+          else if (x.mode == CLIMATE_MODE_HEAT) {
+                   call.set_option("HEAT");
+                   call.perform();
+          }
+          else if (x.mode == CLIMATE_MODE_DRY) {
+                   call.set_option("DRY");
+                   call.perform();
+          }
+
+
+datetime:
+  - platform: template
+    id: night_on
+#    time_id: my_time
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Night ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "00:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: night
+            then:
+              - lambda: |-
+                  auto call = id(${friendly_name_short}).make_call();
+                  if (id(climate_mode).state == "COOL") {
+                      call.set_mode("COOL");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "HEAT") {
+                      call.set_mode("HEAT");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "DRY") {
+                      call.set_mode("DRY");
+                      call.perform();
+                  }
+  - platform: template
+    id: night_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Night OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "07:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: night
+            then:
+              - climate.control:
+                  id: ${friendly_name_short}
+                  mode: "OFF"
+  - platform: template
+    id: day_on
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Day ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "12:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: day
+            then:
+              - lambda: |-
+                  auto call = id(${friendly_name_short}).make_call();
+                  if (id(climate_mode).state == "COOL") {
+                      call.set_mode("COOL");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "HEAT") {
+                      call.set_mode("HEAT");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "DRY") {
+                      call.set_mode("DRY");
+                      call.perform();
+                  }
+
+  - platform: template
+    id: day_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Day OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "19:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: day
+            then:
+              - climate.control:
+                  id: ${friendly_name_short}
+                  mode: 'OFF'
+
+switch:
+  - !include ../common/switch/switch_night_climate.yaml
+  - !include ../common/switch/switch_day_climate.yaml
+
+select:
+  - !include ../common/select/select_climate.yaml
+
+time:
+  - !include ../common/time/sntp.yaml
+  - !include ../common/time/home_assistant.yaml
+text_sensor:
+  - platform: template
+    name: "Current SNTP Time"
+    id: current_sntp_time
+    icon: "mdi:clock"
+    lambda: |-
+      auto now = id(sntp_time).now();
+      // check valid time
+      if (now.is_valid()) {
+        char dateStr[40]; // Увеличил размер массива для строки
+        const char* months[] = {"Янв", "Февр", "Март", "Апр", "Мая", "Июня", "Июля", "Авг", "Сент", "Окт", "Нояб", "Дек"};
+        // Получаем месяц
+        const char* month = months[now.month - 1]; // Месяцы начинаются с 1
+        // Форматируем строку с днем и месяцем, убираем день недели
+        sprintf(dateStr, "%d %s %02d:%02d", now.day_of_month, month, now.hour, now.minute); // Используем массив с русскими названиями
+        return { dateStr }; // Возвращаем строку
+      }
+      return { "Invalid Time" }; // Возвращаем сообщение об ошибке, если время невалидно
+    update_interval: 60s

@@ -1,0 +1,248 @@
+esphome:
+  on_boot:
+    - priority: 300.0 # Сенсоры загружены, ожидание инициализации wifi
+      then:
+        - light.turn_on: # Индикация включения устройства
+            id: led_red
+            brightness: 90%
+    - priority: 225.0 # после инициализации wifi
+      then:
+        - light.turn_on: # Индикация поиска wifi подключения
+            id: led_green
+            brightness: 90%
+        - delay: '00:00:05'    
+    - priority: -100.0 # Все процессы инициализированы, система загружена, ожидание подключения в wifi
+      then:
+        if:
+          condition:
+            wifi.connected:
+          then:
+            - light.turn_on: # Индикация подтверждения подключения в wifi
+                id: led_green
+                brightness: 90%
+            - delay: '00:00:10'
+            - light.turn_on: # Оставить гореть зеленый на 80%
+                id: led_green
+                brightness: 80%
+            - light.turn_off: # Выключить красный
+                id: led_red
+binary_sensor:
+  - !include ../common/binary_sensor/sunset_midnight.yaml
+  - !include ../common/binary_sensor/midnight_sunrise.yaml
+# H801
+output:
+  - platform: esp8266_pwm
+    pin: 12
+    frequency: 1000 Hz
+    id: pwm_blue
+  - platform: esp8266_pwm
+    pin: 13
+    frequency: 1000 Hz
+    id: pwm_green
+  - platform: esp8266_pwm
+    pin: 15
+    frequency: 1000 Hz
+    id: pwm_red
+  - platform: esp8266_pwm
+    pin: 14
+    frequency: 1000 Hz
+    id: pwm_w1
+  - platform: esp8266_pwm
+    pin: 4
+    frequency: 1000 Hz
+    id: pwm_w2
+  - platform: esp8266_pwm
+    id: output_green
+    frequency: 1000 Hz
+    pin: GPIO1
+    inverted: true
+  - platform: esp8266_pwm
+    id: output_red
+    frequency: 1000 Hz
+    pin: GPIO5
+    inverted: true
+select:
+  - platform: template
+    name: "Effect"
+    id: effect
+    options:
+     - "NONE"
+     - "Rainbow Effect"
+     - "HUE360"
+     - "WTF"
+     - "In Alarm"
+     - "RGB Breathing"
+     - "Middle Random Effect"
+    initial_option: "NONE"
+    restore_value: true
+    optimistic: true
+light:
+
+  - platform: rgbww
+    name: "H801 Light"
+    id: ${friendly_name_short}
+    red: pwm_red
+    green: pwm_green
+    blue: pwm_blue
+    cold_white: pwm_w1
+    warm_white: pwm_w2
+    effects:
+      - !include ../includes/rgb_effects/rainbow.yaml
+      - !include ../includes/rgb_effects/hue360.yaml
+      - !include ../includes/rgb_effects/randomflicker.yaml
+      - !include ../includes/rgb_effects/wtf.yaml
+      - !include ../includes/rgb_effects/strobe_lightning.yaml
+      - !include ../includes/rgb_effects/strobe_alarm.yaml
+      - !include ../includes/rgb_effects/strobe_effect.yaml
+      - !include ../includes/rgb_effects/breathing.yaml
+      - !include ../includes/rgb_effects/rgb_breathing.yaml
+      - !include ../includes/rgb_effects/random_slow_20s.yaml
+      - !include ../includes/rgb_effects/random_middle_5s.yaml
+      - !include ../includes/rgb_effects/random_fast_1s.yaml      
+
+  - platform: monochromatic
+    name: "LED green"
+    output: output_green
+    id: led_green
+  - platform: monochromatic
+    name: "LED red"
+    output: output_red
+    id: led_red
+
+sensor:
+  - platform: homeassistant
+    entity_id: "input_number.hue_brightness"
+    id: brightness_ha
+    name: "HA brightness"
+    internal: false
+
+interval:
+  - interval: 60s
+    then:
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_on: sensor_sunset_midnight
+              - switch.is_on: switch_sunset_midnight_hue360
+              - switch.is_on: automode
+          then:
+            - light.turn_on:
+                id: ${friendly_name_short}
+                brightness: !lambda return (id(brightness_ha).state / 255);
+                effect: "HUE360"
+          else:
+            - if:
+                condition:
+                  and:
+                    - binary_sensor.is_on: sensor_midnight_sunrise
+                    - switch.is_on: switch_midnight_sunrise
+                    - switch.is_on: automode
+#                    - lambda: 'return id(sntp_time).now().hour < 10;'
+                then:
+                  - light.turn_on: 
+                      id: ${friendly_name_short}
+                      effect: "None"
+#                      brightness: 0.9
+                      brightness: !lambda return (id(brightness_ha).state / 255);
+                      red: 100%
+                      green: 0%
+                      blue: 0%
+                      cold_white: 0%
+                      warm_white: 0%
+                else:
+                  - if:
+                      condition:
+                        - switch.is_on: automode
+                      then:    
+                        - light.turn_on:
+                            id: ${friendly_name_short}
+                            effect: "None"
+                            brightness: 0.8
+                            red: 0%
+                            green: 100%
+                            blue: 0%
+                            cold_white: 0%
+                            warm_white: 0%
+
+switch:
+# Вкл/выкл авто-ручной режим
+  - platform: template
+    id: automode
+    name: Automode
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON 
+# Вкл/выкл эффект после заката до полуночи
+  - platform: template
+    id: switch_sunset_midnight_hue360
+    name: Sunset Midnight Hue360
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON 
+# Вкл/выкл эффект полуночи до восхода
+  - platform: template
+    id: switch_midnight_sunrise
+    name: Midnight Sunrise
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON  
+number:
+  - platform: template
+    name: "Brightness" # Яркость
+    id: brightness_hue
+    optimistic: true
+    min_value: 0
+    max_value: 1
+    step: 0.01
+    restore_value: true
+datetime:
+  - platform: template
+    id: light_on
+#    time_id: my_time
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_time_sun
+    name: "Light ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "00:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_off: automode
+            then:
+              - lambda: |-
+                  if (id(effect).state == "Rainbow Effect") {
+                      id(${friendly_name_short}).turn_on().set_brightness(id(brightness_hue).state).set_effect("Rainbow Effect").perform();
+                  } else if (id(effect).state == "HUE360") {
+                      id(${friendly_name_short}).turn_on().set_brightness(id(brightness_hue).state).set_effect("HUE360").perform();
+                  } else if (id(effect).state == "WTF") {
+                      id(${friendly_name_short}).turn_on().set_brightness(id(brightness_hue).state).set_effect("WTF").perform();
+                  } else if (id(effect).state == "In Alarm") {
+                      id(${friendly_name_short}).turn_on().set_brightness(id(brightness_hue).state).set_effect("In Alarm").perform();
+                  } else if (id(effect).state == "RGB Breathing") {
+                      id(${friendly_name_short}).turn_on().set_brightness(id(brightness_hue).state).set_effect("RGB Breathing").perform();
+                  } else if (id(effect).state == "Middle Random Effect") {
+                      id(${friendly_name_short}).turn_on().set_brightness(id(brightness_hue).state).set_effect("Middle Random Effect").perform();
+                  }
+
+  - platform: template
+    id: light_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_time_sun
+    name: "Light OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "07:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_off: automode
+            then:
+              - light.turn_on:
+                  id: ${friendly_name_short}
+                  effect: "None"
+              - light.turn_off:
+                  id: ${friendly_name_short}

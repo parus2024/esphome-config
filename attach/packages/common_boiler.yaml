@@ -1,0 +1,246 @@
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Moscow
+    servers:
+     - 0.ru.pool.ntp.org
+     - ntp0.ntp-servers.net
+     - 2.pool.ntp.org
+
+one_wire:
+  - platform: gpio
+    pin: ${one_wire_pin}
+
+sensor:
+# Датчик ds18b20 в бойлере
+  - platform: dallas_temp
+    address: ${one_wire_address}
+    icon: mdi:thermometer
+    name: ${friendly_name} Temperature
+    id: temp_boiler
+    update_interval: 5s
+    filters:
+      - filter_out: NAN
+    on_value:
+      then:
+        - if:            # Если вкл режим день или ночь или полный нагрев, и температура менее температуры включения всех тенов, тен1  и тен2  включается
+            condition:
+              and:
+                - lambda: 'return (id(temp_boiler).state < id(max_power_temp).state && ((id(sensor_day).state && id(mode_day).state) or (id(sensor_night).state && id(mode_night).state) or id(mode_full_on).state));'
+            then:
+              - switch.turn_on: ten1
+              - switch.turn_on: ten2
+        - if:            # Если температура более температуры выключения тен2, тен2 выкл
+            condition:
+              - lambda: 'return (id(temp_boiler).state < id(water_alarm).state && id(temp_boiler).state > id(min_power_temp).state);'
+            then:
+              - switch.turn_off: ten2
+        - if:            # Если темп. воды выше аварийной, тены отключаются
+            condition:
+              and:
+                - switch.is_on: ten1
+                - lambda: 'return (id(temp_boiler).state > id(water_alarm).state);'
+            then:
+              - switch.turn_off: ten1
+              - switch.turn_off: ten2
+
+text_sensor:
+  - platform: template
+    name: "Time HA"
+    icon: mdi:clock
+    id: current_ha_time
+    lambda: |-
+      char str[17]; time_t currTime = id(homeassistant_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+  - platform: template
+    name: "Time SNTP"
+    icon: mdi:clock
+    id: current_sntp_time
+    lambda: |-
+      char str[17]; time_t currTime = id(sntp_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+
+binary_sensor:
+  - platform: template
+    name: ${friendly_name} Error   # Ошибка бойлера, если температура менее температуры включения всех тенов и мощность менее 10вт в течение 30 секунд
+    id: boiler_error
+    icon: mdi:water-boiler-alert
+    filters:
+      - delayed_on: 30s
+    lambda: 'return ((id(ten1).state || id(ten2).state) && id(temp_boiler).state <= id(max_power_temp).state && id(power).state < 10);'
+
+  - platform: template
+    name: "Night"
+    id: sensor_night
+    icon: mdi:weather-night
+    filters:
+      - delayed_on_off: 5s
+    lambda: |-
+      if (id(sntp_time).now().hour <= 7) {
+        return true; // Сенсор включен после полуночи и до 8.00 утра
+      } else {
+        return false;
+      }
+    on_press: 
+      then:
+        - if:            # Если вкл режим ночь , тен1  и тен2  включается в 00.00
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_night
+                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state && id(temp_boiler).state < id(min_power_temp).state);'
+            then:
+              - switch.turn_on: ten1
+              - switch.turn_on: ten2
+        - if:            # Если темп. воды выше температуры выключения тен2, тен2 отключается
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_night
+                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state && id(temp_boiler).state > id(min_power_temp).state);'
+            then:
+              - switch.turn_on: ten1
+              - switch.turn_off: ten2
+    on_release: 
+      then:
+        - if:            # Если вкл режим ночь , тен1  и тен2  выключается утром
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+#                - switch.is_on: mode_night
+#                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state);'
+            then:
+              - switch.turn_off: ten1
+              - switch.turn_off: ten2
+  - platform: template
+    name: "Day"
+    id: sensor_day
+    icon: mdi:sun-clock
+    filters:
+      - delayed_on_off: 5s
+    lambda: |-
+      // if (id(sntp_time).now().hour >= 11 && id(sntp_time).now().minute > 59 && id(sntp_time).now().hour <= 18) {
+      if (id(sntp_time).now().hour >= 11 && id(sntp_time).now().hour <= 18) {
+        return true; // Сенсор включен с 12.00 до 19.00
+      } else {
+        return false;
+      }
+    on_press: 
+      then:
+        - if:            # Если вкл режим день. , тен1  и тен2  включается в 12.00
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_day
+                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state && id(temp_boiler).state < id(min_power_temp).state);'
+            then:
+              - switch.turn_on: ten1
+              - switch.turn_on: ten2
+        - if:            # Если вкл режим день. , и температура более температуры выключения тен2, тен1 вкл и тен2 выкл
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_day
+                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state && id(temp_boiler).state > id(min_power_temp).state);'
+            then:
+              - switch.turn_on: ten1
+              - switch.turn_off: ten2
+    on_release: 
+      then:
+        - if:            # Если вкл режим день. , тен1  и тен2  выключается вечером в 19,00
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+#                - switch.is_on: mode_day
+#                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state);'
+            then:
+              - switch.turn_off: ten1
+              - switch.turn_off: ten2
+
+switch:
+  - platform: gpio
+    name: ${friendly_name} Ten1
+    icon: mdi:heating-coil
+    id: ten1
+    pin:
+      number: ${pin_ten1}
+      inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    name: ${friendly_name} Ten2
+    icon: mdi:heating-coil
+    id: ten2
+    pin:
+      number: ${pin_ten2}
+      inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
+    name: ${friendly_name} full on
+    id: mode_full_on
+    icon: mdi:all-inclusive
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on: 
+      then:
+        - if:            # Если вкл режим полный нагрев , тен1  и тен2  включается
+            condition:
+              and:
+                - lambda: 'return (id(temp_boiler).state < id(water_alarm).state);'
+            then:
+              - switch.turn_on: ten1
+              - switch.turn_on: ten2
+  - platform: template
+    id: mode_day
+    name: ${friendly_name} day
+    icon: mdi:sun-clock
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: false
+    optimistic: true
+  - platform: template
+    id: mode_night
+    name: ${friendly_name} night
+    icon: mdi:weather-night
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: false
+    optimistic: true
+
+number:
+# температура воды перегрев
+  - platform: template
+    name: "Boiler Water Alarm" # Установка температуры перегрев
+    id: water_alarm
+    optimistic: true
+    icon: mdi:thermometer-alert
+    unit_of_measurement: "°C"
+    min_value: 40
+    max_value: 80
+    step: 1
+    restore_value: true
+# температура включения всех тенов
+  - platform: template
+    name: "Max Power"
+    id: max_power_temp
+    optimistic: true
+    icon: mdi:thermometer-chevron-down
+    unit_of_measurement: "°C"
+    min_value: 20
+    max_value: 50
+    step: 5
+    restore_value: true
+# температура выключения тен2
+  - platform: template
+    name: "Min Power"
+    id: min_power_temp
+    optimistic: true
+    icon: mdi:thermometer-chevron-up
+    unit_of_measurement: "°C"
+    min_value: 40
+    max_value: 60
+    step: 5
+    restore_value: true

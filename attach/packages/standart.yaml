@@ -1,0 +1,28 @@
+binary_sensor:
+  # ESP Status
+  - !include ../common/binary_sensor/status.yaml
+
+text_sensor:
+  # ESPHome Version
+  - !include ../common/text_sensor/version.yaml
+
+  # Uptime
+  - !include ../common/text_sensor/uptime.yaml
+
+  # IP
+  - !include ../common/text_sensor/ip.yaml
+
+sensor:
+  # Uptime
+  - !include ../common/sensor/uptime.yaml
+
+  # WiFi Signal db
+  - !include ../common/sensor/wifi_signal_db.yaml
+  # WiFi Signal %
+  - !include ../common/sensor/wifi_signal%.yaml
+
+button:
+  # Restart
+  - !include ../common/button/restart.yaml
+  # Restart Safe Mode
+  - !include ../common/button/restart_safe.yaml

@@ -1,0 +1,37 @@
+sun:
+  latitude: !secret latitude
+  longitude: !secret longitude
+  id: sun_sun
+
+binary_sensor:
+  - !include ../common/binary_sensor/night.yaml
+  - !include ../common/binary_sensor/day.yaml
+text_sensor:
+  - platform: template
+    name: "Current SNTP Time"
+    icon: mdi:clock
+    id: current_sntp_time
+    lambda: |-
+      char str[17]; time_t currTime = id(sntp_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+  - platform: template
+    name: "Current HA Time"
+    icon: mdi:clock
+    id: current_ha_time
+    lambda: |-
+      char str[17]; time_t currTime = id(homeassistant_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+sensor:
+  - platform: sun
+    name: Sun Elevation
+    type: elevation
+  - platform: sun
+    name: Sun Azimuth
+    type: azimuth
+time:
+  - !include ../common/time/home_assistant.yaml
+  - !include ../common/time/sntp.yaml

@@ -1,0 +1,35 @@
+light:
+  - platform: status_led
+    name: "Status LED"
+    id: led
+    pin:
+      number: GPIO13
+      inverted: yes
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    id: ${friendly_name_short}_button
+    on_press:
+      then:
+        - switch.toggle: ${friendly_name_short}_switch
+
+switch:
+  - platform: gpio
+    name: ${name} Switch
+    id: ${friendly_name_short}_switch
+    pin:
+      number: GPIO12
+      inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on: 
+      then:
+        - light.turn_on: led
+    on_turn_off: 
+      then:
+        - light.turn_off: led

@@ -1,0 +1,63 @@
+light:
+  - platform: monochromatic
+    name: "Status LED"
+    id: statusled
+    output: led_output
+    effects:
+      - pulse:
+      - pulse:
+          name: "Not Connected"
+          transition_length: 0.1s
+          update_interval: 300ms
+          min_brightness: 0%
+          max_brightness: 100%
+      - pulse:
+          name: "Wifi Connected"
+          transition_length: 100ms
+          update_interval: 1s
+      - pulse:
+          name: "Api Connected"
+          transition_length: 1500ms
+#          transition_length:
+#            on_length: 0.2s
+#            off_length: 0.2s
+          update_interval: 3s
+output:
+  - platform: ledc
+    pin:
+      number: ${pin_led}
+#      inverted: yes
+    frequency: 1000 Hz
+    id: led_output
+
+interval:
+  - interval: 2s
+    then:
+      - if:
+          condition:
+            api.connected:
+          then:
+            - light.turn_on:
+                id: statusled
+                effect: "Api Connected"
+      - if:
+          condition:
+            and:
+              - not:
+                  api.connected:
+              - wifi.connected:
+          then:
+            - light.turn_on:
+                id: statusled
+                effect: "Wifi Connected"
+      - if:
+          condition:
+            and:
+              - not:
+                  api.connected:
+              - not:
+                  wifi.connected:
+          then:
+            - light.turn_on:
+                id: statusled
+                effect: "Not Connected"

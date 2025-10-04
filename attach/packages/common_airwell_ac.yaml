@@ -1,0 +1,160 @@
+#Общие элементы для кондиционеров Airwell AC 21,22
+
+# Configure the IR receiver. Handy to pickup confirmation messages
+# from your AC (or capture commands from the actual remote)
+remote_receiver:
+  id: rcvr
+  pin: 
+    number: ${remote_receiver_pin}
+    inverted: True
+  dump: all
+
+# Configure the IR LED: this one sends commands to other devices
+remote_transmitter:
+  pin: ${remote_transmitter_pin}
+  carrier_duty_percent: 50%
+
+# https://esphome.io/components/climate/ir_climate.html?highlight=climate
+climate:
+  - platform: gree
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    icon: mdi:air-conditioner
+    id: ${friendly_name_short}
+    name: ${friendly_name}
+    model: yaa
+    receiver_id: rcvr
+    # Add a reference to the temperature sensor here
+    # sensor: temp_kitchen # if you don't have a temperature sensor in the room, delete this line.
+    on_state:
+      - lambda: |-
+          auto call = id(climate_mode).make_call();
+          if (x.mode == CLIMATE_MODE_COOL) {
+              call.set_option("COOL");
+              call.perform();
+          }
+          else if (x.mode == CLIMATE_MODE_HEAT) {
+                   call.set_option("HEAT");
+                   call.perform();
+          }
+          else if (x.mode == CLIMATE_MODE_DRY) {
+                   call.set_option("DRY");
+                   call.perform();
+          }
+
+
+datetime:
+  - platform: template
+    id: night_on
+#    time_id: my_time
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Night ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "00:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: night
+            then:
+              - lambda: |-
+                  auto call = id(${friendly_name_short}).make_call();
+                  if (id(climate_mode).state == "COOL") {
+                      call.set_mode("COOL");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "HEAT") {
+                      call.set_mode("HEAT");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "DRY") {
+                      call.set_mode("DRY");
+                      call.perform();
+                  }
+  - platform: template
+    id: night_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Night OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "07:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: night
+            then:
+              - climate.control:
+                  id: ${friendly_name_short}
+                  mode: "OFF"
+  - platform: template
+    id: day_on
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Day ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "12:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: day
+            then:
+              - lambda: |-
+                  auto call = id(${friendly_name_short}).make_call();
+                  if (id(climate_mode).state == "COOL") {
+                      call.set_mode("COOL");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "HEAT") {
+                      call.set_mode("HEAT");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "DRY") {
+                      call.set_mode("DRY");
+                      call.perform();
+                  }
+
+  - platform: template
+    id: day_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Day OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "19:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: day
+            then:
+              - climate.control:
+                  id: ${friendly_name_short}
+                  mode: 'OFF'
+
+switch:
+  - !include ../common/switch/switch_night_climate.yaml
+  - !include ../common/switch/switch_day_climate.yaml
+
+text_sensor:
+  - !include ../common/text_sensor/sntp_time.yaml
+
+select:
+  - !include ../common/select/select_climate.yaml
+
+time:
+  - !include ../common/time/sntp.yaml
+  - !include ../common/time/home_assistant.yaml

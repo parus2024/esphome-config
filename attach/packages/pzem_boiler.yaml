@@ -1,0 +1,48 @@
+uart:
+  - id: pzem_uart
+    rx_pin: ${rx_pin}
+    tx_pin: ${tx_pin}
+    baud_rate: 9600
+    stop_bits: 1
+
+sensor:
+  - platform: pzemac
+    current:
+      name: "PZEM-004T V3 Current"
+      device_class: current
+      icon: mdi:current-ac
+    voltage:
+      name: "PZEM-004T V3 Voltage"
+      id: voltage
+      device_class: voltage
+      icon: mdi:sine-wave
+    energy:
+      name: "PZEM-004T V3 Energy"
+      device_class: energy
+      icon: mdi:meter-electric
+    power:
+      name: "PZEM-004T V3 Power"
+      id: power
+      device_class: power
+      icon: mdi:flash
+#    frequency:
+#      name: "PZEM-004T V3 Frequency"
+#      internal: true
+#    power_factor:
+#      name: "PZEM-004T V3 Power Factor"
+    id: pzemac_1
+    update_interval: 2s
+    modbus_id: pzem # может не нужно
+modbus:
+  uart_id: pzem_uart
+  id: pzem # может не нужно
+
+button:
+# Кнопка сброса потребления
+  - platform: template
+    name: "Reset Energy"
+    icon: mdi:numeric-0-box-outline
+    id: reset_energy
+    on_press:
+      then:
+        - pzemac.reset_energy: pzemac_1

@@ -1,0 +1,31 @@
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
+myhomeiot_ble_host:
+
+mclh_09_gateway:
+  id: ${friendly_name_short}
+  interval: ${mclh_09_interval}
+  error_counting: true
+  raw_soil: false # set to 'true' for raw soil values (without interpolate)
+  mac_address:
+    - ${mclh09_001_mac}
+    - ${mclh09_002_mac}
+
+button:
+  - platform: template
+    name: "Force update"
+    entity_category: diagnostic
+    on_press:
+      - mclh_09_gateway.force_update:
+          id: ${friendly_name_short}
+external_components:
+#  - source: github://myhomeiot/esphome-components
+#  - source: github://dvb6666/esphome-components
+#  - source: github://trombik/esphome-component-ping
+  - source:
+      type: local
+      path: my_components
+#    components: [ble_gateway, dvb6666]

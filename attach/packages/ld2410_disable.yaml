@@ -1,0 +1,12 @@
+# Common for ld2410 disable default
+binary_sensor:
+  - !include ../common/binary_sensor/ld2410_disable.yaml
+
+text_sensor:
+  - !include ../common/text_sensor/ld2410_disable.yaml
+
+sensor:
+  - !include ../common/sensor/ld2410_disable.yaml
+
+button:
+  - !include ../common/button/ld2410_disable.yaml

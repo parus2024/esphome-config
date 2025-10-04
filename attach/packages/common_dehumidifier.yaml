@@ -1,0 +1,38 @@
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: ${work_pin}
+      inverted: true
+      mode:
+        input: true
+        pullup: false
+    name: "${friendly_name} Work"
+    id: work
+    filters:
+      - delayed_on_off:
+          time_on: 200ms
+          time_off: 200ms
+  - platform: gpio
+    pin:
+      number: ${water_full_pin}
+      inverted: true
+      mode:
+        input: true
+        pullup: false
+    name: "${friendly_name} Water"
+    id: water_full
+    filters:
+      - delayed_on_off:
+          time_on: 200ms
+          time_off: 200ms
+button:
+# Кнопка ворота старт-стоп
+  - platform: output
+    name: "Start"
+    id: start_stop
+    output: start_out
+    duration: 500ms
+output:
+  - platform: gpio
+    pin: ${button_pin}
+    id: start_out

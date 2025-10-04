@@ -1,0 +1,143 @@
+#Общие элементы для кондиционеров Haier 23,24,31,32,33,34
+uart:
+  baud_rate: 9600
+  tx_pin: 1
+  rx_pin: 3
+  id: ac_port
+climate:
+  - platform: haier
+    id: ${friendly_name_short}
+    protocol: smartAir2
+    name: ${friendly_name}
+    uart_id: ac_port
+    on_state:
+      - lambda: |-
+          auto call = id(climate_mode).make_call();
+          if (x.mode == CLIMATE_MODE_COOL) {
+              call.set_option("COOL");
+              call.perform();
+          }
+          else if (x.mode == CLIMATE_MODE_HEAT) {
+                   call.set_option("HEAT");
+                   call.perform();
+          }
+          else if (x.mode == CLIMATE_MODE_DRY) {
+                   call.set_option("DRY");
+                   call.perform();
+          }
+
+datetime:
+  - platform: template
+    id: night_on
+#    time_id: my_time
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Night ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "00:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: night
+            then:
+              - lambda: |-
+                  auto call = id(${friendly_name_short}).make_call();
+                  if (id(climate_mode).state == "COOL") {
+                      call.set_mode("COOL");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "HEAT") {
+                      call.set_mode("HEAT");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "DRY") {
+                      call.set_mode("DRY");
+                      call.perform();
+                  }
+  - platform: template
+    id: night_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Night OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "07:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: night
+            then:
+              - climate.control:
+                  id: ${friendly_name_short}
+                  mode: "OFF"
+  - platform: template
+    id: day_on
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Day ON"
+    icon: "mdi:clock-check"
+    optimistic: true
+    initial_value: "12:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: day
+            then:
+              - lambda: |-
+                  auto call = id(${friendly_name_short}).make_call();
+                  if (id(climate_mode).state == "COOL") {
+                      call.set_mode("COOL");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "HEAT") {
+                      call.set_mode("HEAT");
+                      call.perform();
+                  }
+                  else if (id(climate_mode).state == "DRY") {
+                      call.set_mode("DRY");
+                      call.perform();
+                  }
+
+  - platform: template
+    id: day_off
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_climate_control
+    name: "Day OFF"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "19:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - if:
+            condition:
+              - switch.is_on: day
+            then:
+              - climate.control:
+                  id: ${friendly_name_short}
+                  mode: 'OFF'
+
+switch:
+  - !include ../common/switch/switch_night_climate.yaml
+  - !include ../common/switch/switch_day_climate.yaml
+
+text_sensor:
+  - !include ../common/text_sensor/sntp_time.yaml
+
+select:
+  - !include ../common/select/select_climate.yaml
+
+time:
+  - !include ../common/time/sntp.yaml
+  - !include ../common/time/home_assistant.yaml

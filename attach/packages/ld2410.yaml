@@ -1,0 +1,13 @@
+# Common for ld2410
+
+binary_sensor:
+  - !include ../common/binary_sensor/ld2410.yaml
+
+text_sensor:
+  - !include ../common/text_sensor/ld2410.yaml
+
+sensor:
+  - !include ../common/sensor/ld2410.yaml
+
+button:
+  - !include ../common/button/ld2410.yaml

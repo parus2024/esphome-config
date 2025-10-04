@@ -1,0 +1,35 @@
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+  project:
+    name: parus.${friendly_name}
+    version: ${version}
+
+<<: !include ../attach/common/esp/wroom32.yaml
+
+binary_sensor:
+  # ESP Status
+  - !include ../attach/common/binary_sensor/status.yaml
+
+text_sensor:
+  # ESPHome Version
+  - !include ../attach/common/text_sensor/version.yaml
+
+  # Uptime
+  - !include ../attach/common/text_sensor/uptime.yaml
+
+sensor:
+  # Uptime
+  - !include ../attach/common/sensor/uptime.yaml
+
+  # WiFi Signal db
+  - !include ../attach/common/sensor/wifi_signal_db.yaml
+  # WiFi Signal %
+  - !include ../attach/common/sensor/wifi_signal%.yaml
+  # ESP32 Internal Temperature
+  - !include ../attach/common/sensor/device_temperature.yaml
+
+button:
+  # Restart
+  - !include ../attach/common/button/restart.yaml

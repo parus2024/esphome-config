@@ -1,0 +1,217 @@
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Moscow
+    servers:
+     - 0.ru.pool.ntp.org
+     - ntp0.ntp-servers.net
+     - 2.pool.ntp.org
+
+one_wire:
+  - platform: gpio
+    pin: ${one_wire_pin}
+
+sensor:
+# Датчик ds18b20 в бойлере
+  - platform: dallas_temp
+    address: ${one_wire_address}
+    icon: mdi:thermometer
+    name: Temperature
+    id: temp_water
+    update_interval: 5s
+    filters:
+      - filter_out: NAN
+    on_value:
+      then:
+        - if:            # Если вкл режим день или ночь или полный нагрев, и температура менее температуры выключения ,   включается
+            condition:
+              and:
+                - lambda: 'return (id(temp_water).state < id(water_alarm).state && ((id(sensor_day).state && id(mode_day).state) or (id(sensor_night).state && id(mode_night).state) or id(mode_full_on).state));'
+            then:
+              - switch.turn_on: relay
+        - if:            # Если темп. воды выше аварийной, отключаeтся
+            condition:
+              and:
+                - switch.is_on: relay
+                - lambda: 'return (id(temp_water).state > id(water_alarm).state);'
+            then:
+              - switch.turn_off: relay
+
+
+text_sensor:
+  - platform: template
+    name: "Time HA"
+    icon: mdi:clock
+    id: current_ha_time
+    lambda: |-
+      char str[17]; time_t currTime = id(homeassistant_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+  - platform: template
+    name: "Time SNTP"
+    icon: mdi:clock
+    id: current_sntp_time
+    lambda: |-
+      char str[17]; time_t currTime = id(sntp_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+
+binary_sensor:
+  - platform: gpio
+    name: 'Manual'
+    pin:
+      number: GPIO5
+      mode:
+        input: true
+#        pullup: true
+      inverted: true
+    id: manual
+    filters:
+      - delayed_on_off: 300ms
+    on_press:
+      then:
+        - switch.turn_on: relay
+        - light.turn_on: switch_led
+    on_release:
+      then:
+        - switch.turn_off: relay
+        - light.turn_off: switch_led
+  - platform: template
+    name: "Error"   # Ошибка
+    id: temp_error
+    filters:
+      - delayed_on: 300s
+    lambda: 'return ((id(relay).state) && id(temp_water).state <= 25);'
+
+  - platform: template
+    name: "Night"
+    id: sensor_night
+    icon: mdi:weather-night
+    filters:
+      - delayed_on_off: 5s
+    lambda: |-
+      if (id(sntp_time).now().hour <= 7) {
+        return true; // Сенсор включен после полуночи и до 8.00 утра
+      } else {
+        return false;
+      }
+    on_press: 
+      then:
+        - if:            # Если вкл режим ночь , включается в 00.00
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_night
+                - lambda: 'return (id(temp_water).state < id(water_alarm).state);'
+            then:
+              - switch.turn_on: relay
+
+    on_release: 
+      then:
+        - if:            # Если вкл режим ночь ,  выключается утром
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_night
+#                - lambda: 'return (id(temp_water).state < id(water_alarm).state);'
+            then:
+              - switch.turn_off: relay
+
+  - platform: template
+    name: "Day"
+    id: sensor_day
+    icon: mdi:sun-clock
+    filters:
+      - delayed_on_off: 5s
+    lambda: |-
+      // if (id(sntp_time).now().hour >= 11 && id(sntp_time).now().minute > 59 && id(sntp_time).now().hour <= 18) {
+      if (id(sntp_time).now().hour >= 11 && id(sntp_time).now().hour <= 18) {
+        return true; // Сенсор включен с 12.00 до 19.00
+      } else {
+        return false;
+      }
+    on_press: 
+      then:
+        - if:            # Если вкл режим день. ,  включается в 12.00
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_day
+                - lambda: 'return (id(temp_water).state < id(water_alarm).state);'
+            then:
+              - switch.turn_on: relay
+    on_release: 
+      then:
+        - if:            # Если вкл режим день. , выключается вечером в 19,00
+            condition:
+              and:
+                - switch.is_off: mode_full_on
+                - switch.is_on: mode_day
+#                - lambda: 'return (id(temp_water).state < id(water_alarm).state);'
+            then:
+              - switch.turn_off: relay
+
+switch:
+  - platform: gpio
+    name: Relay
+    id: relay
+    pin:
+      number: GPIO13
+      inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on: 
+      then:
+        - switch.turn_on: relay_pump
+  - platform: gpio
+    name: Relay pump
+    id: relay_pump
+    pin:
+      number: GPIO12
+      inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
+    name: Full on
+    id: mode_full_on
+    icon: mdi:all-inclusive
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on: 
+      then:
+        - if:            # Если вкл режим  нагрев , нагрев включается
+            condition:
+              and:
+                - lambda: 'return (id(temp_water).state < id(water_alarm).state);'
+            then:
+              - switch.turn_on: relay
+
+  - platform: template
+    id: mode_day
+    name: Day
+    icon: mdi:sun-clock
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: false
+    optimistic: true
+  - platform: template
+    id: mode_night
+    name: Night
+    icon: mdi:weather-night
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: false
+    optimistic: true
+
+number:
+# температура воды перегрев
+  - platform: template
+    name: "Temp Water Alarm" # Установка температуры перегрев
+    id: water_alarm
+    optimistic: true
+    icon: mdi:thermometer-alert
+    unit_of_measurement: "°C"
+    min_value: 30
+    max_value: 50
+    step: 1
+    restore_value: true

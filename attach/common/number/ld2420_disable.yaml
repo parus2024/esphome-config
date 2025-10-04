@@ -1,0 +1,41 @@
+platform: ld2420
+presence_timeout:
+  name: Detection Presence Timeout
+min_gate_distance:
+  name: Detection Gate Minimum
+  disabled_by_default: true
+max_gate_distance:
+  name: Detection Gate Maximum
+  disabled_by_default: true
+
+gate_select:
+  name: Select Gate to Set
+  disabled_by_default: true
+still_threshold:
+  name: Set Still Threshold Value
+  disabled_by_default: true
+move_threshold:
+  name: Set Move Threshold Value
+  disabled_by_default: true
+
+gate_move_sensitivity:
+  name: Move Calibration Sensitivity Factor
+  disabled_by_default: true
+gate_still_sensitivity:
+  name: Still Calibration Sensitivity Factor
+  disabled_by_default: true
+
+gate_0:
+  move_threshold:
+    name: Gate 0 Move Threshold
+    disabled_by_default: true
+  still_threshold:
+    name: Gate 0 Still Threshold
+    disabled_by_default: true
+gate_1:
+  move_threshold:
+    name: Gate 1 Move Threshold
+    disabled_by_default: true
+  still_threshold:
+    name: Gate 1 Still Threshold
+    disabled_by_default: true

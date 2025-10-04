@@ -1,0 +1,7 @@
+# Датчик ds18b20
+    platform: dallas_temp
+    address: ${one_wire_address}
+    icon: mdi:thermometer
+    name: Temperature
+    id: temperature
+    update_interval: 10s

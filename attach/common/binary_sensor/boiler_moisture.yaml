@@ -1,0 +1,15 @@
+platform: gpio
+pin:
+  number: ${moisture_pin}
+  inverted: true
+  mode:
+    input: true
+    pullup: false
+name: "Moisture"
+device_class: moisture
+icon: mdi:water-off
+id: moisture
+filters:
+  - delayed_on_off:
+      time_on: 200ms
+      time_off: 200ms

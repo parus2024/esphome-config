@@ -1,0 +1,6 @@
+platform: vl53l0x
+name: "VL53L0x Distance"
+address: 0x29
+update_interval: 1s
+long_range: true
+i2c_id: bus_a

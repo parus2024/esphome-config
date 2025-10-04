@@ -1,0 +1,4 @@
+platform: ld2420
+fw_version:
+  name: LD2420 Firmware
+  disabled_by_default: true

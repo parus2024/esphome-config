@@ -1,0 +1,9 @@
+  - platform: template
+    name: "Min Power"
+    id: min_power_temp
+    optimistic: true
+    unit_of_measurement: "°C"
+    min_value: 40
+    max_value: 60
+    step: 5
+    restore_value: true

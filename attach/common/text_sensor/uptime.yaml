@@ -1,0 +1,6 @@
+# Send Uptime in raw seconds
+platform: template
+name: Uptime
+id: uptime_human
+icon: "mdi:clock-start"
+entity_category: diagnostic

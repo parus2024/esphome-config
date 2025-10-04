@@ -1,0 +1,8 @@
+platform: template
+name: 'Night'
+optimistic: true
+id: night
+icon: "mdi:weather-night"
+restore_mode: RESTORE_DEFAULT_OFF
+web_server:
+  sorting_group_id: sorting_group_climate_control

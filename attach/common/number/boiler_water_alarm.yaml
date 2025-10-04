@@ -1,0 +1,9 @@
+platform: template
+name: "Boiler Water Alarm" # Установка температуры перегрев
+id: water_alarm
+optimistic: true
+unit_of_measurement: "°C"
+min_value: 40
+max_value: 80
+step: 1
+restore_value: true

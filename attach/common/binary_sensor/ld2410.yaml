@@ -1,0 +1,11 @@
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: Presence
+      id: presence
+    has_moving_target:
+      name: Moving Target
+    has_still_target:
+      name: Still Target
+    out_pin_presence_status:
+      name: out pin presence status

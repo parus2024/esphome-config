@@ -1,0 +1,5 @@
+# Web Server
+web_server:
+  auth:
+    username: !secret username
+    password: !secret wifi_password

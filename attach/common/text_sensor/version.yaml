@@ -1,0 +1,6 @@
+# ESPHome Version
+platform: version
+name: ESPHome Version
+id: esphome_version
+hide_timestamp: true
+entity_category: diagnostic

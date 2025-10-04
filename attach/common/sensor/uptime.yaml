@@ -1,0 +1,101 @@
+# This makes the uptime information human readable instead of just seconds.  i.e. days, hours, minutes, seconds
+#platform: uptime
+#name: Uptime
+#id: uptime_sensor
+#update_interval: 60s
+#internal: true
+#on_raw_value:
+#  then:
+#    - text_sensor.template.publish:
+#        id: uptime_human
+#        state: !lambda |-
+#          int seconds = round(id(uptime_sensor).raw_state);
+#          int days = seconds / (24 * 3600);
+#          seconds = seconds % (24 * 3600);
+#          int hours = seconds / 3600;
+#          seconds = seconds % 3600;
+#          int minutes = seconds /  60;
+#          seconds = seconds % 60;
+#          return (
+#            (days ? to_string(days) + "д " : "") +
+#            (hours ? to_string(hours) + "ч " : "") +
+#            (minutes ? to_string(minutes) + (hours ? "м " : "мин ")) +
+#            (minutes > 0 ? "" : (to_string(seconds) + "с"))
+#          ).c_str();
+
+#Если есть дни, мы добавляем их в строку результата и проверяем наличие часов.
+#Если дней нет, мы проверяем наличие часов и минут, добавляя их в строку результата, если они есть.
+#Секунды добавляются только в том случае, если строка результата пуста, то есть если нет дней, часов и минут.
+platform: uptime
+name: Uptime
+id: uptime_sensor
+update_interval: 60s
+internal: true
+on_raw_value:
+  then:
+    - text_sensor.template.publish:
+        id: uptime_human
+        state: !lambda |-
+          std::string result = "";
+          int seconds = round(id(uptime_sensor).raw_state);
+          int days = seconds / (24 * 3600);
+          seconds = seconds % (24 * 3600);
+          int hours = seconds / 3600;
+          seconds = seconds % 3600;
+          int minutes = seconds / 60;
+          seconds = seconds % 60;
+
+          //std::string result;
+          //if (days) {
+          //  result += to_string(days) + "д ";
+          //  if (hours) {
+          //    result += to_string(hours) + "ч ";
+          //  }
+          //} else {
+          //  if (hours) {
+          //    result += to_string(hours) + "ч ";
+          //  }
+          //if (minutes) {
+          //  result += to_string(minutes) + (hours ? "м " : "мин ");
+          //  }
+          //}
+          //if (result.empty()) {
+          //  result += to_string(seconds) + "с";
+          //}
+          //return result.c_str();
+
+
+          if (days > 0) {
+            // Если есть дни
+            result += to_string(days) + "д ";  // Добавляем дни, например "2д "
+  
+            if (hours > 0) {
+              // Если есть часы, добавляем их, например "3ч "
+              result += to_string(hours) + "ч ";
+            }
+            // Минуты НЕ добавляем, чтобы не показывать их при наличии дней
+
+          } else {
+            // Если дней нет (days == 0)
+  
+            if (hours > 0) {
+              // Если есть часы, добавляем их, например "3ч "
+              result += to_string(hours) + "ч ";
+            }
+  
+            if (minutes > 0) {
+              // Если есть минуты, добавляем их
+    
+              // Если есть часы, используем сокращение "м" (например "15м ")
+              // Если часов нет, используем полное слово "мин" (например "15мин ")
+              result += to_string(minutes) + (hours > 0 ? "м " : "мин ");
+            }
+          }
+
+          if (result.empty()) {
+            // Если result всё ещё пустой (нет дней, часов, минут)
+            // Значит показываем секунды, например "45с"
+            result += to_string(seconds) + "с";
+          }
+
+          return result.c_str();

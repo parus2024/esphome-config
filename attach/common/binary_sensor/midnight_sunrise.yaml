@@ -1,0 +1,17 @@
+platform: template
+name: "Midnight-Sunrise"
+id: sensor_midnight_sunrise
+icon: "mdi:weather-sunset-up"
+web_server:
+  sorting_group_id: sorting_group_time_sun
+filters:
+  - delayed_on: 10s
+  - delayed_off: 10s
+lambda: |-
+  auto sunrise = id(sun_sun).sunrise(id(sun_sun).elevation());
+  if (id(sun_sun).elevation() < 0 && id(sntp_time).now().hour < 10) {
+  // не работает     if (id(sun_sun).elevation() < 0 && id(homeassistant_time).now().hour < sunrise.value().hour) {
+    return true; // Сенсор включен после полуночи и до восхода
+  } else {
+    return false; // Выключить сенсор после восхода
+  }

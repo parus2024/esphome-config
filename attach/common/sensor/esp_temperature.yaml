@@ -1,0 +1,6 @@
+platform: internal_temperature
+name: Esp Temperature
+id: esp_temperature
+icon: mdi:thermometer
+device_class: temperature
+entity_category: diagnostic

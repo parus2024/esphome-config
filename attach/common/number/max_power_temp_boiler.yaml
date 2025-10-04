@@ -1,0 +1,9 @@
+platform: template
+name: "Max Power"
+id: max_power_temp
+optimistic: true
+unit_of_measurement: "°C"
+min_value: 20
+max_value: 50
+step: 5
+restore_value: true

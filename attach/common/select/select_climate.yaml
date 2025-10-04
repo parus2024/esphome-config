@@ -1,0 +1,13 @@
+platform: template
+name: "Climate Mode"
+id: climate_mode
+icon: "mdi:sun-snowflake"
+web_server:
+  sorting_group_id: sorting_group_climate_control
+options:
+ - "COOL"
+ - "HEAT"
+ - "DRY"
+initial_option: "COOL"
+restore_value: true
+optimistic: true

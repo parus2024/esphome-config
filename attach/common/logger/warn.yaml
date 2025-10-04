@@ -1,0 +1,5 @@
+# Enable logging - Warn
+logger:
+  level: WARN
+  baud_rate: 0
+  id: esp_log

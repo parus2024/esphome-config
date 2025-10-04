@@ -1,0 +1,5 @@
+platform: restart
+icon: mdi:restart
+name: "ESP Reboot"
+entity_category: diagnostic
+id: restart_button

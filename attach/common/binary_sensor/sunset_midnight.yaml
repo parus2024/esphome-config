@@ -1,0 +1,15 @@
+platform: template
+name: "Sunset-Midnight"
+id: sensor_sunset_midnight
+icon: "mdi:weather-sunset-down"
+web_server:
+  sorting_group_id: sorting_group_time_sun
+filters:
+  - delayed_on: 10s
+  - delayed_off: 10s
+lambda: |-
+  if (id(sun_sun).elevation() < 0 && id(homeassistant_time).now().hour < 24 && id(sntp_time).now().hour > 10) {
+    return true; // Сенсор включен после заката и до полуночи
+  } else {
+    return false; // Выключить сенсор до заката и после полуночи
+  }

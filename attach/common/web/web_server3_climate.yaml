@@ -1,0 +1,11 @@
+# Web server
+web_server:
+  version: 3
+  port: 80
+  auth:
+    username: !secret username
+    password: !secret wifi_password
+  sorting_groups:
+    - id: sorting_group_climate_control
+      name: "Climate Control"
+      sorting_weight: 10

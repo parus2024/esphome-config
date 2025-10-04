@@ -1,0 +1,4 @@
+platform: safe_mode
+name: "ESP Restart Safe Mode"
+icon: mdi:restart-alert
+entity_category: diagnostic

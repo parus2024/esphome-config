@@ -1,0 +1,7 @@
+# ESPHome Status
+platform: status
+name: Status
+id: my_status
+icon: mdi:check-network-outline
+device_class: connectivity
+entity_category: diagnostic

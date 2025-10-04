@@ -1,0 +1,75 @@
+api:
+  reboot_timeout: ${reboot_timeout} #  reboot_timeout: 0s # отключение перезагрузки, если нет подключения к НА
+  actions:
+  - action: dyplayer_next
+    then:
+      - dyplayer.play_next:
+  - action: dyplayer_previous
+    then:
+      - dyplayer.play_previous:
+  - action: dyplayer_play
+    variables:
+      file: int
+    then:
+      - dyplayer.play: !lambda 'return file;'
+  - action: dyplayer_play_loop
+    variables:
+      file: int
+      loop_: bool
+    then:
+      - dyplayer.play:
+          file: !lambda 'return file;'
+  - action: dyplayer_play_folder
+    variables:
+      folder: int
+      file: int
+    then:
+      - dyplayer.play_folder:
+          folder: !lambda 'return folder;'
+          file: !lambda 'return file;'
+
+  - action: dyplayer_play_loop_folder
+    variables:
+      folder: int
+    then:
+      - dyplayer.play_folder:
+          folder: !lambda 'return folder;'
+
+  - action: dyplayer_set_device_tf
+    then:
+      - dyplayer.set_device: SD_CARD
+
+  - action: dyplayer_set_device_usb
+    then:
+      - dyplayer.set_device: USB
+
+  - action: dyplayer_set_volume
+    variables:
+      volume: int
+    then:
+      - dyplayer.set_volume: !lambda 'return volume;'
+  - action: dyplayer_set_eq
+    variables:
+      preset: int
+    then:
+      - dyplayer.set_eq: !lambda 'return static_cast<dyplayer::EqPreset>(preset);'
+
+  - action: dyplayer_start
+    then:
+      - dyplayer.start
+
+  - action: dyplayer_pause
+    then:
+      - dyplayer.pause
+
+  - action: dyplayer_stop
+    then:
+      - dyplayer.stop
+
+  - action: dyplayer_volume_up
+    then:
+      - dyplayer.volume_up
+
+  - action: dyplayer_volume_down
+    then:
+      - dyplayer.volume_down

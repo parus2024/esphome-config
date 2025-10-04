@@ -1,0 +1,27 @@
+    platform: neopixelbus
+    id: ${friendly_name_short}
+    variant: WS2812
+    pin: ${neopixel_pin}
+    num_leds: ${neopixel_num_leds}
+    type: GRB
+    method:
+      type: esp8266_dma #  GPIO3
+    name: "NeoPixel Light"
+    effects:
+      - !include ../../includes/effects/addressable_rainbow.yaml
+      - addressable_color_wipe:
+      - !include ../../includes/effects/addressable_random_twinkle_custom.yaml
+      - !include ../../includes/effects/random.yaml
+      - !include ../../includes/effects/addressable_fireworks_random.yaml
+      - !include ../../includes/effects/fire_ring.yaml
+      - !include ../../includes/effects/blue_fire.yaml
+      - !include ../../includes/effects/hsv.yaml
+      - !include ../../includes/effects/confetti.yaml
+      - !include ../../includes/effects/wheel_of_color.yaml
+      - !include ../../includes/effects/vesuvius.yaml
+      - !include ../../includes/effects/blue_scan.yaml
+      - !include ../../includes/effects/christmas_red_green.yaml
+      - !include ../../includes/effects/balls.yaml
+      - !include ../../includes/effects/flames_vertical.yaml
+      - !include ../../includes/effects/wipe_in.yaml
+      - !include ../../includes/effects/wipe_out.yaml

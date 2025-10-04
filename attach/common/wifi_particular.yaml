@@ -1,0 +1,19 @@
+ssid: !secret wifi_ssid
+password: !secret wifi_password
+id: my_wifi
+# domain: !secret home.domain
+fast_connect: true
+# power_save_mode: none
+# reboot_timeout: 0s # отключение перезагрузки, если нет подключения к WiFi. НЕ СОВЕТУЮ
+# Static IP
+manual_ip:
+  static_ip: ${device_ip}
+  gateway: !secret gateway
+  subnet: !secret subnet
+#  dns1: !secret dns1
+#  dns2: !secret dns2
+
+# Enable fallback hotspot (captive portal) in case wifi connection fails
+ap:
+  ssid: ${name}
+  password: !secret wifi_password

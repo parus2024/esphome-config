@@ -1,0 +1,7 @@
+# Enable logging - DEBUG
+logger:
+  level: DEBUG
+  baud_rate: 0
+  id: esp_log
+  logs:
+    component: ERROR

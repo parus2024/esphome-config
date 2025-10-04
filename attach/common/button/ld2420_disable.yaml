@@ -1,0 +1,13 @@
+platform: ld2420
+apply_config:
+  name: Apply Config
+  disabled_by_default: true
+factory_reset:
+  name: Factory Reset
+  disabled_by_default: true
+restart_module:
+  name: Restart Module
+  disabled_by_default: true
+revert_config:
+  name: Undo Edits
+  disabled_by_default: true

@@ -1,0 +1,34 @@
+web_server:
+  version: 3
+  port: 80
+  auth:
+    username: !secret username
+    password: !secret wifi_password
+  sorting_groups:
+    - id: sorting_group_climate_control
+      name: "Climate Control"
+      sorting_weight: 5
+    - id: sorting_group_light
+      name: "Light"
+      sorting_weight: 10
+    - id: sorting_group_poliv
+      name: "Poliv"
+      sorting_weight: 20
+    - id: sorting_group_poliv_week
+      name: "Poliv Week"
+      sorting_weight: 30
+    - id: sorting_group_water_pump
+      name: "Water Pump"
+      sorting_weight: 40
+    - id: sorting_group_motion
+      name: "Motion"
+      sorting_weight: 50
+    - id: sorting_group_gas
+      name: "Gas"
+      sorting_weight: 60
+    - id: sorting_group_time_sun
+      name: "Time&Sun"
+      sorting_weight: 70
+    - id: sorting_group_smoke
+      name: "Smoke"
+      sorting_weight: 80

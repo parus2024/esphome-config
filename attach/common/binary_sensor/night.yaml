@@ -1,0 +1,13 @@
+platform: template
+name: "Night"
+id: night
+icon: "mdi:weather-night"
+filters:
+  - delayed_on: 2s
+  - delayed_off: 2s
+lambda: |-
+  if (id(sun_sun).elevation() < 0) {
+    return true; // Сенсор включен после заката и до рассвета
+  } else {
+    return false; // Выключить сенсор до заката и после рассвета
+  }

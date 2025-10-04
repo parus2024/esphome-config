@@ -1,0 +1,18 @@
+    effects:
+      - !include attach/includes/effects/addressable_rainbow.yaml
+      - addressable_color_wipe:
+      - !include attach/includes/effects/addressable_random_twinkle_custom.yaml
+      - !include attach/includes/effects/random.yaml
+      - !include attach/includes/effects/addressable_fireworks_random.yaml
+      - !include attach/includes/effects/fire_ring.yaml
+      - !include attach/includes/effects/blue_fire.yaml
+      - !include attach/includes/effects/hsv.yaml
+      - !include attach/includes/effects/confetti.yaml
+      - !include attach/includes/effects/wheel_of_color.yaml
+      - !include attach/includes/effects/vesuvius.yaml
+      - !include attach/includes/effects/blue_scan.yaml
+      - !include attach/includes/effects/christmas_red_green.yaml
+      - !include attach/includes/effects/balls.yaml
+      - !include attach/includes/effects/flames_vertical.yaml
+      - !include attach/includes/effects/wipe_in.yaml
+      - !include attach/includes/effects/wipe_out.yaml

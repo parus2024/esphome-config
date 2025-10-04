@@ -1,0 +1,77 @@
+number:
+  - platform: ld2410
+    timeout:
+      name: timeout
+      disabled_by_default: true
+    light_threshold:
+      name: light threshold
+      disabled_by_default: true
+    max_move_distance_gate:
+      name: max move distance gate
+      disabled_by_default: true
+    max_still_distance_gate:
+      name: max still distance gate
+      disabled_by_default: true
+    g0:
+      move_threshold:
+        name: g0 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g0 still threshold
+        disabled_by_default: true
+    g1:
+      move_threshold:
+        name: g1 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g1 still threshold
+        disabled_by_default: true
+    g2:
+      move_threshold:
+        name: g2 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g2 still threshold
+        disabled_by_default: true
+    g3:
+      move_threshold:
+        name: g3 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g3 still threshold
+        disabled_by_default: true
+    g4:
+      move_threshold:
+        name: g4 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g4 still threshold
+        disabled_by_default: true
+    g5:
+      move_threshold:
+        name: g5 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g5 still threshold
+        disabled_by_default: true
+    g6:
+      move_threshold:
+        name: g6 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g6 still threshold
+        disabled_by_default: true
+    g7:
+      move_threshold:
+        name: g7 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g7 still threshold
+        disabled_by_default: true
+    g8:
+      move_threshold:
+        name: g8 move threshold
+        disabled_by_default: true
+      still_threshold:
+        name: g8 still threshold
+        disabled_by_default: true

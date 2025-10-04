@@ -1,0 +1,39 @@
+platform: gpio
+name: "Motion"
+id: motion
+pin:
+  number: ${motion_pin}
+  inverted: false
+  mode:
+    input: true
+    pullup: false
+filters:
+  - delayed_on: 200ms
+  - delayed_off: !lambda 'return static_cast<int>(id(delay_time).state * 1000);'  # Приведение к миллисекундам
+on_press: 
+  then:
+    - if:
+        condition:
+          and:  # автоматизация стабатывает, когда солнце ниже горизонта с учетом коррекции
+            - lambda: 'return id(sun_sun).elevation() < id(sun_elevation_correction).state;'
+            - switch.is_on: autolight
+            - switch.is_on: automotion
+            - lambda: 'return (id(${friendly_name_short}).current_values.is_on() && id(${friendly_name_short}).get_effect_name() != "None");'
+        then:
+          - light.turn_on:
+              id: ${friendly_name_short}
+              effect: "None"
+              red: 100%
+              green: 100%
+              blue: 100%
+              brightness: 70%
+on_release: 
+  then:
+    - if:
+        condition:
+          and:  # автоматизация стабатывает, когда солнце ниже горизонта с учетом коррекции
+            - lambda: 'return id(sun_sun).elevation() < id(sun_elevation_correction).state;'
+            - switch.is_on: autolight
+            - lambda: 'return (id(${friendly_name_short}).current_values.is_on() && id(${friendly_name_short}).get_effect_name() != "${main_effect}");'
+        then:
+          - lambda: 'id(${friendly_name_short}).turn_on().set_brightness(0.9).set_effect("${main_effect}").perform();'

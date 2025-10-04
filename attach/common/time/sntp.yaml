@@ -1,0 +1,7 @@
+platform: sntp
+id: sntp_time
+timezone: Europe/Moscow
+servers:
+ - 0.ru.pool.ntp.org
+ - ntp0.ntp-servers.net
+ - 2.pool.ntp.org

@@ -1,0 +1,12 @@
+text_sensor:
+# Датчики времени восхода и захода Солнца
+  - platform: sun
+    name: Sun Next Sunrise
+    web_server:
+      sorting_group_id: sorting_group_time_sun
+    type: sunrise
+  - platform: sun
+    name: Sun Next Sunset
+    web_server:
+      sorting_group_id: sorting_group_time_sun
+    type: sunset

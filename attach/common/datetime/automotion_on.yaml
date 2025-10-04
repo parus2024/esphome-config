@@ -1,0 +1,14 @@
+    platform: template
+    id: automotion_on
+    type: time
+    web_server:
+      sorting_group_id: sorting_group_time_sun
+    name: "Motion ON"
+    icon: "mdi:clock-check-outline"
+    optimistic: true
+    initial_value: "18:00:00"
+    restore_value: true
+    on_time:
+      then:
+        - switch.turn_on:
+            id: automotion

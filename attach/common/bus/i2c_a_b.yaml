@@ -1,0 +1,12 @@
+i2c:
+  - id: bus_a
+    sda: ${sda1}
+    scl: ${scl1}
+    scan: true
+#    frequency: 400kHz  # Частота I2C — 400 кГц (Fast Mode)
+  - id: bus_b
+    sda: ${sda2}
+    scl: ${scl2}
+    scan: true
+#    frequency: 400kHz  # Частота I2C — 400 кГц (Fast Mode)
+    

@@ -1,0 +1,8 @@
+uart:
+  id: ld2420_uart
+  tx_pin: ${tx_pin}
+  rx_pin: ${rx_pin}
+  baud_rate: 115200
+  parity: NONE
+  data_bits: 8
+  stop_bits: 1

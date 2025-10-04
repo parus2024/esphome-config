@@ -1,0 +1,4 @@
+platform: ld2420
+operating_mode:
+  name: Operating Mode
+  disabled_by_default: true

@@ -1,0 +1,14 @@
+select:
+  - platform: ld2410
+    distance_resolution:
+      name: "distance resolution"
+      disabled_by_default: true
+    baud_rate:
+      name: "baud rate"
+      disabled_by_default: true
+    light_function:
+      name: light function
+      disabled_by_default: true
+    out_pin_level:
+      name: out pin level
+      disabled_by_default: true

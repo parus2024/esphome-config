@@ -1,0 +1,7 @@
+esp8266:
+  board: esp01_1m
+  framework:
+    version: recommended
+  restore_from_flash: true
+preferences:
+  flash_write_interval: 10min  # set to 10min to prevent wearing out the onboard flash module too quickly

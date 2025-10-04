@@ -1,0 +1,20 @@
+    interval: 60s
+    then:
+      - if:
+          condition:
+            and:
+              - lambda: 'return id(sun_sun).elevation() < id(sun_elevation_correction).state;'
+              - binary_sensor.is_off: motion
+              - switch.is_on: autolight
+          then:
+            - lambda: 'id(${friendly_name_short}).turn_on().set_brightness(0.9).set_effect("Random Twinkle Effect With Custom Values").perform();'
+#            - lambda: 'id(${friendly_name_short}).turn_on().set_brightness(0.75).set_effect("Rainbow Effect With Custom Values").perform();'
+          else:
+            - if:
+                condition:
+                  and:
+                    - sun.is_above_horizon:
+                    - switch.is_on: autolight
+                then:
+                  - light.turn_off: 
+                      id: ${friendly_name_short}

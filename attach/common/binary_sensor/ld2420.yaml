@@ -1,0 +1,4 @@
+platform: ld2420
+has_target:
+  name: Presence
+  id: presence

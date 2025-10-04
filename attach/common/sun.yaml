@@ -1,0 +1,4 @@
+sun:
+  latitude: !secret latitude
+  longitude: !secret longitude
+  id: sun_sun

@@ -1,0 +1,4 @@
+        random:            
+          name: "Fast Random Effect"
+          transition_length: 1s
+          update_interval: 1s

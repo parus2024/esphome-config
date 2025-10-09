@@ -1,0 +1,30 @@
+        strobe:
+          name: Lightning
+          colors:
+            - state: True
+              brightness: 100%
+              red: 90%
+              green: 90%
+              blue: 100%
+              white: 0%
+              duration: 50ms
+            - state: False
+              duration: 50ms
+            - state: True
+              brightness: 100%
+              red: 90%
+              green: 90%
+              blue: 100%
+              white: 0%
+              duration: 160ms
+            - state: False
+              duration: 50ms
+            - state: True
+              brightness: 100%
+              red: 90%
+              green: 90%
+              blue: 100%
+              white: 0%
+              duration: 50ms
+            - state: False
+              duration: 3000ms

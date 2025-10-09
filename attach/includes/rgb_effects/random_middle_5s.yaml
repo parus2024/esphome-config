@@ -1,0 +1,4 @@
+        random:            
+          name: "Middle Random Effect"
+          transition_length: 5s
+          update_interval: 5s

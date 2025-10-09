@@ -1,0 +1,14 @@
+        lambda:
+          name: "Rainbow Effect"
+          update_interval: 100ms
+          lambda: |-
+            static uint8_t hue = 0;
+            if (hue >= 255) {
+              hue = 0;
+            }else{
+              hue += 1;
+            }
+            auto rgb = light::ESPHSVColor(hue, 255, 1).to_rgb();
+            auto call = id(${friendly_name_short}).turn_on();
+            call.set_rgb(rgb.r, rgb.g, rgb.b);
+            call.perform();

@@ -1,0 +1,25 @@
+        lambda:
+          name: "HUE360"
+          update_interval: 10s
+          lambda: |-
+            static int state = 0;
+            auto call = id(${friendly_name_short}).turn_on();
+            // Transition of 1000ms = 1s
+            call.set_transition_length(10000);
+            if (state == 0) {
+              call.set_rgb(0.0, 1.0, 0.0);
+            } else if (state == 1) {
+              call.set_rgb(1.0, 1.0, 0.0);
+            } else if (state == 2) {
+              call.set_rgb(1.0, 0.0, 0.0);
+            } else if (state == 3) {
+              call.set_rgb(1.0, 0.0, 1.0);
+            } else if (state == 4) {
+              call.set_rgb(0.0, 0.0, 1.0);
+            } else if (state == 5) {
+              call.set_rgb(0.0, 1.0, 1.0);
+            }
+            call.perform();
+            state += 1;
+            if (state == 6)
+              state = 0;

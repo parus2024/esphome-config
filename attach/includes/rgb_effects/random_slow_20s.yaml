@@ -1,0 +1,4 @@
+        random:            
+          name: "Slow Random Effect"
+          transition_length: 20s
+          update_interval: 20s

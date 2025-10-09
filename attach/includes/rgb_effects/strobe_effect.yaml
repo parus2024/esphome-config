@@ -1,0 +1,17 @@
+        strobe:
+          name: Strobe Effect
+          colors:
+            - state: True
+              red: 100%
+              green: 90%
+              blue: 0%
+              white: 0%
+              duration: 50ms
+            - state: False
+              duration: 25ms
+            - state: True
+              red: 0%
+              green: 100%
+              blue: 0%
+              white: 0%
+              duration: 50ms

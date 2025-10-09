@@ -1,0 +1,4 @@
+addressable_random_twinkle:
+  name: Random Twinkle Effect With Custom Values
+  twinkle_probability: 25%
+  progress_interval: 32ms

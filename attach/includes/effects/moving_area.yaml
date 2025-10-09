@@ -1,0 +1,37 @@
+addressable_lambda:
+  name: "Moving Area"
+  update_interval: 20ms
+  lambda: |-
+    static int center = 0;  // текущий центр области
+    int target = id(led_count);  // желаемый центр области данные из glogals (расстояние)
+    const int tail_length = 60;
+
+    // Плавно приближаемся к target (центр области)
+    if (center < target) {
+      center++;
+    } else if (center > target) {
+      center--;
+    }
+
+    // Выключаем все светодиоды
+    it.all() = ESPColor(0, 0, 0);
+
+    // Вычисляем границы области
+    int start = center - tail_length / 2;
+    int end = start + tail_length;
+
+    // Корректируем границы, чтобы не выйти за пределы ленты
+    if (start < 0) {
+      start = 0;
+      end = tail_length;
+    }
+    if (end > it.size()) {
+      end = it.size();
+      start = end - tail_length;
+      if (start < 0) start = 0;
+    }
+
+    // Заливаем область цветом current_color
+    for (int i = start; i < end; i++) {
+      it[i] = current_color;
+    }

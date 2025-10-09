@@ -1,0 +1,9 @@
+addressable_color_wipe:
+  name: Blue Progress
+  colors:
+    - red: 0%
+      green: 0%
+      blue: 100%
+      num_leds: 30
+  add_led_interval: 300ms
+  reverse: False

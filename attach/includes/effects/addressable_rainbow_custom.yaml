@@ -1,0 +1,4 @@
+addressable_rainbow:
+  name: Rainbow Effect With Custom Values
+  speed: 10
+  width: 40

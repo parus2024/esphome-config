@@ -1,0 +1,4 @@
+addressable_flicker:
+  name: Flicker Effect With Custom Values
+  update_interval: 16ms
+  intensity: 5%

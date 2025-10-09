@@ -1,0 +1,9 @@
+addressable_color_wipe:
+  name: Yellow Progress
+  colors:
+    - red: 100%
+      green: 100%
+      blue: 0%
+      num_leds: 30
+  add_led_interval: 300ms
+  reverse: True

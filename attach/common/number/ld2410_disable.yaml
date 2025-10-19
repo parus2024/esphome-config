@@ -1,5 +1,5 @@
-number:
-  - platform: ld2410
+#number:
+    platform: ld2410
     timeout:
       name: timeout
       disabled_by_default: true
@@ -74,4 +74,5 @@ number:
         disabled_by_default: true
       still_threshold:
         name: g8 still threshold
+
         disabled_by_default: true

@@ -1,5 +1,6 @@
-text_sensor:
-  - platform: ld2410
+#text_sensor:
+    platform: ld2410
     version:
       name: "firmware version"
+
       disabled_by_default: true

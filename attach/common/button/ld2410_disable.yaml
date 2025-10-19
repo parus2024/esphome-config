@@ -1,0 +1,8 @@
+#button:
+    platform: ld2410
+    factory_reset:
+      name: Factory reset
+    restart:
+      name: Restart
+    query_params:
+      name: Query params

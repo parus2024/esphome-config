@@ -1,3 +1,4 @@
+ld2410:
 # Common for ld2410 disable default
 binary_sensor:
   - !include ../common/binary_sensor/ld2410_disable.yaml
@@ -10,3 +11,6 @@ sensor:
 
 button:
   - !include ../common/button/ld2410_disable.yaml
+
+switch:
+  - !include ../common/switch/ld2410_disable.yaml

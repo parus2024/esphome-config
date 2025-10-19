@@ -1,5 +1,5 @@
-binary_sensor:
-  - platform: ld2410
+#binary_sensor:
+    platform: ld2410
     has_target:
       name: Presence
       id: presence_podval
@@ -11,4 +11,5 @@ binary_sensor:
       disabled_by_default: true
     out_pin_presence_status:
       name: out pin presence status
+
       disabled_by_default: true

@@ -1,5 +1,5 @@
-switch:
-  - platform: ld2410
+#switch:
+    platform: ld2410
     engineering_mode:
       name: "engineering mode"
       disabled_by_default: true

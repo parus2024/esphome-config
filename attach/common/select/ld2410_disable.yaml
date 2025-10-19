@@ -1,5 +1,5 @@
-select:
-  - platform: ld2410
+#select:
+    platform: ld2410
     distance_resolution:
       name: "distance resolution"
       disabled_by_default: true
@@ -11,4 +11,5 @@ select:
       disabled_by_default: true
     out_pin_level:
       name: out pin level
+
       disabled_by_default: true

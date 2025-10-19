@@ -1,14 +1,14 @@
-sensor:
-  - platform: ld2410
+#sensor:
+    platform: ld2410
     light:
       name: light
       disabled_by_default: true
     moving_distance:
       name : Moving Distance
-      disabled_by_default: true
+#      disabled_by_default: true
     still_distance:
       name: Still Distance
-      disabled_by_default: true
+#      disabled_by_default: true
     moving_energy:
       name: Move Energy
       disabled_by_default: true
@@ -17,7 +17,6 @@ sensor:
       disabled_by_default: true
     detection_distance:
       name: Detection Distance
-      id: podval_distance
       disabled_by_default: true
     g0:
       move_energy:
@@ -81,4 +80,5 @@ sensor:
         disabled_by_default: true
       still_energy:
         name: g8 still energy
+
         disabled_by_default: true

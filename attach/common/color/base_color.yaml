@@ -1,0 +1,75 @@
+color:
+  - id: darkred
+    red: 55%
+    green: 0%
+    blue: 0%
+  - id: red
+    red: 100%
+    green: 0%
+    blue: 0%
+  - id: orange
+    red: 100%
+    green: 60%
+    blue: 0%
+  - id: orange_red
+    red: 100%
+    green: 30%
+    blue: 0%
+  - id: yellow
+    red: 100%
+    green: 100%
+    blue: 0%
+  - id: green
+    red: 0%
+    green: 100%
+    blue: 0%
+  - id: darkgreen
+    red: 0%
+    green: 50%
+    blue: 0%
+  - id: darkblue
+    red: 0%
+    green: 0%
+    blue: 55%
+  - id: violet
+    red: 100%
+    green: 100%
+    blue: 50%
+  - id: blue
+    red: 0%
+    green: 0%
+    blue: 100%
+  - id: royal_blue
+    red_int: 65
+    green_int: 105
+    blue_int: 225
+  - id: gray
+    red: 50%
+    green: 50%
+    blue: 50%
+  - id: siren
+    red: 100%
+    green: 50%
+    blue: 100%
+  - id: cyan
+    hex: 00FFFF
+  - id: magenta
+    hex: FF00FF
+  - id: green_yellow
+    hex: ADFF2F
+  - id: yellow_green
+    hex: 9ACD32
+  - id: dark_olive_green
+    red_int: 85
+    green_int: 107
+    blue_int: 47
+  - id: aquamarine
+    hex: 7FFFD4
+  - id: black
+    red: 0%
+    green: 0%
+    blue: 0%
+  - id: white
+    red: 100%
+    green: 100%
+    blue: 100%

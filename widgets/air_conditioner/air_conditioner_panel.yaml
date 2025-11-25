@@ -1,0 +1,481 @@
+lvgl:
+  pages:
+    - id: air_conditioner_panel_page           # Уникальный индификатор страницы
+      bg_color: color_slate_blue_gray # Цвет фона
+      widgets:                        # Список виджетов
+        # Кнопка air_conditioner_1
+        - button:
+            id: air_conditioner_1_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_1_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_1_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "${air_conditioner_1_name}"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: air_conditioner_1_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+        # Кнопк air_conditioner_2
+        - button:
+            id: air_conditioner_2_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 125                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_2_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_2_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "${air_conditioner_2_name}"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: air_conditioner_2_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+
+        # Кнопка Сплит 21
+        - button:
+            id: climate_21_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_3_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_3_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 21"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+#            on_press:
+#              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: air_conditioner_3_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка climate 22
+        - button:
+            id: climate_22_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 365                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_4_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_4_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 22"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_22_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопка climate 23
+        - button:
+            id: climate_23_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_5_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_5_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 23"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_23_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопк climate 24
+        - button:
+            id: climate_24_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 125                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_6_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_6_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 24"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_24_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка climate 31
+        - button:
+            id: climate_31_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_7_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_7_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 31"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_31_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка climate 32
+        - button:
+            id: climate_32_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 365                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_8_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_8_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 32"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_32_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопка climate 33'
+        - button:
+            id: climate_1floor_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_9_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_9_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 33"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_33_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопк аclimate 2floor
+        - button:
+            id: climate_34_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 125                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_10_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_10_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 34"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_34_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка climate 41
+        - button:
+            id: climate_3floor_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_11_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_11_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 41"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_41_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка climate 42
+        - button:
+            id: climate_42_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 365                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  id: air_conditioner_12_btn_icon_label
+                  text_color: color_steel_blue
+                  text_font: ${air_conditioner_text_icon}
+                  text: "${air_conditioner_icon}"
+              - label:
+                  id: air_conditioner_12_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "AC 42"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: climate_42_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка выхода
+        - obj:
+            id: climate_panel_back_bg
+            x: 20
+            y: 400
+            width: 60
+            height: 60
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: climate_panel_back_label
+                  align: center
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: devices_page # Показываем страницу Devices вместо текущей
+              - lvgl.widget.show: menu_controls_main 

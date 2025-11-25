@@ -1,0 +1,28 @@
+substitutions:
+  air_conditioner_icon:       "\U0000e93b"
+  temperature_icon:           "\U0000e939"
+  heat_icon:                  "\U000F0238"
+  cool_icon:                  "\U000F0717"
+  fan_icon:                   "\U000F0210"
+  fan_auto_icon:              "\U000F171D"
+  fan_1_icon:                 "\U000F1472"
+  fan_2_icon:                 "\U000F1473"
+  fan_3_icon:                 "\U000F1474"
+  fan_remove_icon:            "\U000F1471"
+  fan_off_icon:               "\U000F081D"
+  auto_icon:                  "\U000F1B18"
+  off_icon:                   "\U000F0425"
+  air_conditioner_text_icon:  "icons_72"
+  
+  air_conditioner_1: toshiba_ac
+  air_conditioner_1_name: "Toshiba AC"
+  air_conditioner_2: airwell_ac
+  air_conditioner_2_name: "Airwell AC"
+  air_conditioner_3: airwell_21
+  air_conditioner_3_name: "Airwell 21"
+
+packages:
+  toshiba_ac:   !include air_conditioner_toshiba.yaml
+  air_conditioner_panel: !include air_conditioner_panel.yaml
+  air_conditioner_airwell:   !include air_conditioner_airwell.yaml
+#  air_conditioner_21:   !include air_conditioner_21.yaml

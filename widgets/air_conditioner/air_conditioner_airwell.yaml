@@ -1,0 +1,1588 @@
+# https://esphome.io/components/climate/thermostat.html
+
+substitutions:
+
+  air_conditioner_2_entity: "climate.airwell_ac"
+  air_conditioner_2_night_mode: "switch.airwell_ac_night"
+  air_conditioner_2_day_mode: "switch.airwell_ac_day"
+  air_conditioner_2_time_day_on: "time.airwell_ac_day_on"
+  air_conditioner_2_time_day_off: "time.airwell_ac_day_off"
+  air_conditioner_2_time_night_on: "time.airwell_ac_night_on"
+  air_conditioner_2_time_night_off: "time.airwell_ac_night_off"
+
+globals:
+  - id: air_conditioner_2_temp_hum_mode
+    type: bool
+    initial_value: "false"
+    restore_value: false
+
+  - id: air_conditioner_2_fan_mode_index
+    type: int
+    restore_value: true
+    initial_value: '0'
+    max_restore_data_length: 2
+
+sensor:
+  # Air conditioner target temperature
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_target_temp
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: temperature
+    on_value: 
+      then:
+        - lvgl.arc.update:
+            id: air_conditioner_2_arc_main_temperature
+            value: !lambda return x;
+
+        - lvgl.label.update:
+            id: air_conditioner_2_target_temperature_whole
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(air_conditioner_2_sensor_target_temp).state);
+              snprintf(buf, 10, "%d", whole_part);
+              return buf;
+
+        - lvgl.label.update:
+            id: air_conditioner_2_target_temperature_fraction
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(air_conditioner_2_sensor_target_temp).state);
+              int fractional_part = static_cast<int>((id(air_conditioner_2_sensor_target_temp).state - whole_part) * 10);
+              snprintf(buf, 10, ".%01d", fractional_part);
+              return buf;
+
+  # Air conditioner current temperature
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_current_temp
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: current_temperature
+    on_value:
+      - delay: 500ms
+      - lvgl.label.update:
+          id: air_conditioner_2_target_temperature_value
+          text: !lambda |-
+            char buf[8]; 
+            sprintf(buf, "%.1f", x); 
+            return std::string(buf);
+      - lvgl.arc.update:
+          id: air_conditioner_2_arc_current_temp
+          value: !lambda return x;
+                
+  # Air conditioner target humidity
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_target_hum
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: humidity
+    on_value: 
+      then:
+        - lvgl.arc.update:
+            id: air_conditioner_2_arc_main_humidity
+            value: !lambda return x;
+        - lvgl.label.update:
+            id: air_conditioner_2_target_humidity_whole
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(air_conditioner_2_sensor_target_hum).state);
+              snprintf(buf, 10, "%d", whole_part);
+              return buf;
+        - lvgl.label.update:
+            id: air_conditioner_2_target_humidity_fraction
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(air_conditioner_2_sensor_target_hum).state);
+              int fractional_part = static_cast<int>((id(air_conditioner_2_sensor_target_hum).state - whole_part) * 10);
+              snprintf(buf, 10, ".%01d", fractional_part);
+              return buf;
+
+        - if:
+            condition:
+              lambda: 'return id(air_conditioner_2_sensor_current_hum).state < x;'
+            then:
+              - lvgl.arc.update:
+                  id: air_conditioner_2_arc_main_humidity
+                  indicator:
+                    arc_color: color_dark_blue
+              - lvgl.label.update:
+                  id: air_conditioner_2_target_humidity_whole
+                  text_color: color_dark_blue
+              - lvgl.label.update:
+                  id: air_conditioner_2_target_humidity_fraction
+                  text_color: color_dark_blue
+              - lvgl.label.update:
+                  id: air_conditioner_2_target_humidity_measurement
+                  text_color: color_dark_blue
+
+            else:
+              - lvgl.arc.update:
+                  id: air_conditioner_2_arc_main_humidity
+                  indicator:
+                    arc_color: color_blue
+              - lvgl.label.update:
+                  id: air_conditioner_2_target_humidity_whole
+                  text_color: color_steel_blue
+              - lvgl.label.update:
+                  id: air_conditioner_2_target_humidity_fraction
+                  text_color: color_steel_blue
+              - lvgl.label.update:
+                  id: air_conditioner_2_target_humidity_measurement
+                  text_color: color_steel_blue
+
+  # Air conditioner current humidity
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_current_hum
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: current_humidity
+    on_value:
+      - delay: 500ms
+      - lvgl.label.update:
+          id: air_conditioner_2_target_humidity_value
+          text: !lambda |-
+            char buf[8]; 
+            sprintf(buf, "%.1f", x); 
+            return std::string(buf);
+      - lvgl.arc.update:
+          id: air_conditioner_2_arc_current_hum
+          value: !lambda return x;
+
+
+text_sensor:
+  - platform: homeassistant
+    id: air_conditioner_2_night_on_time
+    entity_id: "${air_conditioner_2_time_night_on}"
+    on_value:
+      then:
+        - lambda: |-
+            std::string time_str = id(air_conditioner_2_night_on_time).state;
+            int h = 0, m = 0, s = 0;
+            if (sscanf(time_str.c_str(), "%d:%d:%d", &h, &m, &s) == 3) {
+              static char buf[6];
+              snprintf(buf, sizeof(buf), "%02d:%02d", h, m);
+              // Обновляем LVGL лейбл напрямую
+              lv_label_set_text(id(air_conditioner_2_night_on_time_label), buf);
+            }
+  - platform: homeassistant
+    id: air_conditioner_2_night_off_time
+    entity_id: "${air_conditioner_2_time_night_off}"
+    on_value:
+      then:
+        - lambda: |-
+            std::string time_str = id(air_conditioner_2_night_off_time).state;
+            int h = 0, m = 0, s = 0;
+            if (sscanf(time_str.c_str(), "%d:%d:%d", &h, &m, &s) == 3) {
+              static char buf[6];
+              snprintf(buf, sizeof(buf), "%02d:%02d", h, m);
+              // Обновляем LVGL лейбл напрямую
+              lv_label_set_text(id(air_conditioner_2_night_off_time_label), buf);
+            }
+  - platform: homeassistant
+    id: air_conditioner_2_day_on_time
+    entity_id: "${air_conditioner_2_time_day_on}"
+    on_value:
+      then:
+        - lambda: |-
+            std::string time_str = id(air_conditioner_2_day_on_time).state;
+            int h = 0, m = 0, s = 0;
+            if (sscanf(time_str.c_str(), "%d:%d:%d", &h, &m, &s) == 3) {
+              static char buf[6];
+              snprintf(buf, sizeof(buf), "%02d:%02d", h, m);
+              // Обновляем LVGL лейбл напрямую
+              lv_label_set_text(id(air_conditioner_2_day_on_time_label), buf);
+            }
+  - platform: homeassistant
+    id: air_conditioner_2_day_off_time
+    entity_id: "${air_conditioner_2_time_day_off}"
+    on_value:
+      then:
+        - lambda: |-
+            std::string time_str = id(air_conditioner_2_day_off_time).state;
+            int h = 0, m = 0, s = 0;
+            if (sscanf(time_str.c_str(), "%d:%d:%d", &h, &m, &s) == 3) {
+              static char buf[6];
+              snprintf(buf, sizeof(buf), "%02d:%02d", h, m);
+              // Обновляем LVGL лейбл напрямую
+              lv_label_set_text(id(air_conditioner_2_day_off_time_label), buf);
+            }
+
+  # Air conditioner state
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_state
+    entity_id: "${air_conditioner_2_entity}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return x == "cool";'
+          then:
+            - lvgl.label.update:
+                id: air_conditioner_2_auto_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_heat_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_cool_mode_label
+                text_color: color_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_dry_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_off_mode_label
+                text_color: color_steel_blue
+########
+            - lvgl.arc.update:
+                id: air_conditioner_2_arc_main_temperature
+                indicator:
+                  arc_color: color_blue
+            - lvgl.label.update:
+                id: ac_status
+                text_color: color_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_whole
+                text_color: color_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_fraction
+                text_color: color_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_measurement
+                text_color: color_blue
+            - lvgl.label.update: # иконка на общей панели кондиционеров
+                id: air_conditioner_2_btn_icon_label
+                text_color: color_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_speed_label
+                text_color: color_blue
+
+      - if:
+          condition:
+            lambda: 'return x == "heat";'
+          then:
+            - lvgl.label.update:
+                id: air_conditioner_2_auto_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_heat_mode_label
+                text_color: color_deep_orange
+            - lvgl.label.update:
+                id: air_conditioner_2_cool_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_dry_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_off_mode_label
+                text_color: color_steel_blue
+########
+            - lvgl.arc.update:
+                id: air_conditioner_2_arc_main_temperature
+                indicator:
+                  arc_color: color_deep_orange
+            - lvgl.label.update:
+                id: ac_status
+                text_color: color_deep_orange
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_whole
+                text_color: color_deep_orange
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_fraction
+                text_color: color_deep_orange
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_measurement
+                text_color: color_deep_orange
+            - lvgl.label.update: # иконка на общей панели кондиционеров
+                id: air_conditioner_2_btn_icon_label
+                text_color: color_deep_orange
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_speed_label
+                text_color: color_deep_orange
+
+      - if:
+          condition:
+            lambda: 'return x == "dry";'
+          then:
+            - lvgl.label.update:
+                id: air_conditioner_2_auto_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_heat_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_cool_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_dry_mode_label
+                text_color: color_yellow
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_off_mode_label
+                text_color: color_steel_blue
+
+#######
+            - lvgl.arc.update:
+                id: air_conditioner_2_arc_main_temperature
+                indicator:
+                  arc_color: color_yellow
+            - lvgl.label.update:
+                id: ac_status
+                text_color: color_yellow
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_whole
+                text_color: color_yellow
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_fraction
+                text_color: color_yellow
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_measurement
+                text_color: color_yellow
+            - lvgl.label.update: # иконка на общей панели кондиционеров
+                id: air_conditioner_2_btn_icon_label
+                text_color: color_yellow
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_speed_label
+                text_color: color_yellow
+
+      - if:
+          condition:
+            lambda: 'return x == "heat_cool";'
+          then:
+            - lvgl.label.update:
+                id: air_conditioner_2_auto_mode_label
+                text_color: color_green
+            - lvgl.label.update:
+                id: air_conditioner_2_heat_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_cool_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_dry_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_off_mode_label
+                text_color: color_steel_blue
+
+#######
+            - lvgl.arc.update:
+                id: air_conditioner_2_arc_main_temperature
+                indicator:
+                  arc_color: color_light_green
+            - lvgl.label.update:
+                id: ac_status
+                text_color: color_light_green
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_whole
+                text_color: color_light_green
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_fraction
+                text_color: color_light_green
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_measurement
+                text_color: color_light_green
+            - lvgl.label.update: # иконка на общей панели кондиционеров
+                id: air_conditioner_2_btn_icon_label
+                text_color: color_light_green
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_speed_label
+                text_color: color_light_green
+
+      - if:
+          condition:
+            lambda: 'return x == "fan_only";'
+          then:
+            - lvgl.label.update:
+                id: air_conditioner_2_auto_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_heat_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_cool_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_dry_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_mode_label
+                text_color: color_mint
+            - lvgl.label.update:
+                id: air_conditioner_2_off_mode_label
+                text_color: color_steel_blue
+########
+            - lvgl.arc.update:
+                id: air_conditioner_2_arc_main_temperature
+                indicator:
+                  arc_color: color_mint
+            - lvgl.label.update:
+                id: ac_status
+                text_color: color_mint
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_whole
+                text_color: color_mint
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_fraction
+                text_color: color_mint
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_measurement
+                text_color: color_mint
+            - lvgl.label.update: # иконка на общей панели кондиционеров
+                id: air_conditioner_2_btn_icon_label
+                text_color: color_mint
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_speed_label
+                text_color: color_mint
+
+      - if:
+          condition:
+            lambda: 'return x == "off";'
+          then:
+            - lvgl.label.update:
+                id: air_conditioner_2_auto_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_heat_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_cool_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_dry_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_mode_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_off_mode_label
+                text_color: color_steel_blue
+            - lvgl.arc.update:
+                id: air_conditioner_2_arc_main_temperature
+                indicator:
+                  arc_color: color_steel_blue
+            - lvgl.label.update:
+                id: ac_status
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_whole
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_fraction
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_target_temperature_measurement
+                text_color: color_steel_blue
+            - lvgl.label.update: # иконка на общей панели кондиционеров
+                id: air_conditioner_2_btn_icon_label
+                text_color: color_steel_blue
+            - lvgl.label.update:
+                id: air_conditioner_2_fan_speed_label
+                text_color: color_steel_blue
+
+
+  # Air conditioner name
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_name
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: friendly_name
+    on_value:
+      - lvgl.label.update:
+          id: air_conditioner_2_name_label
+          text: !lambda return x;
+
+  # Air conditioner hvac action
+  - platform: homeassistant
+    id: air_conditioner_2_sensor_hvac_action
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: hvac_action
+
+  - platform: homeassistant
+    id: air_conditioner_2_ha_fan_mode
+    entity_id: "${air_conditioner_2_entity}"
+    attribute: fan_mode
+    on_value:
+      then:
+        - lambda: |-
+            static const char *fan_modes[] = {"auto", "low", "medium", "high"};
+            std::string fan_mode_str = x.c_str();
+            for (int i = 0; i < 4; i++) {
+              if (fan_mode_str == fan_modes[i]) {
+                id(air_conditioner_2_fan_mode_index) = i;
+                ESP_LOGD("fan_mode", "fan_mode changed to %s (index %d)", fan_mode_str.c_str(), i);
+                break;
+              }
+            }
+        - if:
+            condition:
+              lambda: 'return id(air_conditioner_2_fan_mode_index) == 0;'
+            then:
+              - lvgl.label.update:
+                  id: air_conditioner_2_fan_speed_label
+                  text: "${fan_auto_icon}"  # auto
+
+            else:
+              - if:
+                  condition:
+                    lambda: 'return id(air_conditioner_2_fan_mode_index) == 1;'
+                  then:
+                    - lvgl.label.update:
+                        id: air_conditioner_2_fan_speed_label
+                        text: "${fan_1_icon}"  # low
+                  else:
+                    - if:
+                        condition:
+                          lambda: 'return id(air_conditioner_2_fan_mode_index) == 2;'
+                        then:
+                          - lvgl.label.update:
+                              id: air_conditioner_2_fan_speed_label
+                              text: "${fan_2_icon}"  # medium
+                        else:
+                          - if:
+                              condition:
+                                lambda: 'return id(air_conditioner_2_fan_mode_index) == 3;'
+                              then:
+                                - lvgl.label.update:
+                                    id: air_conditioner_2_fan_speed_label
+                                    text: "${fan_3_icon}"  # high
+switch:
+  - platform: homeassistant
+    id: air_conditioner_2_night_mode_state
+    entity_id: "${air_conditioner_2_night_mode}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: air_conditioner_2_night_mode_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: air_conditioner_2_night_mode_icon
+          text_color: color_misty_blue
+  - platform: homeassistant
+    id: air_conditioner_2_day_mode_state
+    entity_id: "${air_conditioner_2_day_mode}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: air_conditioner_2_day_mode_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: air_conditioner_2_day_mode_icon
+          text_color: color_misty_blue
+
+lvgl:
+  pages:
+    - id: air_conditioner_2_page
+      bg_color: color_slate_blue_gray
+      widgets:
+
+        # State
+        - obj:
+            id: air_conditioner_2_controls_hvac_modes
+            x: 10
+            y: 10
+            width: 220
+            height: 150
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              # AUTO
+              - obj:
+                  id: air_conditioner_2_auto_mode_btn
+                  x: 0
+                  y: 0
+                  width: 65
+                  height: 70
+                  align: TOP_LEFT
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_auto_mode_label
+                        align: center
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${auto_icon}"
+                  on_press:
+                    - homeassistant.action: 
+                        action: climate.set_hvac_mode
+                        data: 
+                          entity_id: "${air_conditioner_2_entity}"
+                          hvac_mode: heat_cool
+
+              # HEAT
+              - obj:
+                  id: air_conditioner_2_heat_mode_btn
+                  x: 70
+                  width: 65
+                  height: 70
+                  align: TOP_LEFT
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_heat_mode_label
+                        align: center
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${heat_icon}"
+                  on_press:
+                    - homeassistant.action: 
+                        action: climate.set_hvac_mode
+                        data: 
+                          entity_id: "${air_conditioner_2_entity}"
+                          hvac_mode: heat
+
+              # COOL
+              - obj:
+                  id: air_conditioner_2_cool_mode_btn
+                  x: 140
+                  width: 65
+                  height: 70
+                  align: TOP_LEFT
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_cool_mode_label
+                        align: center
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${cool_icon}"
+                  on_press:
+                    - homeassistant.action: 
+                        action: climate.set_hvac_mode
+                        data: 
+                          entity_id: "${air_conditioner_2_entity}"
+                          hvac_mode: cool
+
+              # DRY
+              - obj:
+                  id: air_conditioner_2_dry_mode_btn
+                  x: 0
+                  y: 75
+                  width: 65
+                  height: 70
+                  align: TOP_LEFT
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_dry_mode_label
+                        align: center
+                        text_font: icons_48
+                        text_color: color_misty_blue
+                        text: "${humidity_icon}"
+                  on_press:
+                    - homeassistant.action: 
+                        action: climate.set_hvac_mode
+                        data: 
+                          entity_id: "${air_conditioner_2_entity}"
+                          hvac_mode: dry
+
+              # FAN
+              - obj:
+                  id: air_conditioner_2_fan_mode_btn
+                  x: 70
+                  y: 75
+                  width: 65
+                  height: 70
+                  align: TOP_LEFT
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_fan_mode_label
+                        align: center
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${fan_icon}"
+                  on_press:
+                    - homeassistant.action: 
+                        action: climate.set_hvac_mode
+                        data: 
+                          entity_id: "${air_conditioner_2_entity}"
+                          hvac_mode: fan_only
+
+              # OFF
+              - obj:
+                  id: air_conditioner_2_off_mode_btn
+                  x: 140
+                  y: 75
+                  width: 65
+                  height: 70
+                  align: TOP_LEFT
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_off_mode_label
+                        align: center
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${off_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: climate.set_hvac_mode
+                        data:
+                          entity_id: "${air_conditioner_2_entity}"
+                          hvac_mode: "off"
+
+        # Time Night
+        - obj:
+            id: air_conditioner_2_night_time
+            x: 10
+            y: 170
+            width: 120
+            height: 220
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: air_conditioner_2_night_on_label
+                  x: 35
+                  y: 5
+                  align: TOP_LEFT
+                  text_font: nunito_20
+                  text_color: color_steel_blue
+                  text: "вкл"
+              - label:
+                  id: air_conditioner_2_night_on_time_label
+                  x: 20
+                  y: 25
+                  align: TOP_LEFT
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: "23:59"
+              - label:
+                  id: air_conditioner_2_night_off_label
+                  x: 30
+                  y: 60
+                  align: TOP_LEFT
+                  text_font: nunito_20
+                  text_color: color_steel_blue
+                  text: "выкл"
+              - label:
+                  id: air_conditioner_2_night_off_time_label
+                  x: 20
+                  y: 80
+                  align: TOP_LEFT
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: "23:59"
+        # Time Day
+        - obj:
+            id: air_conditioner_2_day_time
+            x: 140
+            y: 170
+            width: 120
+            height: 220
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: air_conditioner_2_day_on_label
+                  x: 25
+                  y: 5
+                  align: TOP_LEFT
+                  text_font: nunito_20
+                  text_color: color_steel_blue
+                  text: "вкл"
+              - label:
+                  id: air_conditioner_2_day_on_time_label
+                  x: 10
+                  y: 25
+                  align: TOP_LEFT
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: "23:59"
+              - label:
+                  id: air_conditioner_2_day_off_label
+                  x: 20
+                  y: 60
+                  align: TOP_LEFT
+                  text_font: nunito_20
+                  text_color: color_steel_blue
+                  text: "выкл"
+              - label:
+                  id: air_conditioner_2_day_off_time_label
+                  x: 10
+                  y: 80
+                  align: TOP_LEFT
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: "23:59"
+
+        - obj:
+            id: air_conditioner_2_controls
+            x: 10
+            y: 280
+            width: 360
+            height: 100
+            align: TOP_LEFT
+            pad_all: 0
+            bg_opa: transp
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              # Night mode button
+              - obj:
+                  x: 10
+                  y: 10
+                  width: 90
+                  height: 90
+                  align: left_mid
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - obj:
+                        width: 70
+                        height: 70
+                        align: center
+                        clickable: true
+                        radius: 50
+                        pad_all: 0
+                        bg_opa: transp
+                        border_opa: transp
+                        border_width: 0
+                        shadow_width: 8
+                        shadow_spread: 2
+                        shadow_color: color_black
+                        pressed:
+                          bg_color: 0x3A3A4C
+                          shadow_width: 5
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${air_conditioner_2_night_mode}"
+                    - obj:
+                        width: 60
+                        height: 60
+                        align: center
+                        clickable: false
+                        radius: 45
+                        pad_all: 0
+                        bg_opa: transp 
+                        border_opa: transp
+                        shadow_width: 4
+                        shadow_color: 0xFFFFFF
+                        shadow_ofs_x: -4
+                        shadow_ofs_y: -2
+                        shadow_opa: 30%
+
+                    - obj:
+                        width: 65
+                        height: 65
+                        pad_all: 0
+                        align: center
+                        clickable: false
+                        radius: 50
+                        border_opa: transp
+                        bg_color: color_slate_blue_gray
+                        widgets:
+                          - label:
+                              id: air_conditioner_2_night_mode_icon
+                              y: -2
+                              align: CENTER
+                              text_font: mdi_icons_40
+                              text_color: color_misty_blue
+                              text: "${weather_night}"
+
+              # Day mode button
+              - obj:
+                  x: 140
+                  y: 10
+                  width: 90
+                  height: 90
+                  align: left_mid
+                  pad_all: 0
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  widgets:
+                    - obj:
+                        width: 70
+                        height: 70
+                        align: center
+                        clickable: true
+                        radius: 50
+                        pad_all: 0
+                        bg_opa: transp
+                        border_opa: transp
+                        border_width: 0
+                        shadow_width: 8
+                        shadow_spread: 2
+                        shadow_color: color_black
+                        pressed:
+                          bg_color: 0x3A3A4C
+                          shadow_width: 5
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${air_conditioner_2_day_mode}"
+                    - obj:
+                        width: 60
+                        height: 60
+                        align: center
+                        clickable: false
+                        radius: 45
+                        pad_all: 0
+                        bg_opa: transp 
+                        border_opa: transp
+                        shadow_width: 4
+                        shadow_color: 0xFFFFFF
+                        shadow_ofs_x: -4
+                        shadow_ofs_y: -2
+                        shadow_opa: 30%
+
+                    - obj:
+                        width: 65
+                        height: 65
+                        pad_all: 0
+                        align: center
+                        clickable: false
+                        radius: 50
+                        border_opa: transp
+                        bg_color: color_slate_blue_gray
+                        widgets:
+                          - label:
+                              y: -2
+                              id: air_conditioner_2_day_mode_icon
+                              align: CENTER
+                              text_font: mdi_icons_52
+                              text_color: color_misty_blue
+                              text: "${weather_sunny}"
+
+        # Name
+        - obj:
+            id: air_conditioner_2_name
+            x: 90
+            y: 400
+            width: 360
+            height: 60
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: air_conditioner_2_name_label
+                  x: 20
+                  align: LEFT_MID
+                  text_font: nunito_30
+                  text_color: color_misty_blue
+                  text: "friendly name"
+
+        # TEMPERATURE WIDGET
+        - obj:
+            id: air_conditioner_2_bg_main_temperature
+            hidden: false
+            width: 250
+            height: 480
+            align: RIGHT_MID
+            pad_all: 0
+            bg_opa: TRANSP
+            scrollable: false
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              - obj:
+                  id: air_conditioner_2_bg_placeholder_temperature
+                  radius: 240
+                  x: 235
+                  width: 480
+                  height: 480
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - obj:
+                  id: air_conditioner_2_temp_arc_bg
+                  radius: 230
+                  x: 230
+                  width: 460
+                  height: 460
+                  align: RIGHT_MID
+                  bg_color: color_steel_blue
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - meter:
+                  id: air_conditioner_2_meter_temperature
+                  x: 200
+                  height: 400
+                  width: 400
+                  border_width: 0
+                  bg_color: color_slate_blue_gray
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  scales:
+                    - range_from: 10
+                      range_to: 30
+                      angle_range: 130
+                      rotation: 108.0
+                      ticks:
+                        width: 1
+                        count: 21
+                        length: 10
+                        major:
+                          stride: 5
+                          width: 5
+                          length: 15
+                          label_gap: 15
+                      indicators:
+                        tick_style:
+                          start_value: 10
+                          end_value: 30
+                          color_start: color_steel_blue
+                          color_end: color_steel_blue
+                          width: 1
+
+              - arc:
+                  id: air_conditioner_2_arc_main_temperature
+                  align: RIGHT_MID
+                  arc_width: 30
+                  x: 234
+                  width: 464
+                  height: 460
+                  min_value: 7
+                  max_value: 35
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 0
+                  end_angle: 180
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_color: color_deep_orange
+                    arc_width: 30
+                  knob:
+                    border_color: color_white
+                    border_width: 7
+                    bg_opa: TRANSP
+
+                  on_release:
+                    - homeassistant.action:
+                        action: climate.set_temperature
+                        data:
+                          entity_id: "${air_conditioner_2_entity}"
+                          temperature: !lambda return x;
+
+              - arc:
+                  id: air_conditioner_2_arc_current_temp
+                  clickable: false
+                  align: RIGHT_MID
+                  arc_width: 10
+                  x: 229
+                  width: 450
+                  height: 444
+                  min_value: 7
+                  max_value: 35
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 0
+                  end_angle: 180
+                  arc_opa: transp
+                  indicator:
+                    arc_opa: transp
+                  knob:
+                    bg_color: color_white
+                    border_width: 0
+                    border_opa: TRANSP
+
+              - obj:
+                  width: 140
+                  height: 120
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+
+                    - label:
+                        id: air_conditioner_2_target_temperature_whole
+                        x: -40
+                        y: 0
+                        align: RIGHT_MID
+                        text_font: nunito_84
+                        text_color: color_steel_blue
+                        text: " "
+                
+                    - label:
+                        id: air_conditioner_2_target_temperature_fraction
+                        x: -10
+                        y: 15
+                        align: RIGHT_MID
+                        text_font: nunito_36
+                        text_color: color_steel_blue
+                        text: " "
+
+                    - label:
+                        id: air_conditioner_2_target_temperature_measurement
+                        x: -12
+                        y: -20
+                        align: RIGHT_MID
+                        text_font: nunito_30
+                        text_color: color_steel_blue
+                        text: "°C"
+
+              - label:
+                  id: air_conditioner_2_target_temperature_value
+                  x: -10
+                  y: 80
+                  align: RIGHT_MID
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: " "
+
+        # HUMIDITY WIDGET
+        - obj:
+            id: air_conditioner_2_bg_main_humidity
+            hidden: true
+            width: 250
+            height: 480
+            align: RIGHT_MID
+            pad_all: 0
+            bg_opa: TRANSP
+            scrollable: false
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              - obj:
+                  id: air_conditioner_2_bg_placeholder_humidity
+                  radius: 240
+                  x: 235
+                  width: 480
+                  height: 480
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - obj:
+                  id: air_conditioner_2_hum_arc_bg
+                  radius: 230
+                  x: 230
+                  width: 460
+                  height: 460
+                  align: RIGHT_MID
+                  bg_color: color_steel_blue
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - meter:
+                  id: air_conditioner_2_meter_humidity
+                  x: 200
+                  height: 400
+                  width: 400
+                  border_width: 0
+                  bg_color: color_slate_blue_gray
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  scales:
+                    range_from: 35
+                    range_to: 95
+                    angle_range: 156
+                    rotation: 103.0
+                    ticks:
+                      width: 1
+                      count: 61
+                      length: 10
+                      major:
+                        stride: 10
+                        width: 5
+                        length: 15
+                        label_gap: 15
+                    indicators:
+                      tick_style:
+                        start_value: 35
+                        end_value: 95
+                        color_start: color_steel_blue
+                        color_end: color_steel_blue
+                        width: 1
+
+              - arc:
+                  id: air_conditioner_2_arc_main_humidity
+                  align: RIGHT_MID
+                  arc_width: 30
+                  x: 234
+                  width: 464
+                  height: 460
+                  min_value: 30
+                  max_value: 99
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 0
+                  end_angle: 180
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_color: color_steel_blue
+                    arc_width: 30
+                  knob:
+                    border_color: color_white
+                    border_width: 7
+                    bg_opa: TRANSP
+
+                  on_release:
+                    - homeassistant.action:
+                        action: climate.set_humidity
+                        data:
+                          entity_id: "${air_conditioner_2_entity}"
+                          humidity: !lambda return (int)round(x);
+
+              - arc:
+                  id: air_conditioner_2_arc_current_hum
+                  clickable: false
+                  align: RIGHT_MID
+                  arc_width: 10
+                  x: 229
+                  width: 450
+                  height: 444
+                  min_value: 30
+                  max_value: 99
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 10
+                  end_angle: 170
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_opa: transp
+                  knob:
+                    bg_color: color_white
+                    border_width: 0
+                    border_opa: TRANSP
+
+              - obj:
+                  width: 140
+                  height: 120
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+
+                    - label:
+                        id: air_conditioner_2_target_humidity_whole
+                        x: -40
+                        y: 0
+                        align: RIGHT_MID
+                        text_font: nunito_84
+                        text_color: color_steel_blue
+                        text: " "
+                
+                    - label:
+                        id: air_conditioner_2_target_humidity_fraction
+                        x: -10
+                        y: 15
+                        align: RIGHT_MID
+                        text_font: nunito_36
+                        text_color: color_steel_blue
+                        text: " "
+
+                    - label:
+                        id: air_conditioner_2_target_humidity_measurement
+                        x: -12
+                        y: -20
+                        align: RIGHT_MID
+                        text_font: nunito_30
+                        text_color: color_steel_blue
+                        text: "%"
+
+              - label:
+                  id: air_conditioner_2_target_humidity_value
+                  x: -10
+                  y: 80
+                  align: RIGHT_MID
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: " "
+
+
+        # Air conditioner humidity/temperature mode select
+        - obj:
+            id: air_conditioner_2_select_hum_temp_mode_btn
+            x: -5
+            y: -90
+            width: 80
+            height: 80
+            align: RIGHT_MID
+            bg_color: color_slate_blue_gray
+            pad_all: 0
+            border_opa: transp
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 50 
+            widgets:
+              - label:
+                  id: air_conditioner_2_state_icon
+                  align: center
+                  text_font: icons_48
+                  text_color: color_steel_blue
+                  text: "${temperature_icon}"
+            on_click:
+              - lambda: |-
+                  id(air_conditioner_2_temp_hum_mode) = !id(air_conditioner_2_temp_hum_mode);
+              
+              - if:
+                  condition:
+                    lambda: 'return id(air_conditioner_2_temp_hum_mode);'
+                  then:
+                    - lvgl.label.update:
+                        id: air_conditioner_2_state_icon
+                        text: "${humidity_icon}"
+                    
+                    - lvgl.widget.hide: air_conditioner_2_bg_main_temperature
+                    - lvgl.widget.show: air_conditioner_2_bg_main_humidity
+
+                    - if:
+                        condition:
+                          lambda: 'return id(air_conditioner_2_sensor_current_hum).state < id(air_conditioner_2_sensor_target_hum).state;'
+                        then:
+                          - lvgl.arc.update:
+                              id: air_conditioner_2_arc_main_humidity
+                              indicator:
+                                arc_color: color_dark_blue
+
+                          - lvgl.label.update:
+                              id: ac_status
+                              text_color: color_dark_blue
+
+                          - lvgl.label.update:
+                              id: air_conditioner_2_target_humidity_whole
+                              text_color: color_dark_blue
+
+                          - lvgl.label.update:
+                              id: air_conditioner_2_target_humidity_fraction
+                              text_color: color_dark_blue
+
+                          - lvgl.label.update:
+                              id: air_conditioner_2_target_humidity_measurement
+                              text_color: color_dark_blue
+
+                        else:
+                          - lvgl.arc.update:
+                              id: air_conditioner_2_arc_main_humidity
+                              indicator:
+                                arc_color: color_blue
+
+                          - lvgl.label.update:
+                              id: ac_status
+                              text_color: color_steel_blue
+
+                          - lvgl.label.update:
+                              id: air_conditioner_2_target_humidity_whole
+                              text_color: color_steel_blue
+
+                          - lvgl.label.update:
+                              id: air_conditioner_2_target_humidity_fraction
+                              text_color: color_steel_blue
+
+                          - lvgl.label.update:
+                              id: air_conditioner_2_target_humidity_measurement
+                              text_color: color_steel_blue
+
+                  else:
+                    - lvgl.label.update:
+                        id: air_conditioner_2_state_icon
+                        text: "${temperature_icon}"
+
+                    - lvgl.widget.show: air_conditioner_2_bg_main_temperature
+                    - lvgl.widget.hide: air_conditioner_2_bg_main_humidity
+
+        # button fan mode
+        - obj:
+            x: 240
+            y: 10
+            width: 80
+            height: 80
+            align: TOP_LEFT
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_press:
+                    - lambda: |-
+                        id(air_conditioner_2_fan_mode_index) = (id(air_conditioner_2_fan_mode_index) + 1) % 4;
+                    - if:
+                        condition:
+                          lambda: 'return id(air_conditioner_2_fan_mode_index) == 0;'
+                        then:
+                          - lvgl.label.update:
+                              id: air_conditioner_2_fan_speed_label
+                              text: "${fan_auto_icon}"
+                        else:
+                          - if:
+                              condition:
+                                lambda: 'return id(air_conditioner_2_fan_mode_index) == 1;'
+                              then:
+                                - lvgl.label.update:
+                                    id: air_conditioner_2_fan_speed_label
+                                    text: "${fan_1_icon}"
+                              else:
+                                - if:
+                                    condition:
+                                      lambda: 'return id(air_conditioner_2_fan_mode_index) == 2;'
+                                    then:
+                                      - lvgl.label.update:
+                                          id: air_conditioner_2_fan_speed_label
+                                          text: "${fan_2_icon}"
+                                    else:
+                                      - if:
+                                          condition:
+                                            lambda: 'return id(air_conditioner_2_fan_mode_index) == 3;'
+                                          then:
+                                            - lvgl.label.update:
+                                                id: air_conditioner_2_fan_speed_label
+                                                text: "${fan_3_icon}"
+
+                    - homeassistant.service:
+                        service: climate.set_fan_mode
+                        data:
+                          entity_id: "${air_conditioner_2_entity}"
+                          fan_mode: !lambda |-
+                            static const char *fan_modes[] = {"auto", "low", "medium", "high"};
+                            return std::string(fan_modes[id(air_conditioner_2_fan_mode_index)]);
+
+
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        id: air_conditioner_2_fan_speed_label
+                        y: -2
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${fan_icon}"
+
+
+        # Return
+        - button:
+            id: air_conditioner_2_back
+            x: 10
+            y: 400
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: air_conditioner_2_back_label
+                  align: CENTER
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: devices_page
+              - lvgl.widget.show: menu_controls_main
+

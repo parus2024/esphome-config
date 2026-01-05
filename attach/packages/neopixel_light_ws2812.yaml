@@ -1,0 +1,16 @@
+light:
+  platform: neopixelbus
+  id: ${friendly_name_short}
+  variant: WS2812
+  pin: ${neopixel_pin}
+  num_leds: ${neopixel_num_leds}
+  type: GRB
+  name: "NeoPixel Light"
+  effects:
+#    !include addressable_led_strip_main_effects.yaml
+    !include ../common/light/addressable_led_strip_add_effects.yaml
+number:
+# Effect Settings
+  - !include ../common/number/effect_speed.yaml
+  - !include ../common/number/effect_scale.yaml
+  - !include ../common/number/effect_intensity.yaml

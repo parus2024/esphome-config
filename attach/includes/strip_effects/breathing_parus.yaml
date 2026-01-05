@@ -1,0 +1,71 @@
+addressable_lambda:
+  name: "Breathing Parus (Fixed)"
+  update_interval: 100ms
+  lambda: |-
+    // Цвета (используем массивы для надёжности)
+    static const float colors[12][3] = {
+      {1.0, 0.0, 0.0},  // Color1
+      {1.0, 0.5, 0.0},  // Color2
+      {1.0, 1.0, 0.0},  // Color3
+      {0.5, 1.0, 0.0},  // Color4
+      {0.0, 1.0, 0.0},  // Color5
+      {0.0, 1.0, 0.5},  // Color6
+      {0.0, 1.0, 1.0},  // Color7
+      {0.0, 0.5, 1.0},  // Color8
+      {0.0, 0.0, 1.0},  // Color9
+      {0.5, 0.0, 1.0},  // Color10
+      {0.5, 0.0, 1.0},  // Color11
+      {1.0, 0.0, 0.5}   // Color12
+    };
+
+    static int state = 0;
+    static int color_idx = 0;  // индекс цвета (0–11)
+    static uint32_t breath_timer = 0;
+
+    // Считываем слайдеры
+    const int speed_val = id(effect_speed).state;
+    const int scale_val = id(effect_scale).state;
+    const int intensity = id(effect_intensity).state;
+
+    if (initial_run) {
+      ESP_LOGD("effect", "Breathing started: speed=%d, scale=%d, intensity=%d", speed_val, scale_val, intensity);
+    }
+
+    // Расчёт длительности цикла (10–300 сек)
+    uint32_t cycle_duration = 300 - (uint32_t)((float)speed_val / 255.0f * 290.0f);
+    cycle_duration = std::max(cycle_duration, static_cast<uint32_t>(10));
+
+    breath_timer++;
+
+    // Переключение состояний: угасание (0) ↔ вспышка (1)
+    if (breath_timer >= cycle_duration * 10) {
+      breath_timer = 0;
+      state = (state + 1) % 2;
+    }
+
+    auto call = id(${friendly_name_short}).turn_on();  // ЗАМЕНИТЕ my_led на ID вашей лампы!
+    call.set_transition_length(1);
+
+    float brightness = (state == 0) 
+      ? (0.01 * (float)intensity / 255.0)  // угасание
+      : ((float)intensity / 255.0);           // вспышка
+
+    if (scale_val == 0) {
+      // Белый цвет
+      call.set_rgb(1.0, 1.0, 1.0);
+    } else {
+      // Цикл цветов
+      float r = colors[color_idx][0];
+      float g = colors[color_idx][1];
+      float b = colors[color_idx][2];
+      call.set_rgb(r, g, b);
+    }
+
+    call.set_brightness(brightness);
+
+    // Смена цвета каждые 2 цикла
+    if (breath_timer == 0 && state == 0) {
+      color_idx = (color_idx + 1) % 12;
+    }
+
+    call.perform();

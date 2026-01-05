@@ -1,0 +1,75 @@
+addressable_lambda:
+  name: "Sunrise Parus"
+  update_interval: 100ms  # плавнее анимация
+  lambda: |-
+    static ESPHSVColor sunrise_colors[6];
+    static uint8_t sunrise_counter;
+    static uint32_t sunrise_length;
+
+    // Считываем слайдеры
+    const int speed_val = id(effect_speed).state;      // 0–255 (скорость)
+    const int scale_val = id(effect_scale).state;        // 0–100 (количество полос)
+    const int intensity = id(effect_intensity).state;   // 0–255 (яркость)
+
+    if (initial_run) {
+      ESP_LOGD("effect", "Sunrise Parus: speed=%d, scale=%d, intensity=%d", speed_val, scale_val, intensity);
+
+      sunrise_length = 0;
+      sunrise_counter = 0;
+
+      it.all() = Color::BLACK;
+      for (uint8_t i = 0U; i < 6U; i++) {
+        sunrise_colors[i] = ESPHSVColor(0, 0, 0);
+      }
+    }
+
+    // Расчёт длительности цикла: 10 сек (max speed) → 1800 сек (30 мин)
+    uint32_t total_duration = 1800 - (uint32_t)((float)speed_val / 255.0f * 1790.0f);  // 1800 – 10 = 1790
+    total_duration = std::max(total_duration, static_cast<uint32_t>(10));  // минимум 10 сек
+
+
+    // Текущая позиция в цикле (0–255)
+    uint8_t sunrise_position = (uint8_t)(255 * ((float)sunrise_length / (float)total_duration));
+
+
+    // Сдвиг цветов (волновой эффект)
+    for (uint8_t i = 5U; i > 0U; i--) {
+      if (sunrise_counter >= i) {
+        sunrise_colors[i] = sunrise_colors[i - 1U];
+      }
+    }
+
+    // Обновление первого цвета
+    sunrise_colors[0] = ESPHSVColor(
+      map(sunrise_position, 0, 255, 10, 35),      // Hue: сине-зелёный → жёлто-оранжевый
+      map(sunrise_position, 0, 255, 255, 170), // Sat: насыщенный → приглушённый
+      map(sunrise_position, 0, 255, 2, intensity)  // Value: тусклый → яркий (по слайдеру)
+    );
+
+    // Управление частотой обновления волн через `effect_scale`
+    // Чем выше `scale_val`, тем чаще сдвигаются цвета
+    uint16_t wave_update_interval = 100 - min(scale_val, 95);  // 5–100
+    if ((sunrise_counter < 5U) && (sunrise_length % wave_update_interval == 0)) {
+      sunrise_counter++;
+    }
+
+    // Вывод на ленту
+    for (int i = 0; i < it.size(); i++) {
+      it[i] = sunrise_colors[i % 6U];
+    }
+
+    sunrise_length++;
+
+    // Завершение эффекта
+    if (sunrise_length > total_duration) {
+      auto call = id(${friendly_name_short}).turn_on();  // замените `my_light` на ID вашей лампы
+      call.set_transition_length(5000);
+      call.set_rgb(
+        sunrise_colors[0].to_rgb().r / 255.0,
+        sunrise_colors[0].to_rgb().g / 255.0,
+        sunrise_colors[0].to_rgb().b / 255.0
+      );
+      //call.set_brightness(intensity / 255.0);
+      //call.set_effect("None"); // если надо, выходим из эффекта
+      //call.perform();
+    }

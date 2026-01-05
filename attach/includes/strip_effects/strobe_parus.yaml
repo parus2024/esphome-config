@@ -1,0 +1,80 @@
+# Скорость мигания (effect_speed): Диапазон интервала: от 3000 мс (медленно) до 100 мс (быстро).
+# Режимы (effect_scale):0–20: "Strobe Alarm" (мигание красным).20–40: "Strobe Police" (чередование красного и синего).40–60: 3 цвета.60–80: 4 цвета.80–100: 5 цветов.
+# Цвета (effect_intensity):Выбор из 16 основных цветов.
+addressable_lambda:
+  name: "Strobe Parus"
+  update_interval: 10ms
+  lambda: |-
+    static unsigned long last_change = 0;
+    static bool is_on = false;
+    static int current_color_index = 0;
+
+    // Получаем значения со слайдеров
+    const uint8_t SPEED = static_cast<uint8_t>(id(effect_speed).state);      // 0–255 (частота мигания)
+    const uint8_t MODE = static_cast<uint8_t>(id(effect_scale).state);        // 0–100 (режим)
+    const uint8_t INTENSITY = static_cast<uint8_t>(id(effect_intensity).state); // 0–255 (выбор цвета)
+
+    // Нормализуем значения
+    unsigned long interval = map(SPEED, 0, 255, 3000, 100);  // Интервал мигания: от 3000 мс до 100 мс
+
+    // Определяем режим
+    int mode = MODE;
+    int num_colors = 1; // По умолчанию 1 цвет (для Strobe Alarm)
+    if (mode <= 20) {
+      num_colors = 1; // Strobe Alarm (красный)
+    } else if (mode <= 40) {
+      num_colors = 2; // Strobe Police (красный и синий)
+    } else if (mode <= 60) {
+      num_colors = 3; // 3 цвета
+    } else if (mode <= 80) {
+      num_colors = 4; // 4 цвета
+    } else {
+      num_colors = 5; // 5 цветов
+    }
+
+    // Набор из 16 цветов
+    const Color colors[16] = {
+      Color(255, 0, 0),    // Красный
+      Color(255, 127, 0),  // Оранжевый
+      Color(255, 255, 0),  // Жёлтый
+      Color(0, 255, 0),    // Зелёный
+      Color(0, 255, 255),  // Голубой
+      Color(0, 0, 255),    // Синий
+      Color(127, 0, 255),  // Фиолетовый
+      Color(255, 0, 255),  // Розовый
+      Color(255, 165, 0),  // Коралловый
+      Color(255, 20, 147), // Розово-красный
+      Color(128, 0, 128),  // Пурпурный
+      Color(0, 128, 0),    // Тёмно-зелёный
+      Color(0, 128, 128),  // Тёмно-голубой
+      Color(75, 0, 130),   // Индиго
+      Color(238, 130, 238),// Фиолетовый
+      Color(255, 255, 255)  // Белый
+    };
+
+    // Выбираем цвет в зависимости от INTENSITY
+    int color_index = (INTENSITY * 16) / 256;
+    if (color_index >= 16) color_index = 15;
+
+    // Логика мигания
+    unsigned long current_time = millis();
+    if (current_time - last_change >= interval) {
+      last_change = current_time;
+      is_on = !is_on;
+      if (is_on) {
+        current_color_index = (current_color_index + 1) % num_colors;
+      }
+    }
+
+    // Применяем эффект
+    if (mode <= 20) {
+      // Режим Strobe Alarm: мигание красным
+      it.all() = is_on ? Color(255, 0, 0) : Color(0, 0, 0);
+    } else if (mode <= 40) {
+      // Режим Strobe Police: чередование красного и синего
+      Color police_colors[2] = {Color(255, 0, 0), Color(0, 0, 255)};
+      it.all() = is_on ? police_colors[current_color_index] : Color(0, 0, 0);
+    } else {
+      // Режимы с 3, 4 и 5 цветами
+      it.all() = is_on ? colors[current_color_index] : Color(0, 0, 0);
+    }

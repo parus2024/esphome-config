@@ -1,0 +1,72 @@
+addressable_lambda:
+  name: "Candle Parus"
+  update_interval: 100ms
+  lambda: |-
+    // Слайдеры управления
+    const uint8_t SPEED = id(effect_speed).state;        // 0–255: частота мерцания
+    const uint8_t SCALE = id(effect_scale).state;        // 0–100: амплитуда дрожания и оттенок пламени
+    const uint8_t INTENSITY = id(effect_intensity).state; // 0–255: общая яркость
+
+    if (initial_run) {
+      ESP_LOGD("effect", "Realistic Candle Light (Color via Scale) - Initialized");
+      it.all() = Color::BLACK;
+    }
+
+    // Базовая яркость: 50–255
+    uint8_t base_brightness = 50 + (INTENSITY / 255.0) * 205;
+
+    // Амплитуда мерцания: 10–80 (зависит от SCALE)
+    uint8_t flicker_range = 10 + (SCALE / 255.0) * 70;
+
+    uint32_t now = millis();
+    static uint32_t last_update = 0;
+
+    if (now - last_update > (200 - (SPEED / 255.0) * 150)) {
+      last_update = now;
+
+      for (int i = 0; i < it.size(); i++) {
+        uint8_t flicker = random(0, flicker_range + 1);
+
+        // Расчёт цвета на основе SCALE
+        uint8_t r, g, b;
+
+        if (SCALE < 33) {
+          // Янтарный: больше жёлтого
+          r = base_brightness - (flicker * 1.0);
+          g = base_brightness - (flicker * 1.5);
+          b = flicker / 5;
+        }
+        else if (SCALE < 65) {
+          // Оранжевый: баланс R/G
+          r = base_brightness - (flicker * 1.1);
+          g = base_brightness - (flicker * 2.2);
+          b = flicker / 9;
+        }
+        else {
+          // Красно-оранжевый: минимум жёлтого
+          r = base_brightness - (flicker * 0.5);
+          g = base_brightness - (flicker * 3.5);
+          b = flicker / 15;
+        }
+
+        // Эффект "теней" при сильном мерцании
+        if (flicker > flicker_range * 0.7) {
+          r = r * 0.65;
+          g = g * 0.55;
+          b = b * 0.4;
+        }
+
+        // Редкие искры (5% шанс)
+        if (random(0, 100) < 5) {
+          r = min(r + 40, 255);
+          g = min(g + 20, 255);
+        }
+
+        // Ограничение значений 0–255
+        r = (r < 0) ? 0 : r;
+        g = (g < 0) ? 0 : g;
+        b = (b < 0) ? 0 : b;
+
+        it[i] = Color(r, g, b);
+      }
+    }

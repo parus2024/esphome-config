@@ -1,0 +1,52 @@
+addressable_lambda:
+  name: Wheel of Color Parus
+  update_interval: 10ms
+  lambda: |-
+    Color colors[] = {
+      Color(255, 0, 0),
+      Color(0, 255, 0),
+      Color(255, 255, 0),
+      Color(0, 0, 255),
+      Color(255, 82, 0),
+      Color(163, 0, 255)
+    };
+    static int state = 0;
+    static int step = 0;
+    const int color_size = 6;
+
+    // 1. Получаем значения из существующих слайдеров
+    int speed_value = id(effect_speed).state;      // Скорость (0–255)
+    int width_value = id(effect_scale).state;         // Ширина волны (1–it.size())
+
+    // 2. Расчёт интервала движения
+    uint32_t move_interval = 1000 - (speed_value * 950) / 255;  // 1000→50 мс
+    move_interval = max(move_interval, (uint32_t)50);  // Минимум 50 мс
+
+    static uint32_t last_move = 0;
+    uint32_t current_time = millis();
+
+    // 3. Проверяем, пора ли сдвигать волну
+    if (current_time - last_move >= move_interval) {
+      // 3.1. Сдвигаем все пиксели на 1 позицию вправо
+      for (int i = it.size() - 1; i > 0; i--) {
+        it[i] = it[i - 1].get();
+      }
+
+      // 3.2. Зажигаем первый пиксель текущим цветом
+      it[0] = colors[state];
+
+      // 3.3. Увеличиваем шаг
+      step++;
+
+      // 3.4. Если волна прошла свою ширину — переключаем цвет
+      if (step >= width_value) {
+        step = 0;
+        state++;
+        if (state >= color_size) {
+          state = 0;
+        }
+      }
+
+      // 3.5. Обновляем таймер
+      last_move = current_time;
+    }

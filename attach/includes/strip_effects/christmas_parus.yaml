@@ -1,0 +1,57 @@
+addressable_lambda:
+  name: "Christmas Parus"
+  update_interval: 100ms
+  lambda: |-
+    static int step = 0;
+
+    // Получаем значения со слайдеров
+    const uint8_t SPEED = static_cast<uint8_t>(id(effect_speed).state);      // 0–255
+    const uint8_t LINE_WIDTH = static_cast<uint8_t>(id(effect_scale).state);   // 0–100
+    const uint8_t SATURATION_LEVEL = static_cast<uint8_t>(id(effect_intensity).state); // 0–255
+
+    const int length = it.size();
+
+    // Нормализуем значения
+    int speed = SPEED / 25 + 1;  // Скорость: 1–10 шагов за обновление
+    int line_width = LINE_WIDTH / 2 + 5;  // Ширина линий: 5–55 пикселей
+    float saturation = SATURATION_LEVEL / 255.0;  // Насыщенность: 0.0–1.0
+
+    // Функция для изменения насыщенности цвета
+    auto adjust_saturation = [](Color input_color, float saturation) -> Color {
+      float r = input_color.red / 255.0;
+      float g = input_color.green / 255.0;
+      float b = input_color.blue / 255.0;
+
+      float gray = r * 0.3 + g * 0.59 + b * 0.11;
+      r = r * saturation + gray * (1.0 - saturation);
+      g = g * saturation + gray * (1.0 - saturation);
+      b = b * saturation + gray * (1.0 - saturation);
+
+      return Color(
+        static_cast<uint8_t>(r * 255),
+        static_cast<uint8_t>(g * 255),
+        static_cast<uint8_t>(b * 255)
+      );
+    };
+
+    Color red(255, 0, 18);
+    Color green(0, 179, 44);
+
+    // Применяем насыщенность к цветам
+    red = adjust_saturation(red, saturation);
+    green = adjust_saturation(green, saturation);
+
+    for (int i = 0; i < length; i++) {
+      // Используем побитовый сдвиг для создания плавного перехода
+      int pos = (i + step) % (2 * line_width);
+      if (pos < line_width) {
+        it[i] = red;
+      } else {
+        it[i] = green;
+      }
+    }
+
+    step += speed;
+    if (step >= 2 * line_width) {
+      step = 0;
+    }

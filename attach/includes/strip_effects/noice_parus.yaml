@@ -1,0 +1,74 @@
+addressable_lambda:
+  name: "Noise Parus"
+  update_interval: 50ms
+  lambda: |-
+    static uint32_t count = 0;
+    static uint32_t dist = 12321;
+    static uint32_t beat_timer = 0;
+
+
+    // Инициализация при первом запуске
+    if (initial_run) {
+      ESP_LOGD("noise", "Noise effect initialized");
+      for (int i = 0; i < it.size(); i++) {
+        it[i] = Color(0, 0, 0);  // Гасим ленту
+      }
+    }
+
+    // Получаем значения ваших слайдеров
+    int speed_val = id(effect_speed).state;      // 0–255 (скорость)
+    int scale_val = id(effect_scale).state;        // 0–100 (масштаб)
+    int intensity_val = id(effect_intensity).state; // 0–255 (яркость)
+
+
+    // Конвертируем scale_val в диапазон 1–255 для расчёта шума
+    uint8_t variant = (uint8_t)((scale_val * 2.55f) + 1);  // 1–255
+
+    // Обновляем "время" эффекта
+    count += (speed_val - 128) / 10;  // При speed_val=128 — стоп; >128 — быстрее
+
+
+    beat_timer++;
+    float beat_phase = (beat_timer * 0.0628f);  // 0.0628 ≈ 2π / 10 (период 10 сек)
+    float beat_value = sin(beat_phase) * 1.5f + 2.5f;  // Диапазон: 1–4
+    dist += (uint8_t)beat_value;
+
+
+    // Основной цикл: расчёт цвета для каждого пикселя
+    for (int i = 0; i < it.size(); i++) {
+      // Генерируем "шум" через синусоиды
+      float noise = 0.0f;
+      noise += sin((i * variant / 10.0f + count) * 0.1f) * 0.5f;
+      noise += sin((dist + i * variant) * 0.05f) * 0.5f;
+      noise = (noise + 1.0f) / 2.0f;  // Нормализуем в 0–1
+
+      uint8_t idx = (uint8_t)(noise * 255.0f);  // Преобразуем в 0–255
+
+      // HSV → RGB
+      float h = (idx * 1.4f);           // Оттенок (0–360°)
+      float s = 240.0f;                 // Насыщенность
+      float v = 220.0f;               // Яркость
+
+      int i_h = (int)(h / 60.0f) % 6;
+      float f = h / 60.0f - i_h;
+      float p = v * (1.0f - s / 255.0f);
+      float q = v * (1.0f - f * s / 255.0f);
+      float t = v * (1.0f - (1.0f - f) * s / 255.0f);
+
+      uint8_t r = 0, g = 0, b = 0;
+      switch (i_h) {
+        case 0: r = (uint8_t)v; g = (uint8_t)t; b = (uint8_t)p; break;
+        case 1: r = (uint8_t)q; g = (uint8_t)v; b = (uint8_t)p; break;
+        case 2: r = (uint8_t)p; g = (uint8_t)v; b = (uint8_t)t; break;
+        case 3: r = (uint8_t)p; g = (uint8_t)q; b = (uint8_t)v; break;
+        case 4: r = (uint8_t)t; g = (uint8_t)p; b = (uint8_t)v; break;
+        case 5: r = (uint8_t)v; g = (uint8_t)p; b = (uint8_t)q; break;
+      }
+
+      // Применяем яркость
+      r = (uint8_t)(r * (intensity_val / 255.0f));
+      g = (uint8_t)(g * (intensity_val / 255.0f));
+      b = (uint8_t)(b * (intensity_val / 255.0f));
+
+      it[i] = Color(r, g, b);
+    }

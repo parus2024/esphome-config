@@ -1,0 +1,150 @@
+addressable_lambda:
+  name: Super Vesuvius Parus
+  update_interval: 30ms
+  lambda: |-
+    // СЛАЙДЕРЫ
+    int speed_val = id(effect_speed).state;
+    int scale_val = id(effect_scale).state;
+    int intensity_val = id(effect_intensity).state;
+
+    // ЦВЕТОВАЯ ПАЛИТРА
+    Color colors[] = {
+      Color(255, 0, 0),    // Красный
+      Color(0, 255, 0),    // Зелёный
+      Color(255, 255, 0),  // Жёлтый
+      Color(0, 0, 255),    // Синий
+      Color(255, 0, 255),  // Пурпурный
+      Color(0, 255, 255),  // Голубой
+      Color(255, 255, 255),// Белый
+      Color(0, 0, 0)       // Чёрный
+    };
+    const int color_size = 8;
+
+    const int max_wave_length = 40;  // Макс. длина волны в пикселях
+
+
+    // СТАТИЧЕСКИЕ ПЕРЕМЕННЫЕ
+    static std::vector<std::tuple<int, int, int>> waves;  // {color_idx, center, age}
+    static uint32_t last_update = 0;
+    static uint32_t next_wave_time = 0;
+
+    if (initial_run) {
+      ESP_LOGD("effect", "Vesuvius (Bidirectional Gradient Waves)");
+      last_update = millis();
+      next_wave_time = last_update;
+      waves.push_back(std::make_tuple(0, it.size() / 2, 0));
+    }
+
+    // 1. РАСЧЁТ ВРЕМЕНИ ОБНОВЛЕНИЯ (effect_speed)
+    uint32_t current_time = millis();
+    int update_interval = 150 - (speed_val * 140) / 255;
+    update_interval = max(update_interval, 10);
+    if (current_time - last_update < update_interval) {
+      return;
+    }
+    last_update = current_time;
+
+
+    // 2. РАСЧЁТ ДЛИНЫ ВОЛНЫ (effect_scale)
+    int wave_length = 10 + (scale_val * 30) / 255;  // 10–40 пикселей
+    wave_length = min(wave_length, max_wave_length);
+    int half_length = wave_length / 2;
+
+
+    // 3. РАСЧЁТ ЯРКОСТИ (effect_intensity)
+    int base_brightness = intensity_val;
+
+
+    // 4. РАСЧЁТ ПЕРИОДА ЗАПУСКА ВОЛН
+    uint32_t wave_interval = 3000 - (intensity_val * 2900) / 255;
+    wave_interval = max(wave_interval, (uint32_t)100);  // 100–3000 мс
+
+
+    // 5. ЗАПУСК НОВОЙ ВОЛНЫ
+    if (current_time >= next_wave_time) {
+      int new_color = (std::get<0>(waves.back()) + 1) % color_size;
+      int center = it.size() / 2;
+      waves.push_back(std::make_tuple(new_color, center, 0));
+      next_wave_time = current_time + wave_interval;
+    }
+
+    // 6. ОЧИСТКА ЛЕНТЫ
+    it.all() = Color(0, 0, 0);
+
+    // 7. ДВИЖЕНИЕ И ОТРИСОВКА ВОЛН (В ОБЕ СТОРОНЫ)
+    for (auto& wave : waves) {
+      int& color_idx = std::get<0>(wave);
+      int& center = std::get<1>(wave);
+      int& age = std::get<2>(wave);
+
+      // Позиции для левой и правой волн
+      int left_center = center - age;   // Волна влево
+      int right_center = center + age;  // Волна вправо
+
+
+      Color base_color = colors[color_idx];
+
+
+      // Отрисовка ЛЕВОЙ волны
+      for (int i = -half_length; i <= half_length; i++) {
+        int pos = left_center + i;
+        if (pos < 0 || pos >= it.size()) continue;
+
+
+        float t = abs(i) / (float)half_length;  // 0..1
+        int brightness_factor = base_brightness * (1.0f - t);
+
+
+        Color pixel_color = Color(
+          (base_color.r * brightness_factor) / 255,
+          (base_color.g * brightness_factor) / 255,
+          (base_color.b * brightness_factor) / 255
+        );
+
+        uint8_t r = min(it[pos].get_red()   + pixel_color.r, 255);
+        uint8_t g = min(it[pos].get_green() + pixel_color.g, 255);
+        uint8_t b = min(it[pos].get_blue()  + pixel_color.b, 255);
+
+        it[pos].set_red(r);
+        it[pos].set_green(g);
+        it[pos].set_blue(b);
+      }
+
+      // Отрисовка ПРАВОЙ волны
+      for (int i = -half_length; i <= half_length; i++) {
+        int pos = right_center + i;
+        if (pos < 0 || pos >= it.size()) continue;
+
+        float t = abs(i) / (float)half_length;  // 0..1
+        int brightness_factor = base_brightness * (1.0f - t);
+
+        Color pixel_color = Color(
+          (base_color.r * brightness_factor) / 255,
+          (base_color.g * brightness_factor) / 255,
+          (base_color.b * brightness_factor) / 255
+        );
+
+        uint8_t r = min(it[pos].get_red()   + pixel_color.r, 255);
+        uint8_t g = min(it[pos].get_green() + pixel_color.g, 255);
+        uint8_t b = min(it[pos].get_blue()  + pixel_color.b, 255);
+
+        it[pos].set_red(r);
+        it[pos].set_green(g);
+        it[pos].set_blue(b);
+      }
+
+      age++;  // Увеличиваем возраст волны (она смещается)
+    }
+
+    // 8. УДАЛЕНИЕ ВОЛН, ВЫШЕДШИХ ЗА КРАЯ
+    waves.erase(
+      std::remove_if(waves.begin(), waves.end(),
+        [&](const std::tuple<int, int, int>& wave) {
+          int center = std::get<1>(wave);
+          int age = std::get<2>(wave);
+          int left_edge = center - age - half_length;
+          int right_edge = center + age + half_length;
+          return (left_edge < 0 && right_edge >= it.size());
+        }),
+      waves.end()
+    );

@@ -43,7 +43,7 @@ addressable_lambda:
       state = (state + 1) % 2;
     }
 
-    auto call = id(holl_ws2812).turn_on();  // ЗАМЕНИТЕ my_led на ID вашей лампы!
+    auto call = id(${friendly_name_short}).turn_on();  // ЗАМЕНИТЕ my_led на ID вашей лампы!
     call.set_transition_length(1);
 
     float brightness = (state == 0) 
@@ -69,3 +69,4 @@ addressable_lambda:
     }
 
     call.perform();
+

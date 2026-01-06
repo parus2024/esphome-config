@@ -1,0 +1,111 @@
+switch:
+  - platform: template
+    name: "Random Mode"
+    icon: "mdi:shuffle"
+    id: random_mode
+    optimistic: true
+
+interval:
+  - interval: 1s  # Проверяем каждую секунду
+    then:
+      - lambda: |-
+          static uint32_t last_change_ms = 0;
+          static uint32_t effect_duration_ms = 15000; // Значение по умолчанию: 15 секунд
+
+          // Получаем текущее время воспроизведения из datetime_duration
+          int mm = id(datetime_duration).hour;   // минуты (MM)
+          int ss = id(datetime_duration).minute; // секунды (SS)
+
+          // Пересчитываем в миллисекунды
+          effect_duration_ms = (mm * 60 + ss) * 1000;
+
+          if (!id(random_mode).state) {
+            return;
+          }
+
+          uint32_t now = millis();
+          uint32_t elapsed = now - last_change_ms;
+
+          if (elapsed >= effect_duration_ms) {
+            last_change_ms = now;
+
+            auto selector = id(preset_selector).make_call();
+            selector.set_option("None");
+            selector.perform();
+
+            const auto &effects = id(holl_ws2812).get_effects();
+            uint8_t total = effects.size();
+            std::string curr_effect = id(holl_ws2812).get_effect_name();
+
+            uint8_t rand;
+            do {
+              rand = random(total);
+            } while (
+              (strcmp(effects[rand]->get_name(), "Sunrise Parus") == 0) ||
+              (strcmp(effects[rand]->get_name(), "None") == 0) ||
+              (strcmp(effects[rand]->get_name(), "Strobe Parus") == 0)
+            );
+
+            // Устанавливаем случайный эффект
+            auto call = id(holl_ws2812).turn_on();
+            call.set_effect(effects[rand]->get_name());
+
+            // Определяем настройки для каждого эффекта // speed, scale, intensity
+            std::map<std::string, std::tuple<int, int, int>> effect_settings = {
+              {"Balls Parus", {128, 64, 200}},
+              {"Blue Scan Parus", {255, 128, 128}},
+              {"Bluez Parus", {128, 20, 200}},
+              {"Candle Parus", {180, 70, 150}},
+              {"Candy Cane Parus", {128, 50, 200}},
+              {"Chistmas Parus", {128, 128, 255}},
+              {"confetti Parus", {128, 128, 200}},
+              {"Dinamic Smooth Parus", {128, 128, 200}},
+              {"Explosion Parus", {200, 50, 170}},
+              {"Fireworks Parus", {100, 50, 70}},
+              {"Glitter Parus", {128, 50, 30}},
+              {"Hue Parus", {200, 50, 200}},
+              {"Juggle Parus", {20, 30, 200}},
+              {"Lava Parus", {128, 128, 200}},
+              {"Matrix Rain Parus", {128, 80, 200}},
+              {"Noise Parus", {160, 50, 200}},
+              {"Rainbow Parus", {20, 50, 200}},
+              {"Snow Flakes Parus", {50, 60, 200}},
+              {"Strobe Parus", {180, 50, 200}},
+              {"Starburst Parus", {180, 60, 200}},
+              {"Sunrise Parus", {240, 50, 255}},
+              {"Trail Parus", {128, 50, 200}},
+              {"Tunnel Parus", {200, 50, 70}},
+              {"Twinkle Parus", {200, 50, 128}},
+              {"Two Wave Parus", {200, 50, 200}},
+              {"Wave Parus", {200, 70, 60}},
+              {"Wipe Dinamic Parus", {50, 100, 128}},
+              {"Wheel Of Color Parus", {100, 50, 128}},
+
+              // Добавьте остальные эффекты и их настройки
+            };
+
+            std::string selected_effect = effects[rand]->get_name();
+            if (effect_settings.find(selected_effect) != effect_settings.end()) {
+              auto settings = effect_settings[selected_effect];
+              id(effect_speed).publish_state(std::get<0>(settings));
+              id(effect_scale).publish_state(std::get<1>(settings));
+              id(effect_intensity).publish_state(std::get<2>(settings));
+            }
+            call.perform();
+            // Обновляем текстовый сенсор с информацией о текущем эффекте и его настройках
+            int speed = id(effect_speed).state;
+            int scale = id(effect_scale).state;
+            int intensity = id(effect_intensity).state;
+            uint8_t brightness = id(holl_ws2812).current_values.get_brightness() * 100;
+
+            char buf[256];
+            snprintf(buf, sizeof(buf),
+              "Random Mode\nEffect: %s\nIntensity: %d\nSpeed: %d\nScale: %d\nBrightness: %d%%",
+              selected_effect.c_str(),
+              intensity,
+              speed,
+              scale,
+              brightness
+            );
+            id(preset_info).publish_state(std::string(buf));
+          }

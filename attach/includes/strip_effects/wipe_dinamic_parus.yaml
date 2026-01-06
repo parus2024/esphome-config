@@ -1,5 +1,5 @@
 addressable_lambda:
-  name: "Wipe Dynamic Parus"
+  name: "Wipe Dinamic Parus"
   update_interval: 20ms
   lambda: |-
     static int length = 0;  // текущая длина хвоста
@@ -64,3 +64,4 @@ addressable_lambda:
     for (int i = 0; i < length && i < it.size(); i++) {
       it[i] = dynamic_color;
     }
+

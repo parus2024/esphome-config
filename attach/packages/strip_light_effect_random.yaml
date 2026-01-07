@@ -4,6 +4,7 @@ switch:
     icon: "mdi:shuffle"
     id: random_mode
     optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON 
 
 interval:
   - interval: 1s  # Проверяем каждую секунду

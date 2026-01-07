@@ -1,0 +1,66 @@
+addressable_lambda:
+  name: "Wipe Dinamic Parus"
+  update_interval: 20ms
+  lambda: |-
+    static int length = 0;  // текущая длина хвоста
+    static bool reverse = false;  // направление движения
+
+    // Получаем значения со слайдеров
+    const uint8_t SPEED = static_cast<uint8_t>(id(effect_speed).state);      // 0–255
+    const uint8_t SCALE = static_cast<uint8_t>(id(effect_scale).state);       // 0–100 (проценты)
+    const uint8_t INTENSITY = static_cast<uint8_t>(id(effect_intensity).state); // 0–255 (выбор цвета)
+
+    // Нормализуем значения
+    int speed = SPEED / 25 + 1;  // Скорость: 1–10 шагов за обновление
+    int target = static_cast<int>((it.size() * SCALE) / 100);  // Желаемая длина хвоста в процентах от длины ленты
+
+    // Выбираем цвет из набора (16 цветов)
+    const Color colors[16] = {
+      Color(255, 0, 0),    // Красный
+      Color(255, 127, 0),  // Оранжевый
+      Color(255, 255, 0),  // Жёлтый
+      Color(0, 255, 0),    // Зелёный
+      Color(0, 255, 255),  // Голубой
+      Color(0, 0, 255),    // Синий
+      Color(127, 0, 255),  // Фиолетовый
+      Color(255, 0, 255),  // Розовый
+      Color(255, 165, 0),  // Коралловый
+      Color(255, 20, 147), // Розово-красный
+      Color(128, 0, 128),  // Пурпурный
+      Color(0, 128, 0),    // Тёмно-зелёный
+      Color(0, 128, 128),  // Тёмно-голубой
+      Color(75, 0, 130),   // Индиго
+      Color(238, 130, 238),// Фиолетовый
+      Color(255, 255, 255)  // Белый
+    };
+
+    int color_index = (INTENSITY * 16) / 256;  // Выбираем цвет из набора
+    Color dynamic_color = colors[color_index];
+
+    // Логика движения полосы
+    if (!reverse) {
+      length += speed;
+      if (length >= target) {
+        reverse = true;
+      }
+    } else {
+      length -= speed;
+      if (length <= 0) {
+        reverse = false;
+      }
+    }
+
+    // Ограничиваем длину полосы
+    if (length > it.size()) {
+      length = it.size();
+    } else if (length < 0) {
+      length = 0;
+    }
+
+    // Очищаем ленту
+    it.all() = Color(0, 0, 0);
+
+    // Заполняем текущую длину хвоста
+    for (int i = 0; i < length && i < it.size(); i++) {
+      it[i] = dynamic_color;
+    }

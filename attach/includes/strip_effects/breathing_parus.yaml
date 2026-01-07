@@ -1,0 +1,70 @@
+addressable_lambda:
+  name: "Breathing Parus"
+  update_interval: 100ms
+  lambda: |-
+    static const float colors[12][3] = {
+      {1.0, 0.0, 0.0}, {1.0, 0.5, 0.0}, {1.0, 1.0, 0.0},
+      {0.5, 1.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 1.0, 0.5},
+      {0.0, 1.0, 1.0}, {0.0, 0.5, 1.0}, {0.0, 0.0, 1.0},
+      {0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 0.5}
+    };
+
+    static int state = 0;
+    static int color_idx = 0;
+    static uint32_t last_change_ms = 0;
+    static bool is_initialized = false;
+    static bool color_changed = false;  // Флаг смены цвета
+
+    const int speed_val = id(effect_speed).state;
+    const int scale_val = id(effect_scale).state;
+    const int intensity = id(effect_intensity).state;
+
+    uint32_t cycle_duration = 1 + (uint32_t)((29.0f * (255 - speed_val)) / 255.0f);
+    uint32_t now = millis();
+
+    if (!is_initialized) {
+      last_change_ms = now;
+      is_initialized = true;
+    }
+
+    if (now - last_change_ms >= cycle_duration * 1000U) {
+      last_change_ms = now;
+      state = (state + 1) % 2;
+    }
+
+    auto call = id(holl_ws2812).turn_on();
+    call.set_transition_length(500);
+
+    float base_brightness = (float)intensity / 255.0f;
+    float brightness = (state == 0)
+      ? base_brightness * 0.3f  // 30% в угасании
+      : base_brightness;             // 100% во вспышке
+
+    if (scale_val == 0) {
+      call.set_rgb(1.0, 1.0, 1.0);
+    } else {
+      float r = colors[color_idx][0];
+      float g = colors[color_idx][1];
+      float b = colors[color_idx][2];
+      call.set_rgb(r, g, b);
+    }
+
+    call.set_brightness(brightness);
+
+    // Смена цвета при переходе в угасание (один раз за цикл)
+    if (state == 0) {
+      if (!color_changed) {
+        color_idx++;
+        if (color_idx >= 12) color_idx = 0;
+        color_changed = true;
+      }
+    } else {
+      color_changed = false;  // Сброс при вспышке
+    }
+
+    ESP_LOGD("breathing", "Speed: %d, Cycle: %u sec, State: %d, Color: %d, Bright: %.3f",
+             speed_val, cycle_duration, state, color_idx, brightness);
+    ESP_LOGD("color", "RGB: %.1f, %.1f, %.1f",
+             colors[color_idx][0], colors[color_idx][1], colors[color_idx][2]);
+
+    call.perform();

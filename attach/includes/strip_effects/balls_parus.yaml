@@ -1,0 +1,98 @@
+addressable_lambda:
+  name: Balls Parus
+  update_interval: 30ms
+  lambda: |-
+    // 1. Получаем значения слайдеров
+    int speed_value = id(effect_speed).state;      // 0–255 (скорость)
+    int scale_value = id(effect_scale).state;        // 1–5 (количество шаров)
+    int intensity_value = id(effect_intensity).state; // 0–255 (высота отскока)
+
+    // 2. Расчёт параметров на основе слайдеров
+    const int   BallCount = max(1, min(5, scale_value));  // 1–5 шаров
+    const float Gravity = -9.81;
+    const float StartHeight = 1.0 + (intensity_value / 255.0) * 2.0;  // 1.0–3.0
+
+
+    static float Height[5];        // Максимум 5 шаров
+    static float ImpactVelocityStart = sqrt(-2 * Gravity * StartHeight);
+    static float ImpactVelocity[5];
+    static float TimeSinceLastBounce[5];
+    static int   Position[5];
+    static long  ClockTimeSinceLastBounce[5];
+    static float Dampening[5];
+
+    static byte colors[5][3] = {
+      {255,   0,   0},
+      {0,   255,   0},
+      {0,     0, 255},
+      {255, 255,   0},
+      {255,   0, 255}
+    };
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Balls Parus");
+
+
+      for (int i = 0; i < BallCount; i++)
+      {
+        ClockTimeSinceLastBounce[i] = millis();
+        Height[i] = StartHeight;
+        Position[i] = 0;
+        ImpactVelocity[i] = ImpactVelocityStart;
+        TimeSinceLastBounce[i] = 0;
+        Dampening[i] = 0.90 - float(i)/pow(BallCount, 2);
+      }
+    }
+
+    it.all() = Color::BLACK;
+
+    // 3. Расчёт «скорости симуляции» (прямая зависимость от слайдера)
+    float speed_factor = (speed_value / 255.0);     // 0.0 → 1.0
+    float time_step_scale = 0.5 + speed_factor * 0.5; // 0.5 → 1.0
+
+    for (int i = 0; i < BallCount; i++)
+    {
+      // 3.1. Текущее время с последнего отскока (в мс)
+      unsigned long current_time_ms = millis();
+      TimeSinceLastBounce[i] = current_time_ms - ClockTimeSinceLastBounce[i];
+
+
+      // 3.2. «Ускоренный» расчёт высоты с учётом time_step_scale
+      // Чем больше time_step_scale, тем быстрее меняется высота → эффект ускоряется
+      float t_scaled = TimeSinceLastBounce[i] / 1000.0 * time_step_scale;
+      Height[i] = 0.5 * Gravity * t_scaled * t_scaled + ImpactVelocity[i] * t_scaled;
+
+
+      // 3.3. Проверка на отскок
+      if (Height[i] < 0)
+      {
+        Height[i] = 0;
+        ImpactVelocity[i] = Dampening[i] * ImpactVelocity[i];
+        ClockTimeSinceLastBounce[i] = current_time_ms;
+
+
+        if (ImpactVelocity[i] < 0.01)
+        {
+          ImpactVelocity[i] = ImpactVelocityStart;
+        }
+      }
+
+      // 3.4. Расчёт позиции на ленте
+      Position[i] = round(Height[i] * (it.size() / 2 - 1) / StartHeight);
+    }
+
+    // 4. Рисуем шары
+    for (int i = 0; i < BallCount; i++)
+    {
+      int pos1 = it.size() / 2 + Position[i];
+      int pos2 = it.size() / 2 - Position[i];
+
+
+      if (pos1 >= 0 && pos1 < it.size()) {
+        it[pos1] = Color(colors[i][0], colors[i][1], colors[i][2]);
+      }
+      if (pos2 >= 0 && pos2 < it.size()) {
+        it[pos2] = Color(colors[i][0], colors[i][1], colors[i][2]);
+      }
+    }

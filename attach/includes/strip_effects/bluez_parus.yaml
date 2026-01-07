@@ -1,0 +1,57 @@
+addressable_lambda:
+  name: Bluez Parus
+  update_interval: 50ms
+  lambda: |-
+    // Массив цветов (esphome::Color)
+    esphome::Color colors[] = {
+      {255, 255, 255},   // белый
+      {238, 0, 255},     // пурпурный
+      {255, 157, 0},    // оранжевый
+      {0, 28, 209},     // синий
+      {183, 255, 0},   // лайм
+      {0, 128, 128},   // бирюзовый
+      {255, 0, 255},   // фуксия
+      {255, 215, 0},   // золотой
+      {30, 144, 255},  // голубой
+      {220, 20, 60}    // бордовый
+    };
+
+    static int step = 0;           // счётчик шагов анимации
+    const int count = 10;          // количество цветов
+
+    // Читаем значения слайдеров
+    int speed = id(effect_speed).state;
+    int scale = id(effect_scale).state;
+    int intensity = id(effect_intensity).state;
+
+    if (initial_run) {
+      ESP_LOGD("BLUEZ", "Bluez Parus");
+      step = 0;
+    }
+
+    // 1. Обновляем step (для анимации)
+    step = (step + speed / 50) % it.size();  // Чем выше speed, тем быстрее сдвиг
+
+    int pos = 0;
+    int j = 0;
+
+    // 2. Заполняем ленту с учётом сдвига (step)
+    for (int i = 0; i < it.size(); i++) {
+      // Вычисляем позицию цвета с учётом сдвига
+      int shifted_i = (i + step) % it.size();
+      
+      if (j >= scale) {
+        j = 0;
+        pos++;
+        if (pos >= count) pos = 0;
+      }
+      
+      esphome::Color color = colors[pos];
+      // Масштабируем яркость
+      color.r = (color.r * intensity) / 255;
+      color.g = (color.g * intensity) / 255;
+      color.b = (color.b * intensity) / 255;
+      
+      it[shifted_i].set(color);  // Записываем со сдвигом
+      j++;
+    }

@@ -1,0 +1,40 @@
+addressable_lambda:
+  name: "Trail Parus"
+  update_interval: 50ms
+  lambda: |-
+    static int ThisPos = 0;
+
+    // Считываем значения слайдеров
+    const int speed_value = id(effect_speed).state;      // 0–255 (скорость)
+    const int trail_value = id(effect_intensity).state;  // 0–255 (яркость следа)
+    const int variant_value = id(effect_scale).state;     // 1–100 (вариант отображения)
+
+    // Нормализуем значение яркости следа до 200
+    const int normalized_trail_value = (trail_value * 200) / 255;
+
+    // Вспомогательная функция для плавного движения
+    auto beatsin8 = [](uint8_t beats_per_minute, float min_val, float max_val) -> int {
+      static uint32_t start_time = millis();
+      float t = (millis() - start_time) * beats_per_minute / 60000.0f;
+      return (int)((sin(t * 3.14159265359f * 2) + 1.0f) / 2.0f * (max_val - min_val) + min_val);
+    };
+
+    // Параметры движения
+    int delta = beatsin8(30, 0, 10);                     // Движение вперед-назад
+    int delta_pos = ThisPos + delta;                     // Текущая позиция с учетом движения
+
+    // Затухание следа
+    it.all().fade_to_black(255 - normalized_trail_value); // Чем больше normalized_trail_value, тем медленнее затухание
+
+    // Вариант отображения
+    if (variant_value > 50) {                           // Две симметричные точки
+      delta_pos = delta_pos % (it.size() / 2);
+      it[(it.size() / 2) + delta_pos] = Color(255, 255, 255); // Белая точка справа
+      it[(it.size() / 2) - delta_pos] = Color(255, 255, 255); // Белая точка слева
+    } else {                                             // Одна точка
+      delta_pos = delta_pos % it.size();
+      it[delta_pos] = Color(255, 255, 255);              // Белая точка
+    }
+
+    // Изменение позиции в зависимости от скорости
+    ThisPos = ThisPos + (speed_value / 50);

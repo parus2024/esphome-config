@@ -1,0 +1,112 @@
+addressable_lambda:
+  name: Twinkle Parus
+  update_interval: 30ms
+  lambda: |-
+    // 1. Получаем значения слайдеров
+    int speed_value = id(effect_speed).state;      // 0–255 (частота)
+    int scale_value = id(effect_scale).state;       // 1–5 (масштаб количества)
+    int intensity_value = id(effect_intensity).state; // 0–255 (яркость)
+
+    // 2. Базовые параметры
+    const int MinPixelsAtScale1 = 5;             // минимум при scale=1
+    const int MaxPixelsAtScale5 = 50;           // максимум при scale=5 (в 10 раз больше)
+    const int BaseSpawnInterval = 40;            // базовый интервал (мс)
+    const int BaseBrightness = 180;             // базовая яркость
+
+    // 3. Рассчитываем динамические параметры
+    // Интервал появления: чем выше speed_value, тем чаще
+    int PixelSpawnInterval = BaseSpawnInterval - (speed_value * 30) / 255;
+    PixelSpawnInterval = max(10, PixelSpawnInterval); // минимум 10 мс
+
+    // Максимальное число активных пикселей: линейная интерполяция
+    int MaxActivePixels = MinPixelsAtScale1 + 
+                       (MaxPixelsAtScale5 - MinPixelsAtScale1) * (scale_value - 1) / 4;
+
+    // Яркость: чем выше intensity_value, тем ярче
+    int PixelBrightness = BaseBrightness + (intensity_value / 2);
+
+    // 4. Структура для хранения пикселей
+    static struct {
+      int pos;
+      int r, g, b;
+      float alpha;
+      long start_time;
+      bool active;
+    } Pixels[64]; // запас на максимум
+
+    static long LastSpawn = 0;
+    const long PixelDuration = 1000; // время жизни пикселя (мс)
+
+    if (initial_run) {
+      ESP_LOGD("effect", "Twinkle Parus");
+
+      for (int i = 0; i < 64; i++) Pixels[i].active = false;
+      LastSpawn = millis();
+    }
+
+    it.all() = Color::BLACK;
+
+    unsigned long now = millis();
+
+    // 5. Создаём новые пиксели, пока не достигнем MaxActivePixels
+    while (true) {
+      // Считаем активные пиксели
+      int active_count = 0;
+      for (int i = 0; i < 64; i++) if (Pixels[i].active) active_count++;
+
+
+      // Если достигли максимума — выходим
+      if (active_count >= MaxActivePixels) break;
+
+      // Если пора создавать новый пиксель
+      if (now - LastSpawn >= PixelSpawnInterval) {
+        LastSpawn = now;
+
+        for (int i = 0; i < 64; i++) {
+          if (!Pixels[i].active) {
+            Pixels[i].pos = random(0, it.size());
+
+            // Случайный яркий цвет (7 вариантов)
+            int color_choice = random(0, 7);
+            switch (color_choice) {
+              case 0: Pixels[i].r = 255; Pixels[i].g = 0;   Pixels[i].b = 0;   break; // Красный
+              case 1: Pixels[i].r = 0;   Pixels[i].g = 255; Pixels[i].b = 0;   break; // Зелёный
+              case 2: Pixels[i].r = 0;   Pixels[i].g = 0;   Pixels[i].b = 255; break; // Синий
+              case 3: Pixels[i].r = 255; Pixels[i].g = 255; Pixels[i].b = 0;   break; // Жёлтый
+              case 4: Pixels[i].r = 0;   Pixels[i].g = 255; Pixels[i].b = 255; break; // Голубой
+              case 5: Pixels[i].r = 255; Pixels[i].g = 0;   Pixels[i].b = 255; break; // Фиолетовый
+              case 6: Pixels[i].r = 255; Pixels[i].g = 255; Pixels[i].b = 255; break; // Белый
+            }
+
+            Pixels[i].alpha = 0.0;
+            Pixels[i].start_time = now;
+            Pixels[i].active = true;
+            break;
+          }
+        }
+      } else {
+        break; // Не пора создавать — выходим
+      }
+    }
+
+    // 6. Обновляем активные пиксели
+    for (int i = 0; i < 64; i++) {
+      if (Pixels[i].active) {
+        long age = now - Pixels[i].start_time;
+
+        if (age > PixelDuration) {
+          Pixels[i].active = false;
+        } else {
+          float t = (float)age / PixelDuration;
+          float alpha = sin(t * 3.14159); // 0→1→0
+
+          int r = (Pixels[i].r * alpha * PixelBrightness) / 255;
+          int g = (Pixels[i].g * alpha * PixelBrightness) / 255;
+          int b = (Pixels[i].b * alpha * PixelBrightness) / 255;
+
+          if (Pixels[i].pos >= 0 && Pixels[i].pos < it.size()) {
+            it[Pixels[i].pos] = Color(r, g, b);
+          }
+        }
+      }
+    }

@@ -1,0 +1,77 @@
+addressable_lambda:
+  name: Glitter Parus
+  update_interval: 18ms
+  lambda: |-
+    static int state = 0;
+
+    if (initial_run) {
+      ESP_LOGD("effect", "Glitter Parus");
+      state = 0;
+    }
+
+    // Получаем значения слайдеров
+    const uint8_t SPEED = id(effect_speed).state;      // 0–255: частота блёсток
+    const uint8_t SCALE = id(effect_scale).state;       // 0–100: кол‑во блёсток
+    const uint8_t INTENSITY = id(effect_intensity).state; // 0–255: оттенок базового цвета
+
+
+    const uint8_t BRIGHTNESS = 220;                   // Яркость белых блёсток
+    const uint8_t BASE_VAL = 180;                   // Яркость базового цвета (0–255)
+
+
+    // --- РАСЧЁТ БАЗОВОГО ЦВЕТА ЧЕРЕЗ HSV (исправленный конвертер) ---
+    uint8_t h = INTENSITY;         // Оттенок: напрямую из effect_intensity
+    uint8_t s = 255;             // Насыщенность: максимум
+    uint8_t v = BASE_VAL;         // Яркость: фиксированная
+
+
+    uint8_t r = 0, g = 0, b = 0;
+
+    if (s == 0) {
+      r = g = b = v;
+    } else {
+      uint8_t region = h / 43;
+      uint8_t remainder = (h - (region * 43)) * 6;
+
+
+      uint8_t p = (v * (255 - s)) >> 8;
+      uint8_t q = (v * (255 - ((s * remainder) >> 8))) >> 8;
+      uint8_t t = (v * (255 - ((s * (255 - remainder)) >> 8))) >> 8;
+
+      switch (region) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+      }
+    }
+    it.all() = Color(r, g, b);  // Вся лента заливается рассчитанным цветом
+
+
+    // --- ПОЯВЛЕНИЕ БЕЛЫХ БЛЁСТОК ---
+    int spark_interval = 10 - (SPEED / 25);
+    spark_interval = spark_interval < 1 ? 1 : spark_interval;
+
+
+    if (state % spark_interval == 0) {
+      int num_sparks = 1 + (SCALE * 9) / 100;  // 1–10 блёсток
+
+
+      for (int n = 0; n < num_sparks; n++) {
+        int pos = random(it.size() - 3) + 1;  // Случайная позиция
+
+
+        // Рисуем белую искру (3 пикселя)
+        for (int offset = -1; offset <= 1; offset++) {
+          int idx = pos + offset;
+          if (idx >= 0 && idx < it.size()) {
+            it[idx] = Color(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
+          }
+        }
+      }
+    }
+
+    state++;
+    state = state % 100;  // Цикл: сброс через 100 кадров

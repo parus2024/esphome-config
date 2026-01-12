@@ -32,7 +32,7 @@ addressable_lambda:
       state = (state + 1) % 2;
     }
 
-    auto call = id(holl_ws2812).turn_on();
+    auto call = id(${friendly_name_short}).turn_on();
     call.set_transition_length(500);
 
     float base_brightness = (float)intensity / 255.0f;
@@ -68,3 +68,4 @@ addressable_lambda:
              colors[color_idx][0], colors[color_idx][1], colors[color_idx][2]);
 
     call.perform();
+

@@ -34,9 +34,9 @@ interval:
             selector.set_option("None");
             selector.perform();
 
-            const auto &effects = id(holl_ws2812).get_effects();
+            const auto &effects = id(${friendly_name_short}).get_effects();
             uint8_t total = effects.size();
-            std::string curr_effect = id(holl_ws2812).get_effect_name();
+            std::string curr_effect = id(${friendly_name_short}).get_effect_name();
 
             uint8_t rand;
             do {
@@ -48,7 +48,7 @@ interval:
             );
 
             // Устанавливаем случайный эффект
-            auto call = id(holl_ws2812).turn_on();
+            auto call = id(${friendly_name_short}).turn_on();
             call.set_effect(effects[rand]->get_name());
 
             // Определяем настройки для каждого эффекта // speed, scale, intensity
@@ -97,7 +97,7 @@ interval:
             int speed = id(effect_speed).state;
             int scale = id(effect_scale).state;
             int intensity = id(effect_intensity).state;
-            uint8_t brightness = id(holl_ws2812).current_values.get_brightness() * 100;
+            uint8_t brightness = id(${friendly_name_short}).current_values.get_brightness() * 100;
 
             char buf[256];
             snprintf(buf, sizeof(buf),

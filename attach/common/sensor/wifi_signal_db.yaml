@@ -4,3 +4,4 @@ id: wifi_signal_db
 icon: mdi:wifi
 update_interval: 60s
 entity_category: "diagnostic"
+internal: true

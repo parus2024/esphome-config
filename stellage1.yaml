@@ -39,26 +39,27 @@ esphome:
   on_boot:
     - priority: -100.0
       then:
+        - delay: 2s
         - lambda: |-
-            if (id(shelf1_state) && !id(shelf1).state) {  // Проверяем состояние globals 'shelf1_state'
+            if (id(shelf1_state) && !id(shelf1).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf1_state'
               id(shelf1).turn_on();  // Включаем полку 1
             } else {
               //id(shelf1).turn_off();
             }
         - lambda: |-
-            if (id(shelf2_state) && !id(shelf2).state) {  // Проверяем состояние globals 'shelf2_state'
+            if (id(shelf2_state) && !id(shelf2).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf2_state'
               id(shelf2).turn_on();  // Включаем полку 2
             } else {
               //id(shelf2).turn_off();
             }
         - lambda: |-
-            if (id(shelf3_state) && !id(shelf3).state) {  // Проверяем состояние globals 'shelf3_state'
+            if (id(shelf3_state) && !id(shelf3).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf3_state'
               id(shelf3).turn_on();  // Включаем полку 3
             } else {
               //id(shelf3).turn_off();
             }
         - lambda: |-
-            if (id(shelf4_state) && !id(shelf4).state) {  // Проверяем состояние globals 'shelf4_state'
+            if (id(shelf4_state) && !id(shelf4).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf4_state'
               id(shelf4).turn_on();  // Включаем полку 4
             } else {
               //id(shelf4).turn_off();

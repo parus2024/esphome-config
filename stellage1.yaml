@@ -2,7 +2,7 @@ substitutions:
   name: stellage1
   friendly_name: Stellage 1
   friendly_name_short: stellage1
-  version: '12.12.2025'
+  version: '02.02.2026'
   device_ip: 192.168.0.88
   reboot_timeout: 20min
   sda1: GPIO4
@@ -126,22 +126,47 @@ switch:
     name: "Shelf 1"
     pin: ${shelf1_pin}
     id: shelf1
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_off: 
+      then:
+        - globals.set:
+            id: shelf1_state
+            value: "false"
   - platform: gpio
     name: "Shelf 2"
     pin: ${shelf2_pin}
     id: shelf2
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_off: 
+      then:
+        - globals.set:
+            id: shelf2_state
+            value: "false"
   - platform: gpio
     name: "Shelf 3"
     pin: ${shelf3_pin}
     id: shelf3
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_off: 
+      then:
+        - globals.set:
+            id: shelf3_state
+            value: "false"
   - platform: gpio
     name: "Shelf 4"
     pin: ${shelf4_pin}
     id: shelf4
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_off: 
+      then:
+        - globals.set:
+            id: shelf4_state
+            value: "false"
+  - platform: template
+    name: "Auto Mode"
+    id: auto_mode
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
 
 text_sensor:
   - platform: debug
@@ -355,7 +380,7 @@ number:
             frequency:  !lambda 'return id(fan_frequency).state;'
 
 debug:
-  update_interval: 5s
+  update_interval: 60s
 
 datetime:
   # Example DateTime
@@ -382,28 +407,28 @@ datetime:
     on_time:
       then:
         - lambda: |-
-            if (id(shelf1_state)) {  // Проверяем состояние globals 'shelf1_state'
+            if (id(shelf1_state) && !id(shelf1).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf1_state'
               id(shelf1).turn_on();  // Включаем полку 1
             } else {
-              id(shelf1).turn_off();
+              //id(shelf1).turn_off();
             }
         - lambda: |-
-            if (id(shelf2_state)) {  // Проверяем состояние globals 'shelf2_state'
+            if (id(shelf2_state) && !id(shelf2).state  && id(auto_mode).state) {  // Проверяем состояние globals 'shelf2_state'
               id(shelf2).turn_on();  // Включаем полку 2
             } else {
-              id(shelf2).turn_off();
+              //id(shelf2).turn_off();
             }
         - lambda: |-
-            if (id(shelf3_state)) {  // Проверяем состояние globals 'shelf3_state'
+            if (id(shelf3_state) && !id(shelf3).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf3_state'
               id(shelf3).turn_on();  // Включаем полку 3
             } else {
-              id(shelf3).turn_off();
+              //id(shelf3).turn_off();
             }
         - lambda: |-
-            if (id(shelf4_state)) {  // Проверяем состояние globals 'shelf4_state'
+            if (id(shelf4_state) && !id(shelf4).state && id(auto_mode).state) {  // Проверяем состояние globals 'shelf4_state'
               id(shelf4).turn_on();  // Включаем полку 4
             } else {
-              id(shelf4).turn_off();
+              //id(shelf4).turn_off();
             }
   - platform: template
     id: datetime_off
@@ -440,10 +465,14 @@ datetime:
             id: shelf4_state
             value: !lambda 'return id(shelf4).state;'
         - delay: 1s
-        - switch.turn_off: shelf1
-        - switch.turn_off: shelf2
-        - switch.turn_off: shelf3
-        - switch.turn_off: shelf4
+        - if:
+            condition:
+              switch.is_on: auto_mode
+            then:
+              - switch.turn_off: shelf1
+              - switch.turn_off: shelf2
+              - switch.turn_off: shelf3
+              - switch.turn_off: shelf4
 graphical_display_menu:
   id: my_menu
   display: my_display

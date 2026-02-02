@@ -2,7 +2,7 @@ substitutions:
   name: stellage1
   friendly_name: Stellage 1
   friendly_name_short: stellage1
-  version: '02.02.2026'
+  version: '12.12.2025'
   device_ip: 192.168.0.88
   reboot_timeout: 20min
   sda1: GPIO4
@@ -85,6 +85,9 @@ globals:
   - id: is_updating_from_number
     type: bool
     initial_value: "false"
+  - id: datetime_triggered
+    type: bool  # Флаг: сработало ли событие datetime
+    initial_value: "false"
 light:
   - platform: status_led
     name: "Status led"
@@ -128,41 +131,69 @@ switch:
     pin: ${shelf1_pin}
     id: shelf1
     restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      then:
+        - lambda: |-
+            id(shelf1_state) = true;
     on_turn_off: 
       then:
-        - globals.set:
-            id: shelf1_state
-            value: "false"
+        - lambda: |-
+            if (!id(datetime_triggered)) {
+              id(shelf1_state) = false;
+            } else {
+              //id(shelf1_state) = true;
+            }
   - platform: gpio
     name: "Shelf 2"
     pin: ${shelf2_pin}
     id: shelf2
     restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      then:
+        - lambda: |-
+            id(shelf2_state) = true;
     on_turn_off: 
       then:
-        - globals.set:
-            id: shelf2_state
-            value: "false"
+        - lambda: |-
+            if (!id(datetime_triggered)) {
+              id(shelf2_state) = false;
+            } else {
+              //id(shelf2_state) = true;
+            }
   - platform: gpio
     name: "Shelf 3"
     pin: ${shelf3_pin}
     id: shelf3
     restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      then:
+        - lambda: |-
+            id(shelf3_state) = true;
     on_turn_off: 
       then:
-        - globals.set:
-            id: shelf3_state
-            value: "false"
+        - lambda: |-
+            if (!id(datetime_triggered)) {
+              id(shelf3_state) = false;
+            } else {
+              //id(shelf3_state) = true;
+            }
   - platform: gpio
     name: "Shelf 4"
     pin: ${shelf4_pin}
     id: shelf4
     restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      then:
+        - lambda: |-
+            id(shelf4_state) = true;
     on_turn_off: 
       then:
-        - globals.set:
-            id: shelf4_state
-            value: "false"
+        - lambda: |-
+            if (!id(datetime_triggered)) {
+              id(shelf4_state) = false;
+            } else {
+              //id(shelf4_state) = true;
+            }
   - platform: template
     name: "Auto Mode"
     id: auto_mode
@@ -454,18 +485,21 @@ datetime:
     on_time:
       then:
         - globals.set:
-            id: shelf1_state
-            value: !lambda 'return id(shelf1).state;'
-        - globals.set:
-            id: shelf2_state
-            value: !lambda 'return id(shelf2).state;'
-        - globals.set:
-            id: shelf3_state
-            value: !lambda 'return id(shelf3).state;'
-        - globals.set:
-            id: shelf4_state
-            value: !lambda 'return id(shelf4).state;'
-        - delay: 1s
+            id: datetime_triggered  # Помечаем, что сработал таймер
+            value: "true"
+#        - globals.set:
+#            id: shelf1_state
+#            value: !lambda 'return id(shelf1).state;'
+#        - globals.set:
+#            id: shelf2_state
+#            value: !lambda 'return id(shelf2).state;'
+#        - globals.set:
+#            id: shelf3_state
+#            value: !lambda 'return id(shelf3).state;'
+#        - globals.set:
+#            id: shelf4_state
+#            value: !lambda 'return id(shelf4).state;'
+        - delay: 100ms
         - if:
             condition:
               switch.is_on: auto_mode
@@ -474,6 +508,8 @@ datetime:
               - switch.turn_off: shelf2
               - switch.turn_off: shelf3
               - switch.turn_off: shelf4
+        - lambda: |-
+            id(datetime_triggered) = false;
 graphical_display_menu:
   id: my_menu
   display: my_display

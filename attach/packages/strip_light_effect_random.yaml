@@ -49,7 +49,7 @@ interval:
 
             // Устанавливаем случайный эффект
             auto call = id(${friendly_name_short}).turn_on();
-            call.set_effect(effects[rand]->get_name());
+            call.set_effect(std::string(effects[rand]->get_name().c_str()));
 
             // Определяем настройки для каждого эффекта // speed, scale, intensity
             std::map<std::string, std::tuple<int, int, int>> effect_settings = {

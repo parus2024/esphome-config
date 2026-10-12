@@ -1,0 +1,521 @@
+substitutions:
+  alarm_alert_1floor: "automation.alarm_1floor" # Сигнализация 1 этаж
+  alarm_siren_1floor: "switch.security_siren" # Сирена первый этаж
+  alarm_motion_1floor: "binary_sensor.security_motion" # Движение первый этаж
+  alarm_moisture_kitchen_1floor: "binary_sensor.osmos_moisture" # Протечка кухня первый этаж
+  alarm_moisture_coffee: "binary_sensor.coffee_ws2812_moisture" # Протечка кофейный столикпервый этаж
+  alarm_smoke_1floor: "binary_sensor.security_smoke" # Дым первый этаж
+  alarm_gas_1floor: "binary_sensor.bridge_rf_ir_1floor_gas_kitchen" # Газ первый этаж
+
+  switch_alarm_motion_1floor: "switch.security_motion_switch" # выключатель Движение первый этаж
+  switch_alarm_moisture_kitchen_1floor: "switch.osmos_moisture_switch" # выключатель Протечка кухня первый этаж
+  switch_alarm_moisture_coffee: "switch.coffee_ws2812_moisture_switch" # выключатель протечка кофе первый этаж
+  switch_alarm_smoke_1floor: "switch.security_smoke_switch" # выключатель Дым первый этаж
+  switch_alarm_gas_1floor: "input_boolean.gas_kitchen" # выключатель первый этаж
+
+binary_sensor:
+# Движение первый этаж датчик
+  - platform: homeassistant
+    id: my_alarm_motion_1floor
+    entity_id: "${alarm_motion_1floor}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_motion_1floor_btn_label
+          text_color: color_deep_orange
+          text: "${motion_sensor}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_motion_1floor).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_motion_1floor_btn_label
+                text_color: green
+                text: "${motion_sensor_off}"
+          else:
+            - lvgl.label.update:
+                id: alarm_motion_1floor_btn_label
+                text_color: color_misty_blue
+                text: "${motion_sensor_off}"
+# Газ первый этаж датчик
+  - platform: homeassistant
+    id: my_alarm_gas_1floor
+    entity_id: "${alarm_gas_1floor}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_gas_1floor_btn_label
+          text_color: color_deep_orange
+          text: "${smoke_alert}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_gas_1floor).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_gas_1floor_btn_label
+                text_color: green
+                text: "${smoke}"
+          else:
+            - lvgl.label.update:
+                id: alarm_gas_1floor_btn_label
+                text_color: color_misty_blue
+                text: "${smoke}"
+# Дым первый этаж датчик
+  - platform: homeassistant
+    id: my_alarm_smoke_1floor
+    entity_id: "${alarm_smoke_1floor}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_smoke_1floor_btn_label
+          text_color: color_deep_orange
+          text: "${fire}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_smoke_1floor).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_smoke_1floor_btn_label
+                text_color: green
+                text: "${fire}"
+          else:
+            - lvgl.label.update:
+                id: alarm_smoke_1floor_btn_label
+                text_color: color_misty_blue
+                text: "${fire}"
+# Протечка мойка первый этаж датчик
+  - platform: homeassistant
+    id: my_alarm_moisture_kitchen_1floor
+    entity_id: "${alarm_moisture_kitchen_1floor}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_moisture_kitchen_1floor_btn_label
+          text_color: color_deep_orange
+          text: "${water_alert}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_moisture_kitchen_1floor).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_moisture_kitchen_1floor_btn_label
+                text_color: green
+                text: "${water_off}"
+          else:
+            - lvgl.label.update:
+                id: alarm_moisture_kitchen_1floor_btn_label
+                text_color: color_misty_blue
+                text: "${water_off}"
+# Протечка кофе первый этаж датчик
+  - platform: homeassistant
+    id: my_alarm_moisture_coffee
+    entity_id: "${alarm_moisture_coffee}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_moisture_coffee_btn_label
+          text_color: color_deep_orange
+          text: "${water_alert}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_moisture_coffee).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_moisture_coffee_btn_label
+                text_color: green
+                text: "${water_off}"
+          else:
+            - lvgl.label.update:
+                id: alarm_moisture_coffee_btn_label
+                text_color: color_misty_blue
+                text: "${water_off}"
+switch:
+# Уведомление движения первый этаж
+  - platform: homeassistant
+    id: my_alarm_alert_1floor
+    entity_id: "${alarm_alert_1floor}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_alert_1floor_btn_label
+          text_color: color_deep_orange
+          text: "${alert}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_alert_1floor_btn_label
+          text_color: color_misty_blue
+          text: "${alert_off}"
+# Движение выключатель
+  - platform: homeassistant
+    id: my_switch_alarm_motion_1floor
+    entity_id: "${switch_alarm_motion_1floor}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_motion_1floor_btn_label
+          text_color: green
+          text: "${motion_sensor_off}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_motion_1floor_btn_label
+          text_color: color_misty_blue
+          text: "${motion_sensor_off}"
+# Сирена
+  - platform: homeassistant
+    id: my_alarm_siren_1floor
+    entity_id: "${alarm_siren_1floor}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_siren_1floor_btn_label
+          text_color: color_deep_orange
+          text: "${alarm_on}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_siren_1floor_btn_label
+          text_color: green
+          text: "${alarm_off}"
+# Газ выключатель первый этаж
+  - platform: homeassistant
+    id: my_switch_alarm_gas_1floor
+    entity_id: "${switch_alarm_gas_1floor}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_gas_1floor_btn_label
+          text_color: green
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_gas_1floor_btn_label
+          text_color: color_misty_blue
+# Дым выключатель
+  - platform: homeassistant
+    id: my_switch_alarm_smoke_1floor
+    entity_id: "${switch_alarm_smoke_1floor}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_smoke_1floor_btn_label
+          text_color: green
+          text: "${fire}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_smoke_1floor_btn_label
+          text_color: color_misty_blue
+          text: "${fire}"
+# Протечка кухня первый этаж выключатель
+  - platform: homeassistant
+    id: my_switch_alarm_moisture_kitchen_1floor
+    entity_id: "${switch_alarm_moisture_kitchen_1floor}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_moisture_kitchen_1floor_btn_label
+          text_color: green
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_moisture_kitchen_1floor_btn_label
+          text_color: color_misty_blue
+# Протечка кофе выключатель
+  - platform: homeassistant
+    id: my_switch_alarm_moisture_coffee
+    entity_id: "${switch_alarm_moisture_coffee}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_moisture_coffee_btn_label
+          text_color: green
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_moisture_coffee_btn_label
+          text_color: color_misty_blue
+
+lvgl:
+  pages:
+    - id: alarm_1floor_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        # Кнопка Alarm Alert первый этаж
+        - button:
+            id: alarm_alert_1floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 235                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_alert_1floor_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${alert}"
+                  on_click:
+                    - homeassistant.action:
+                        action: automation.toggle
+                        data:
+                          entity_id: "${alarm_alert_1floor}"
+              - label:
+                  id: alarm_alert_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Уведомления"
+                  align: CENTER
+                  y: 30
+                  clickable: false # запретить интерактивность у label
+              - label:
+                  id: alarm_alert_1floor_btn_name1_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "движений"
+                  align: CENTER
+                  y: 55
+                  clickable: false # запретить интерактивность у label
+
+        # Кнопка Сирена первый этаж
+        - button:
+            id: alarm_siren_1floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 230                 # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_siren_1floor_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${alarm_off}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${alarm_siren_1floor}"
+              - label:
+                  id: alarm_siren_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Сирена"
+                  align: CENTER
+                  y: 50
+                  clickable: false # запретить интерактивность у label
+        # Кнопка Движение первый этаж
+        - button:
+            id: alarm_motion_1floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 160                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 160                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_motion_1floor_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${motion_sensor_off}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${switch_alarm_motion_1floor}"
+              - label:
+                  id: alarm_motion_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Движение"
+                  align: CENTER
+                  y: 50
+                  clickable: false # запретить интерактивность у label
+        # Кнопка газ первый этаж
+        - button:
+            id: alarm_gas_1floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 170                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 160                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_gas_1floor_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${smoke}"
+                  on_click:
+                    - homeassistant.action:
+                        action: input_boolean.toggle
+                        data:
+                          entity_id: "${switch_alarm_gas_1floor}"
+              - label:
+                  id: alarm_gas_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Газ"
+                  align: CENTER
+                  y: 50
+                  clickable: false # запретить интерактивность у label
+        # Кнопка дым
+        - button:
+            id: alarm_smoke_1floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 325                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 160                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_smoke_1floor_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${fire}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${switch_alarm_smoke_1floor}"
+              - label:
+                  id: alarm_smoke_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Дым"
+                  align: CENTER
+                  y: 50
+                  clickable: false # запретить интерактивность у label
+        # Кнопка протечка кухня
+        - button:
+            id: alarm_moisture_kitchen_1floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 170                     # Смещение контейнера по горизонтали от левого края экрана
+            y: 315                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_moisture_kitchen_1floor_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${water_off}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${switch_alarm_moisture_kitchen_1floor}"
+              - label:
+                  id: alarm_moisture_kitchen_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Мойка"
+                  align: CENTER
+                  y: 50
+                  clickable: false # запретить интерактивность у label
+        # Кнопка протечка душ
+        - button:
+            id: alarm_moisture_coffee_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 325                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 315                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  id: alarm_moisture_coffee_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${water_off}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${switch_alarm_moisture_coffee}"
+              - label:
+                  id: alarm_moisture_coffee_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Кофе"
+                  align: CENTER
+                  y: 50
+                  clickable: false # запретить интерактивность у label
+        - label:
+            id: alarm_alert_1floor_btn_number_label
+            text_color: color_misty_blue
+            text_font: nunito_84
+            text: "1этаж"
+            align: TOP_LEFT
+            x: 65
+            y: 300
+            clickable: false # запретить интерактивность у label
+        # Return
+        - button:
+            id: alarm_1floor_back
+            x: 10
+            y: 400
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: alarm_1floor_back_label
+                  align: CENTER
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: alarm_panel_page

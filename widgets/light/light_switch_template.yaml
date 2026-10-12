@@ -1,0 +1,12 @@
+switch:
+  - platform: homeassistant
+    id:  ${light_device_name}_local
+    entity_id: "${light_entity_id}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: ${light_label_id}
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: ${light_label_id}
+          text_color: color_steel_blue

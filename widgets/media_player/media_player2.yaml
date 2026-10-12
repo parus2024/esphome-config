@@ -1,0 +1,544 @@
+substitutions:
+  ha_server: "http://192.168.0.100:8123"
+  media_player2_entity: "media_player.yandex_station_r1082400085a4y"
+
+globals:
+  - id: media_player2_repeat_modes
+    type: std::vector<std::string>
+    initial_value: '{"all", "one", "off"}'
+    max_restore_data_length: 6
+  - id: media_player2_repeat_icons
+    type: std::vector<std::string>
+    initial_value: '{"${repeat_all_icon}", "${repeat_one_icon}", "${repeat_off_icon}"}'
+    max_restore_data_length: 18
+  - id: media_player2_current_repeat_mode_idx
+    type: int
+    initial_value: '0'
+    max_restore_data_length: 2
+  - id: media_player2_tmp_repeat_mode
+    type: std::string
+    restore_value: no
+    initial_value: '"all"'
+    max_restore_data_length: 8
+  - id: media_player2_tmp_repeat_icon
+    type: std::string
+    restore_value: no
+    initial_value: '"${repeat_all_icon}"'
+    max_restore_data_length: 18
+  - id: media_player2_duration_slider_user_interaction
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: media_player2_slider_position
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: media_player2_pending_repeat_value
+    type: std::string
+    restore_value: no
+    initial_value: '""'
+    max_restore_data_length: 12
+
+script:
+
+  - id: media_player2_update_repeat_mode_script
+    mode: restart
+    then:
+      - lambda: |-
+          std::string x = id(media_player2_pending_repeat_value);
+          auto modes = id(media_player2_repeat_modes);
+          auto icons = id(media_player2_repeat_icons);
+          for (int i = 0; i < modes.size(); i++) {
+            if (modes[i] == x) {
+              id(media_player2_current_repeat_mode_idx) = i;
+              id(media_player2_tmp_repeat_mode) = modes[i];
+              id(media_player2_tmp_repeat_icon) = icons[i];
+              break;
+            }
+          }
+      - lvgl.label.update:
+          id: media_player2_repeat_label
+          text: !lambda 'return id(media_player2_tmp_repeat_icon);'
+
+  - id: media_player2_handle_repeat_press_script
+    mode: restart
+    then:
+      - lambda: |-
+          int idx = id(media_player2_current_repeat_mode_idx);
+          auto modes = id(media_player2_repeat_modes);
+          auto icons = id(media_player2_repeat_icons);
+          idx = (idx + 1) % modes.size();
+          id(media_player2_current_repeat_mode_idx) = idx;
+          std::string new_mode = modes[idx];
+          std::string new_icon = icons[idx];
+          id(media_player2_tmp_repeat_mode) = new_mode;
+          id(media_player2_tmp_repeat_icon) = new_icon;
+      - lvgl.label.update:
+          id: media_player2_repeat_label
+          text: !lambda 'return id(media_player2_tmp_repeat_icon);'
+      - homeassistant.action:
+          action: media_player.repeat_set
+          data:
+            entity_id: "${media_player2_entity}"
+            repeat: !lambda 'return id(media_player2_tmp_repeat_mode);'
+
+  - id: media_player2_handle_duration_slider_release_script
+    mode: restart
+    then:
+      - homeassistant.service:
+          service: media_player.media_seek
+          data:
+            entity_id: "${media_player2_entity}"
+            seek_position: !lambda 'return std::to_string(int(id(media_player2_slider_position)));'
+      - delay: 2s
+      - lambda: |-
+          id(media_player2_duration_slider_user_interaction) = false;
+
+lvgl:
+  pages:
+    - id: media_player2_page
+      bg_color: color_slate_blue_gray
+      widgets:
+
+        # Title/Artist/Duration
+        - obj:
+            x: 10
+            y: 10
+            width: 460
+            height: 140
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: media_player2_title_label
+                  height: 40
+                  width: 430
+                  long_mode: DOT
+                  y: 0
+                  align: TOP_LEFT
+                  text_color: color_misty_blue
+                  text_font: nunito_32
+                  text: "Title"
+              - label:
+                  id: media_player2_artist_label
+                  height: 30
+                  width: 360
+                  long_mode: DOT
+                  y: 5
+                  align: CENTER
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Artist"
+              - slider:
+                  id: media_player2_duration_pos_slider
+                  radius: 2
+                  y: 40
+                  bg_color: color_slate_blue_gray
+                  align: CENTER
+                  width: 320
+                  height: 5
+                  min_value: 0
+                  max_value: 100
+                  indicator:
+                    bg_color: color_misty_blue
+                    radius: 2
+                  knob:
+                    bg_opa: TRANSP
+                  on_press:
+                    - lambda: |-
+                        id(duration_slider_user_interaction) = true;
+                  on_release:
+                    - lambda: |-
+                        id(media_player2_slider_position) = x;
+                    - script.execute: media_player2_handle_duration_slider_release_script
+
+        # Controls
+        - obj:
+            y: 160
+            width: 460
+            height: 120
+            align: TOP_MID
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              # Off
+              - label:
+                  x: 10
+                  align: LEFT_MID
+                  text_color: color_steel_blue
+                  text_font: mdi_icons_40
+                  text: "${power_setting_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: media_player.turn_off
+                        data:
+                          entity_id: "${media_player2_entity}"
+              # back
+              - label:
+                  x: -80
+                  align: CENTER
+                  text_color: color_misty_blue
+                  text_font: icons_38
+                  text: "${back_step_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: media_player.media_previous_track
+                        data:
+                          entity_id: "${media_player2_entity}"
+
+              # play / pause
+              - obj:
+                  id: media_player2_control_play_bg
+                  height: 90
+                  width: 90
+                  bg_color: color_steel_blue
+                  bg_opa: 80%
+                  border_opa: TRANSP
+                  radius: 50
+                  align: CENTER
+                  widgets:
+                    - label:
+                        id: media_player2_state_label
+                        align: CENTER
+                        text_color: color_misty_blue
+                        text_font: icons_48
+                        text: "${play_icon}"
+                        on_press:
+                          - if:
+                              condition:
+                                lambda: 'return id(media_player2_state).state == "playing";'
+                              then:
+                                - homeassistant.action:
+                                    action: media_player.media_pause
+                                    data:
+                                      entity_id: "${media_player2_entity}"
+                              else:
+                                - homeassistant.action:
+                                    action: media_player.media_play
+                                    data:
+                                      entity_id: "${media_player2_entity}"
+
+              # forward
+              - label:
+                  x: 80
+                  align: CENTER
+                  text_color: color_misty_blue
+                  text_font: icons_38
+                  text: "${forward_step_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: media_player.media_next_track
+                        data:
+                          entity_id: "${media_player2_entity}"
+
+              # repeat
+              - label:
+                  id: media_player2_repeat_label
+                  x: -10
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  text_font: icons_38
+                  text: "${repeat_all_icon}"
+                  on_press:
+                    - script.execute: media_player2_handle_repeat_press_script
+
+        # Volume
+        - obj:
+            y: 300
+            width: 460
+            height: 80
+            align: TOP_MID
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              # mute
+              - label:
+                  id: media_player2_mute_label
+                  x: 10
+                  align: LEFT_MID
+                  text_color: color_steel_blue
+                  text_font: icons_32
+                  text: "${volume_on_icon}"
+                  on_press:
+                    - if:
+                        condition:
+                          lambda: 'return id(media_player2_is_volume_muted).state;'
+                        then:
+                          - homeassistant.action:
+                              action: media_player.volume_mute
+                              data:
+                                entity_id: "${media_player2_entity}"
+                                is_volume_muted: "false"
+                        else:
+                          - homeassistant.action:
+                              action: media_player.volume_mute
+                              data:
+                                entity_id: "${media_player2_entity}"
+                                is_volume_muted: "true"
+
+              # vol down                  
+              - label:
+                  id: media_player2_vol_down_label
+                  x: -280
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  text_font: icons_32
+                  text: "${volume_minus_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: media_player.volume_down
+                        data:
+                          entity_id: "${media_player2_entity}"
+
+              # set vol
+              - slider:
+                  id: media_player2_volume_slider
+                  bg_color: color_slate_blue_gray
+                  bg_opa: 100%
+                  align: RIGHT_MID
+                  x: -60
+                  width: 200
+                  height: 10
+                  min_value: 0
+                  max_value: 100
+                  indicator:
+                    bg_color: color_misty_blue
+                  knob:
+                    bg_color: color_misty_blue
+                  on_release:
+                    - homeassistant.action:
+                        action: media_player.volume_set
+                        data:
+                          entity_id: "${media_player2_entity}"
+                          volume_level: !lambda 'return float(x) / 100.0;'
+
+              # vol up
+              - label:
+                  id: media_player2_vol_up_label
+                  x: -10
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  text_font: icons_32
+                  text: "${volume_plus_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: media_player.volume_up
+                        data:
+                          entity_id: "${media_player2_entity}"
+
+        # Media player name
+        - obj:
+            x: -10
+            y: 400
+            width: 380
+            height: 60
+            pad_all: 0 # отступы в контейнере
+            align: TOP_RIGHT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            shadow_opa: TRANSP
+            border_width: 0
+            radius: 10
+            widgets:
+#              - label:
+#                  id: media_player2_name_label
+#                  x: 10
+#                  y: 0
+#                  width: 320
+#                  height: 50
+#                  align: center
+#                  text_font: nunito_32
+#                  long_mode: DOT
+#                  text_color: color_misty_blue
+#                  text: "Friendly name"
+              - dropdown:
+                  id: media_player2_name_dropdown
+                  x: 10
+                  width: 250
+                  align: CENTER
+                  selected_index: !lambda |-
+                    std::string current = id(media_player_selector).current_option();
+                    if (current == "Yandex Lite 2") return 0u;
+                    if (current == "Yandex Midi") return 1u;
+                    return 0u;
+                  options:
+                    - Yandex Lite 2
+                    - Yandex Midi
+                  bg_opa: TRANSP
+                  pad_all: 0
+                  shadow_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  text_font: nunito_30
+                  text_color: color_misty_blue
+                  dropdown_list:
+                    align: CENTER
+                    bg_color: color_slate_blue_gray
+                    shadow_opa: TRANSP
+                    border_color: color_misty_blue
+                    border_width: 2
+                    text_font: nunito_30
+                    text_color: color_misty_blue
+                    text_line_space: 10
+                    pad_all: 8
+                    max_height: 250
+                    selected:
+                      checked:
+                        bg_color: color_steel_blue
+                        bg_opa: 20%
+                        text_color: color_misty_blue
+                      pressed:
+                        bg_opa: TRANSP
+                        text_color: color_misty_blue
+                  indicator:
+                    text_opa: TRANSP
+                  on_value:
+                    - lambda: |-
+                        uint32_t index = id(media_player2_name_dropdown).get_selected_index();
+                        if (index >= id(media_player2_name_dropdown).get_options().size()) {
+                        return;  // Выходим, если индекс некорректен
+                        }
+                        // Получаем текст опции через get_options() и at()
+                        const std::string& option = id(media_player2_name_dropdown).get_options().at(index);
+                        auto call = id(media_player_selector).make_call();
+                        call.set_option(option);
+                        call.perform();
+        # Return
+        - button:
+            x: 10
+            y: 400
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  align: CENTER
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: devices_page
+              - lvgl.widget.show: menu_controls_main
+text_sensor:
+  - platform: homeassistant
+    id: media_player2_state
+    entity_id: "${media_player2_entity}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return x == "paused";'
+          then:
+            - lvgl.label.update: 
+                id: media_player2_state_label
+                x: 0
+                text: "${play_icon}"
+          else:
+            - lvgl.label.update: 
+                id: media_player2_state_label
+                x: 0
+                text: "${pause_icon}"
+
+  - platform: homeassistant
+    id: media_player2_title_sensor
+    entity_id: "${media_player2_entity}"
+    attribute: media_title
+    on_value:
+      - delay: 1s
+      - lvgl.label.update:
+          id: media_player2_title_label
+          text: !lambda return x;
+
+  - platform: homeassistant
+    id: media_player2_artist_sensor
+    entity_id: "${media_player2_entity}"
+    attribute: media_artist
+    on_value:
+      - delay: 1s
+      - lvgl.label.update:
+          id: media_player2_artist_label
+          text: !lambda return x;
+
+  - platform: homeassistant
+    id: media_player2_repeat
+    entity_id: "${media_player2_entity}"
+    attribute: repeat
+    on_value:
+      - lambda: |-
+          id(media_player2_pending_repeat_value) = x;
+      - script.execute: media_player2_update_repeat_mode_script
+
+#  - platform: homeassistant
+#    id: media_player2_friendly_name
+#    entity_id: "${media_player2_entity}"
+#    attribute: friendly_name
+#    on_value:
+#      - lvgl.label.update:
+#          id: media_player2_name_label
+#          text: !lambda return x;
+
+sensor:
+  - platform: homeassistant
+    id: media_player2_volume_level
+    entity_id: "${media_player2_entity}"
+    attribute: volume_level
+    on_value:
+      - lvgl.slider.update:
+          id: media_player2_volume_slider
+          value: !lambda 'return int(x * 100);'
+
+  - platform: homeassistant
+    id: media_player2_media_duration
+    entity_id: "${media_player2_entity}"
+    attribute: media_duration
+    on_value:
+      - lambda: |-
+          lv_slider_set_range(id(media_player2_duration_pos_slider), 0, x);
+
+  - platform: homeassistant
+    id: media_player2_media_position
+    entity_id: "${media_player2_entity}"
+    attribute: media_position
+    on_value: 
+      - if:
+          condition:
+            lambda: 'return !id(media_player2_duration_slider_user_interaction);'
+          then:
+            - lvgl.slider.update:
+                id: media_player2_duration_pos_slider
+                value: !lambda return x;
+
+binary_sensor:
+  - platform: homeassistant
+    id: media_player2_is_volume_muted
+    entity_id: "${media_player2_entity}"
+    attribute: is_volume_muted
+    trigger_on_initial_state: true
+    on_state:
+      - if:
+          condition:
+            lambda: 'return x;'
+          then:
+            - lvgl.label.update:
+                id: media_player2_mute_label
+                text: "${volume_off_icon}"
+          else:
+            - lvgl.label.update:
+                id: media_player2_mute_label
+                text: "${volume_on_icon}"

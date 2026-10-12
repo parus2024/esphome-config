@@ -1,0 +1,43 @@
+substitutions:
+
+  light_entity_1: "light.zetton1_e27_10w_holl"
+  light_entity_2: "light.kitchen_ws2812_neopixel_light"
+  light_entity_3: "light.zetton1_e27_15w_ld2420"
+  light_entity_4: "light.zetton2_e27_15w_ld2420"
+
+  light_widget_name_1: "light1"
+  light_widget_name_2: "light2"
+  light_widget_name_3: "light3"
+  light_widget_name_4: "light4"
+
+  light_label_name_1: "стена"
+  light_label_name_2: "лента"
+  light_label_name_3: "беседка1"
+  light_label_name_4: "беседка2"
+
+packages:
+  light_panel: !include lights_panel.yaml
+
+  light_1: !include
+    file: light_rgb_widget.yaml
+    vars:
+      light_entity: "${light_entity_1}"
+      widget_name: "${light_widget_name_1}"
+      
+  light_2: !include
+    file: light_brightness_widget.yaml
+    vars:
+      light_entity: "${light_entity_2}"
+      widget_name: "${light_widget_name_2}"
+      
+  light_3: !include
+    file: light_brightness_widget.yaml
+    vars:
+      light_entity: "${light_entity_3}"
+      widget_name: "${light_widget_name_3}"
+
+  light_4: !include
+    file: light_brightness_widget.yaml
+    vars:
+      light_entity: "${light_entity_4}"
+      widget_name: "${light_widget_name_4}"

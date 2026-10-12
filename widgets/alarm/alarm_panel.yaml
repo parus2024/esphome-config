@@ -1,0 +1,469 @@
+lvgl:
+  pages:
+    - id: alarm_panel_page           # Уникальный индификатор страницы
+      bg_color: color_slate_blue_gray # Цвет фона
+      widgets:                        # Список виджетов
+        # Кнопка Alarm 21
+        - button:
+            id: alarm_21_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_21_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 21"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: alarm_21_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+        # Кнопк аAlarm 22
+        - button:
+            id: alarm_22_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 125                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_22_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 22"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: alarm_22_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+
+        # Кнопка Alarm 23
+        - button:
+            id: alarm_23_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_23_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 23"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: alarm_23_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+
+        # Кнопка Alarm 24
+        - button:
+            id: alarm_24_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 365                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 5                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_24_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 24"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: alarm_24_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+        # Кнопка Alarm 31
+        - button:
+            id: alarm_31_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_31_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 31"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+#            on_press:
+#              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_31_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопка Alarm 32
+        - button:
+            id: alarm_32_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 125                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_32_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 32"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+#            on_press:
+#              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_32_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка Alarm 33
+        - button:
+            id: alarm_33_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_33_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 33"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_33_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка Alarm 34
+        - button:
+            id: alarm_34_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 365                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 125                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_34_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "Номер 34"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_34_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопка Alarm 1floor'
+        - button:
+            id: alarm_1floor_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_1floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "1 этаж"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+#            on_press:
+#              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_1floor_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+        # Кнопк Alarm 2floor
+        - button:
+            id: alarm_2floor_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 125                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_2floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "2 этаж"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_2floor_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка Alarm 3floor
+        - button:
+            id: alarm_3floor_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 245                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_3floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "3 этаж"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_3floor_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка Alarm 4floor
+        - button:
+            id: alarm_4floor_btn
+            height: 110                 # Высота контейнера (площадка) в пикселях
+            width: 110                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 365                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 245                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            widgets:
+              - label:
+                  y: -10
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_68
+                  text: "${alarm_out_off}"
+              - label:
+                  id: alarm_4floor_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "4 этаж"
+                  align: CENTER
+                  y: 35
+                  clickable: false     # запретить интерактивность у label
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+#              - lvgl.page.show: 
+#                  id: alarm_4floor_page
+#                  animation: OUT_RIGHT
+#                  time: 300ms
+
+        # Кнопка выхода
+        - obj:
+            id: alarm_panel_back_bg
+            x: 20
+            y: 400
+            width: 60
+            height: 60
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: alarm_panel_back_label
+                  align: center
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: devices_page # Показываем страницу Devices вместо текущей
+              - lvgl.widget.show: menu_controls_main 

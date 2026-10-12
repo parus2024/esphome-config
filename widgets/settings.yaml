@@ -1,0 +1,595 @@
+globals:
+  - id: display_timeout
+    type: int
+    restore_value: true
+    initial_value: "2"
+# System sensors
+sensor:
+  # 1. Total SRAM memory usage
+  - platform: template
+    name: "SRAM Usage"
+    id: sram_usage
+    icon: mdi:memory
+    unit_of_measurement: "KB"
+    device_class: data_size
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: 10s
+    lambda: |-
+      // Total SRAM size for ESP32-S3 = 512KB
+      const size_t total_sram = 512 * 1024;
+      size_t free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+      size_t used_sram = total_sram - free_sram;
+      return used_sram / 1024.0; // Return used memory in KB
+    on_value:
+      then:
+        - lvgl.bar.update:
+            id: sram_memory_bar
+            value: !lambda |-
+              const size_t total_sram = 512 * 1024; // 512KB for ESP32-S3
+              size_t free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+              size_t used_sram = total_sram - free_sram;
+              return (int)(((double)used_sram / total_sram) * 100);
+        - lvgl.label.update:
+            id: sram_memory_label
+            text: !lambda |-
+              const size_t total_sram = 512 * 1024;
+              size_t free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+              size_t used_sram = total_sram - free_sram;
+              static char sram_buf[32];
+              snprintf(sram_buf, sizeof(sram_buf), "%.1f/%.0f KB", 
+                      used_sram/1024.0, total_sram/1024.0);
+              return sram_buf;
+
+  # 2. Total PSRAM memory usage
+  - platform: template
+    name: "PSRAM Usage"
+    id: psram_usage
+    icon: mdi:memory
+    unit_of_measurement: "MB"
+    device_class: data_size
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: 10s
+    lambda: |-
+      // Total PSRAM size = 8MB
+      const size_t total_psram = 8 * 1024 * 1024;
+      size_t free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+      
+      // If PSRAM is not available, return 0
+      if (heap_caps_get_total_size(MALLOC_CAP_SPIRAM) == 0) {
+        return 0.0;
+      }
+      
+      size_t used_psram = total_psram - free_psram;
+      return used_psram / (1024.0 * 1024.0); // Return used memory in MB
+    on_value:
+      then:
+        - lvgl.bar.update:
+            id: psram_memory_bar
+            value: !lambda |-
+              const size_t total_psram = 8 * 1024 * 1024; // 8MB
+              size_t free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+              
+              if (heap_caps_get_total_size(MALLOC_CAP_SPIRAM) == 0) return 0;
+              
+              size_t used_psram = total_psram - free_psram;
+              return (int)(((double)used_psram / total_psram) * 100);
+        - lvgl.label.update:
+            id: psram_memory_label
+            text: !lambda |-
+              const size_t total_psram = 8 * 1024 * 1024;
+              size_t free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+              static char psram_buf[32];
+              
+              if (heap_caps_get_total_size(MALLOC_CAP_SPIRAM) == 0) {
+                snprintf(psram_buf, sizeof(psram_buf), "No PSRAM");
+              } else {
+                size_t used_psram = total_psram - free_psram;
+                snprintf(psram_buf, sizeof(psram_buf), "%.1f/%.0f MB", 
+                        used_psram/(1024.0*1024.0), total_psram/(1024.0*1024.0));
+              }
+              return psram_buf;
+
+  # 3. Chip temperature
+  - platform: internal_temperature
+    name: "ESP32 Internal Temperature"
+    id: esp32_temperature
+    update_interval: 30s
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: chip_temperature_label
+            text:
+              format: "%.1f°C"
+              args: [id(esp32_temperature).state]
+
+  # 4. WiFi Signal Strength in dBm
+  - platform: wifi_signal
+    name: "WiFi Signal1"
+    id: wifi_signal_db1
+    update_interval: 30s
+    unit_of_measurement: "dBm"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: wifi_signal_label
+            text:
+              format: "%.0f dBm"
+              args: [id(wifi_signal_db1).state]
+
+# Text sensors for WiFi information
+text_sensor:
+  # 5. IP address
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      id: wifi_ip_address
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: ip_address_label
+              text: !lambda return id(wifi_ip_address).state.c_str();
+
+  # 6. Uptime
+  - platform: template
+    name: Uptime
+    id: uptime_human
+    icon: "mdi:clock-start"
+    entity_category: diagnostic
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: uptime_label
+            text: !lambda return id(uptime_human).state.c_str();
+
+  # 7. ESPHome version with compilation date
+  - platform: template
+    name: "ESPHome Version1"
+    id: esphome_version_1
+    lambda: |-
+      return {ESPHOME_VERSION};
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: esphome_version_label
+            text: !lambda 'return id(esphome_version_1).state;'
+lvgl:
+  on_idle:
+    timeout: !lambda "return (id(display_timeout_number).state * 60 * 1000);"
+    then:
+      - if:
+          condition:
+            lambda: 'return id(display_timeout_number).state >= 0;'
+          then:
+            - logger.log: "LVGL is idle"
+            - light.turn_off: display_backlight
+            - lvgl.pause:
+          else:
+            - logger.log: "LVGL idle, but backlight is on"
+# LVGL interface for displaying system information
+  pages:
+    - id: system_info_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        - obj:
+            id: system_info_container
+            x: 10
+            y: 10
+            width: 460
+            height: 300
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            radius: 10
+            widgets:
+              # SRAM memory (show used from total)
+              - obj:
+                  y: 5
+                  width: 400
+                  height: 50
+                  align: TOP_MID
+                  bg_opa: TRANSP
+                  pad_all: 0
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: TOP_LEFT
+                        text: "SRAM Used:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: sram_memory_label
+                        align: TOP_RIGHT
+                        text: "0/512 KB"
+                        text_font: nunito_16
+                        text_color: color_green
+                    - bar:
+                        id: sram_memory_bar
+                        y: 30
+                        width: 390
+                        height: 12
+                        align: TOP_MID
+                        pad_all: 0
+                        min_value: 0
+                        max_value: 100
+                        value: 0
+                        bg_color: color_gray
+                        bg_opa: 50%
+                        indicator: 
+                          bg_color: color_green
+
+              # PSRAM memory (show used from total)
+              - obj:
+                  y: 60
+                  width: 400
+                  height: 50
+                  align: TOP_MID
+                  bg_opa: TRANSP
+                  pad_all: 0
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: TOP_LEFT
+                        text: "PSRAM Used:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: psram_memory_label
+                        align: TOP_RIGHT
+                        text: "0/8 MB"
+                        text_font: nunito_16
+                        text_color: color_blue
+                    - bar:
+                        id: psram_memory_bar
+                        y: 30
+                        width: 390
+                        height: 12
+                        align: TOP_MID
+                        pad_all: 0
+                        min_value: 0
+                        max_value: 100
+                        value: 0
+                        bg_color: color_gray
+                        bg_opa: 50%
+                        indicator:
+                          bg_color: color_blue
+
+              # Chip temperature
+              - obj:
+                  y: 120
+                  width: 400
+                  height: 30
+                  align: TOP_MID
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: LEFT_MID
+                        text: "CPU Temperature:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: chip_temperature_label
+                        align: RIGHT_MID
+                        text: "0°C"
+                        text_font: nunito_16
+                        text_color: color_yellow
+
+              # WiFi signal
+              - obj:
+                  y: 155
+                  width: 400
+                  height: 30
+                  align: TOP_MID
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: LEFT_MID
+                        text: "WiFi Signal:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: wifi_signal_label
+                        align: RIGHT_MID
+                        text: "0 dBm"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+
+              # IP Address
+              - obj:
+                  y: 190
+                  width: 400
+                  height: 30
+                  align: TOP_MID
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: LEFT_MID
+                        text: "IP Address:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: ip_address_label
+                        align: RIGHT_MID
+                        text: "192.168.3.3"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+
+              # Uptime
+              - obj:
+                  y: 225
+                  width: 400
+                  height: 30
+                  align: TOP_MID
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_color: color_white
+                  border_width: 1
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: LEFT_MID
+                        text: "Uptime:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: uptime_label
+                        align: RIGHT_MID
+                        text: ""
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+              # ESPHome version
+              - obj:
+                  y: 260
+                  width: 400
+                  height: 30
+                  align: TOP_MID
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  widgets:
+                    - label:
+                        align: LEFT_MID
+                        text: "ESPHome Version:"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                    - label:
+                        id: esphome_version_label
+                        align: RIGHT_MID
+                        text: "2020.0.0"
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+        # backlight:
+        - obj:
+            id: backlight_bg
+            x: 10
+            y: 330
+            width: 460
+            height: 50
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              - label:
+                  id: display_backlight_label
+                  x: 20
+                  align: LEFT_MID
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "Backlight"
+
+              - slider:
+                  id: display_backlight_brightness_slider
+                  x: 260
+                  radius: 10
+                  bg_color: color_slate_blue_gray
+                  align: TOP_LEFT
+                  width: 200
+                  height: 50
+                  min_value: 35
+                  max_value: 100
+                  value: 100
+                  indicator:
+                    bg_color: color_misty_blue
+                    radius: 10
+                  knob:
+                    bg_opa: TRANSP
+                  on_release:
+                    then:
+                      - light.turn_on:
+                          id: display_backlight
+                          brightness: !lambda return int(x)/ 100.0;
+        # sleep mode:
+        - obj:
+            id: sleep_mode_bg
+            x: 130
+            y: 330
+            width: 120
+            height: 50
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+#              - label:
+#                  id: display_timeout_label
+#                  x: 5
+#                  align: LEFT_MID
+#                  text_font: nunito_20
+#                  text_color: color_misty_blue
+#                  text: "Sleep mode"
+
+              - dropdown:
+                  id: display_timeout_dropdown
+                  x: 5
+                  width: 110
+                  align: LEFT_MID
+                  selected_index: !lambda return id(display_timeout);
+                  options:
+                    - Never
+                    - 1 minute
+                    - 5 minutes
+                    - 10 minutes
+                    - 30 minutes
+                    - 1 hour
+                    - 6 hours
+                    - 12 hours
+
+                  bg_opa: TRANSP
+                  shadow_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  text_font: nunito_20
+                  text_color: color_misty_blue
+                  dropdown_list:
+                    align: CENTER
+                    bg_color: color_slate_blue_gray
+                    shadow_opa: TRANSP
+                    border_color: color_misty_blue
+                    border_width: 2
+                    text_font: nunito_20
+                    text_color: color_misty_blue
+                    text_line_space: 10
+                    pad_all: 8
+                    max_height: 360
+                    selected:
+                      checked:
+                        bg_color: color_steel_blue
+                        bg_opa: 20%
+                        text_color: color_misty_blue
+                      pressed:
+                        bg_opa: TRANSP
+                        text_color: color_misty_blue
+                  indicator:
+                    text_opa: TRANSP
+                  on_value:
+                      then:
+                        - number.set:
+                            id: display_timeout_number
+                            value: !lambda |-
+                              static const int backlight_time[] = {-1, 1, 5, 10, 30, 60, 360, 720};
+                              return backlight_time[x];
+                        - globals.set:
+                            id: display_timeout
+                            value: !lambda return x;
+        # Кнопка REBOOT
+        - obj:
+            id: restart_bg
+            x: 400
+            y: 400
+            width: 60
+            height: 60
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: restart_label
+                  align: center
+                  text_font: mdi_icons_28
+                  text_color: color_misty_blue
+                  text: "${restart_icon}"
+            on_press:
+              - button.press: restart_button # перезагрузка
+
+        # Кнопка выхода
+        - obj:
+            id: info_panel_back_bg
+            x: 20
+            y: 400
+            width: 60
+            height: 60
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: info_panel_back_label
+                  align: center
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: home_page # Показываем главную страницу вместо текущей
+              - lvgl.widget.show: menu_controls_main 
+# Interval for periodic logging
+interval:
+  - interval: 60s
+    then:
+      - lambda: |-
+          // Log real memory usage
+          const size_t total_sram = 512 * 1024;
+          const size_t total_psram = 8 * 1024 * 1024;
+          
+          size_t free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+          size_t used_sram = total_sram - free_sram;
+          
+          size_t free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+          size_t used_psram = total_psram - free_psram;
+          
+          ESP_LOGI("system_info", "SRAM: %u/%u KB used (%.1f%%)", 
+                   used_sram/1024, total_sram/1024, 
+                   (used_sram * 100.0) / total_sram);
+          
+          if (heap_caps_get_total_size(MALLOC_CAP_SPIRAM) > 0) {
+            ESP_LOGI("system_info", "PSRAM: %u/%u MB used (%.1f%%)", 
+                     used_psram/(1024*1024), total_psram/(1024*1024),
+                     (used_psram * 100.0) / total_psram);
+          } else {
+            ESP_LOGI("system_info", "PSRAM: Not available");
+          }
+
+number:
+  - platform: template
+    id: display_timeout_number
+    name: LVGL screen timeout
+    optimistic: true
+    unit_of_measurement: "m"
+    initial_value: 10
+    restore_value: true
+    min_value: -1
+    max_value: 720
+    step: 1
+    mode: box
+
+esphome:
+  on_boot:
+    - priority: -100
+      then:
+        - lvgl.dropdown.update:
+            id: display_timeout_dropdown
+            selected_index: !lambda return id(display_timeout);
+
+api:
+  on_client_connected:
+    - lvgl.dropdown.update:
+        id: display_timeout_dropdown
+        selected_index: !lambda return id(display_timeout);

@@ -1,0 +1,537 @@
+#substitutions:
+#  room_number: ""
+#  alarm_alert: "automation.alarm_motion_${room_number}"
+#  alarm_siren: "switch.alarm_${room_number}_siren"
+#  alarm_motion: "binary_sensor.alarm_${room_number}_motion"
+#  alarm_moisture_kitchen: "binary_sensor.moisture_kitchen_${room_number}"
+#  alarm_moisture_shower: "binary_sensor.moisture_shower_${room_number}"
+#  alarm_smoke: "binary_sensor.smoke_${room_number}"
+#  alarm_gas: "binary_sensor.bridge_rf_ir_1floor_gas_${room_number}"
+
+#  switch_alarm_motion: "switch.alarm_${room_number}_motion"
+#  input_boolean_alarm_moisture_kitchen: "input_boolean.moisture_kitchen_${room_number}"
+#  input_boolean_alarm_moisture_shower: "input_boolean.moisture_shower_${room_number}"
+#  switch_alarm_smoke: "switch.alarm_${room_number}_smoke"
+#  input_boolean_alarm_gas: "input_boolean.gas_${room_number}"
+
+binary_sensor:
+  # Движение датчик
+  - platform: homeassistant
+    id: my_alarm_motion_${room_number}
+    entity_id: "binary_sensor.alarm_${room_number}_motion"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_motion_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${motion_sensor}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_motion_${room_number}).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_motion_${room_number}_btn_label
+                text_color: green
+                text: "${motion_sensor_off}"
+          else:
+            - lvgl.label.update:
+                id: alarm_motion_${room_number}_btn_label
+                text_color: color_misty_blue
+                text: "${motion_sensor_off}"
+
+  # Газ датчик
+  - platform: homeassistant
+    id: my_alarm_gas_${room_number}
+    entity_id: "binary_sensor.bridge_rf_ir_1floor_gas_${room_number}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_gas_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${smoke_alert}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_input_boolean_alarm_gas_${room_number}).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_gas_${room_number}_btn_label
+                text_color: green
+                text: "${smoke}"
+          else:
+            - lvgl.label.update:
+                id: alarm_gas_${room_number}_btn_label
+                text_color: color_misty_blue
+                text: "${smoke}"
+
+  # Дым датчик
+  - platform: homeassistant
+    id: my_alarm_smoke_${room_number}
+    entity_id: "binary_sensor.smoke_${room_number}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_smoke_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${fire}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_switch_alarm_smoke_${room_number}).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_smoke_${room_number}_btn_label
+                text_color: green
+                text: "${fire}"
+          else:
+            - lvgl.label.update:
+                id: alarm_smoke_${room_number}_btn_label
+                text_color: color_misty_blue
+                text: "${fire}"
+
+  # Протечка мойка датчик
+  - platform: homeassistant
+    id: my_alarm_moisture_kitchen_${room_number}
+    entity_id: "binary_sensor.moisture_kitchen_${room_number}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_moisture_kitchen_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${water_alert}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_input_boolean_alarm_moisture_kitchen_${room_number}).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_moisture_kitchen_${room_number}_btn_label
+                text_color: green
+                text: "${water_off}"
+          else:
+            - lvgl.label.update:
+                id: alarm_moisture_kitchen_${room_number}_btn_label
+                text_color: color_misty_blue
+                text: "${water_off}"
+
+  # Протечка душ датчик
+  - platform: homeassistant
+    id: my_alarm_moisture_shower_${room_number}
+    entity_id: "binary_sensor.moisture_shower_${room_number}"
+    on_press:
+      - lvgl.label.update:
+          id: alarm_moisture_shower_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${water_alert}"
+    on_release:
+      - if:
+          condition:
+            lambda: 'return id(my_input_boolean_alarm_moisture_shower_${room_number}).state;'
+          then:
+            - lvgl.label.update:
+                id: alarm_moisture_shower_${room_number}_btn_label
+                text_color: green
+                text: "${water_off}"
+          else:
+            - lvgl.label.update:
+                id: alarm_moisture_shower_${room_number}_btn_label
+                text_color: color_misty_blue
+                text: "${water_off}"
+
+switch:
+  # Уведомление движения
+  - platform: homeassistant
+    id: my_alarm_alert_${room_number}
+    entity_id: "automation.alarm_motion_${room_number}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_alert_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${alert}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_alert_${room_number}_btn_label
+          text_color: color_misty_blue
+          text: "${alert_off}"
+
+  # Движение выключатель
+  - platform: homeassistant
+    id: my_switch_alarm_motion_${room_number}
+    entity_id: "switch.alarm_${room_number}_motion"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_motion_${room_number}_btn_label
+          text_color: green
+          text: "${motion_sensor_off}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_motion_${room_number}_btn_label
+          text_color: color_misty_blue
+          text: "${motion_sensor_off}"
+
+  # Сирена
+  - platform: homeassistant
+    id: my_alarm_siren_${room_number}
+    entity_id: "switch.alarm_${room_number}_siren"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_siren_${room_number}_btn_label
+          text_color: color_deep_orange
+          text: "${alarm_on}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_siren_${room_number}_btn_label
+          text_color: green
+          text: "${alarm_off}"
+
+  # Газ выключатель
+  - platform: homeassistant
+    id: my_input_boolean_alarm_gas_${room_number}
+    entity_id: "input_boolean.gas_${room_number}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_gas_${room_number}_btn_label
+          text_color: green
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_gas_${room_number}_btn_label
+          text_color: color_misty_blue
+
+  # Дым выключатель
+  - platform: homeassistant
+    id: my_switch_alarm_smoke_${room_number}
+    entity_id: "switch.alarm_${room_number}_smoke"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_smoke_${room_number}_btn_label
+          text_color: green
+          text: "${fire}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_smoke_${room_number}_btn_label
+          text_color: color_misty_blue
+          text: "${fire}"
+
+  # Протечка кухня выключатель
+  - platform: homeassistant
+    id: my_input_boolean_alarm_moisture_kitchen_${room_number}
+    entity_id: "input_boolean.moisture_kitchen_${room_number}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_moisture_kitchen_${room_number}_btn_label
+          text_color: green
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_moisture_kitchen_${room_number}_btn_label
+          text_color: color_misty_blue
+
+  # Протечка душ выключатель
+  - platform: homeassistant
+    id: my_input_boolean_alarm_moisture_shower_${room_number}
+    entity_id: "input_boolean.moisture_shower_${room_number}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: alarm_moisture_shower_${room_number}_btn_label
+          text_color: green
+    on_turn_off:
+      - lvgl.label.update:
+          id: alarm_moisture_shower_${room_number}_btn_label
+          text_color: color_misty_blue
+
+lvgl:
+  pages:
+    - id: alarm_${room_number}_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        # Кнопка Alarm Alert
+        - button:
+            id: alarm_alert_${room_number}_btn
+            height: 150
+            width: 235
+            align: top_left
+            x: 5
+            y: 5
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_alert_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${alert}"
+                  on_click:
+                    - switch.toggle: my_alarm_alert_${room_number}
+#                    - homeassistant.action:
+#                        action: automation.toggle
+#                        data:
+#                          entity_id: "${alarm_alert}"
+              - label:
+                  id: alarm_alert_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Уведомления"
+                  align: CENTER
+                  y: 30
+                  clickable: false
+              - label:
+                  id: alarm_alert_${room_number}_btn_name1_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "движений"
+                  align: CENTER
+                  y: 55
+                  clickable: false
+
+        # Кнопка Сирена
+        - button:
+            id: alarm_siren_${room_number}_btn
+            height: 150
+            width: 230
+            align: top_left
+            x: 245
+            y: 5
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_siren_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${alarm_off}"
+                  on_click:
+                    - switch.toggle: my_alarm_siren_${room_number}
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${alarm_siren}"
+              - label:
+                  id: alarm_siren_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Сирена"
+                  align: CENTER
+                  y: 50
+                  clickable: false
+
+        # Кнопка Движение
+        - button:
+            id: alarm_motion_${room_number}_btn
+            height: 150
+            width: 160
+            align: top_left
+            x: 5
+            y: 160
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_motion_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${motion_sensor_off}"
+                  on_click:
+                    - switch.toggle: my_switch_alarm_motion_${room_number}
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${switch_alarm_motion}"
+              - label:
+                  id: alarm_motion_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Движение"
+                  align: CENTER
+                  y: 50
+                  clickable: false
+
+        # Кнопка газ
+        - button:
+            id: alarm_gas_${room_number}_btn
+            height: 150
+            width: 150
+            align: top_left
+            x: 170
+            y: 160
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_gas_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${smoke}"
+                  on_click:
+                    - switch.toggle: my_input_boolean_alarm_gas_${room_number}
+#                    - homeassistant.action:
+#                        action: input_boolean.toggle
+#                        data:
+#                          entity_id: "${input_boolean_alarm_gas}"
+              - label:
+                  id: alarm_gas_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Газ"
+                  align: CENTER
+                  y: 50
+                  clickable: false
+
+        # Кнопка дым
+        - button:
+            id: alarm_smoke_${room_number}_btn
+            height: 150
+            width: 150
+            align: top_left
+            x: 325
+            y: 160
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_smoke_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${fire}"
+                  on_click:
+                    - switch.toggle: my_switch_alarm_smoke_${room_number}
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${switch_alarm_smoke}"
+              - label:
+                  id: alarm_smoke_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Дым"
+                  align: CENTER
+                  y: 50
+                  clickable: false
+
+        # Кнопка протечка кухня
+        - button:
+            id: alarm_moisture_kitchen_${room_number}_btn
+            height: 150
+            width: 150
+            align: top_left
+            x: 170
+            y: 315
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_moisture_kitchen_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${water_off}"
+                  on_click:
+                    - switch.toggle: my_input_boolean_alarm_moisture_kitchen_${room_number}
+#                    - homeassistant.action:
+#                        action: input_boolean.toggle
+#                        data:
+#                          entity_id: "${input_boolean_alarm_moisture_kitchen}"
+              - label:
+                  id: alarm_moisture_kitchen_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Мойка"
+                  align: CENTER
+                  y: 50
+                  clickable: false
+
+        # Кнопка протечка душ
+        - button:
+            id: alarm_moisture_shower_${room_number}_btn
+            height: 150
+            width: 150
+            align: top_left
+            x: 325
+            y: 315
+            bg_color: color_steel_blue
+            bg_opa: 30%
+            border_opa: 50%
+            border_color: color_misty_blue
+            border_width: 2
+            shadow_opa: transp
+            pad_all: 5
+            widgets:
+              - label:
+                  id: alarm_moisture_shower_${room_number}_btn_label
+                  y: -20
+                  align: CENTER
+                  text_color: darkgreen
+                  text_font: mdi_icons_96
+                  text: "${water_off}"
+                  on_click:
+                    - switch.toggle: my_input_boolean_alarm_moisture_shower_${room_number}
+#                    - homeassistant.action:
+#                        action: input_boolean.toggle
+#                        data:
+#                          entity_id: "${input_boolean_alarm_moisture_shower}"
+              - label:
+                  id: alarm_moisture_shower_${room_number}_btn_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "Душ"
+                  align: CENTER
+                  y: 50
+                  clickable: false
+
+        # Return
+        - button:
+            id: alarm_${room_number}_back
+            x: 10
+            y: 400
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: alarm_${room_number}_back_label
+                  align: CENTER
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: alarm_panel_page

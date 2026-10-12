@@ -1,0 +1,354 @@
+lvgl:
+  pages:
+    - id: boiler_panel_page           # Уникальный индификатор страницы
+      bg_color: color_slate_blue_gray # Цвет фона
+      widgets:                        # Список виджетов
+        # Кнопка Бойлер подвал
+        - button:
+            id: boiler_podval_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 20                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            on_press:
+              then:
+                - lvgl.widget.hide: menu_controls_main
+                - lvgl.page.show:
+                    id: boiler_podval_page
+            widgets:
+              - meter:
+                  align: CENTER
+                  height: 140
+                  width: 140
+                  border_width: 0
+                  text_color: cadetblue # Цвет подписанных цифр  на циферблате
+                  bg_color: color_steel_blue #  если убрать параметр bg_color (в этом случае фон будет прозрачным по умолчанию)
+                  bg_opa: 20% # 0% фон циферблата полностью прозрачный
+                  clickable: false            # запрещаем интерактивность
+                  scales:
+                    - range_from: 10 # scale for the needle value
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      indicators:
+                        - line:
+                            id: boiler_podval_temperature_needle
+                            width: 2
+                            color: color_misty_blue  # <-- здесь задаётся цвет стрелки
+                            r_mod: -4 # Длинна стрелки
+
+                    - range_from: 10 # scale for the value labels
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      ticks:
+                        color: color_misty_blue
+                        width: 1
+                        count: 36
+                        length: 10
+                        major:
+                          stride: 10
+                          width: 2
+                          length: 15
+                          color: 0x7AA9E9 #color_misty_blue
+                          label_gap: 10 # отступ подписи от деления
+                      indicators: 
+                        - tick_style:
+                            start_value: 10
+                            end_value: 80
+                            color_start: 0x0000bd
+                            color_end: 0xbd0000
+                            width: 1
+                  widgets:
+                    - label:
+                        id: boiler_podval_btn_temperature_text_label
+                        text_color: color_misty_blue
+                        text_font: nunito_30
+                        text: "-.-°C"
+                        align: CENTER
+                        y: 35
+                        clickable: false     # запретить интерактивность у label
+                    - label:
+                        id: boiler_podval_btn_name_label
+                        text_color: color_misty_blue
+                        text_font: nunito_18
+                        text: "Бойлер подвал"
+                        align: CENTER
+                        y: 57
+                        clickable: false     # запретить интерактивность у label
+
+        # Кнопка Бойлер 31
+        - button:
+            id: boiler_31_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 165                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 20                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            on_press:
+              then:
+                - lvgl.widget.hide: menu_controls_main
+                - lvgl.page.show:
+                    id: boiler_31_page
+            widgets:
+              - meter:
+                  align: CENTER
+                  height: 140
+                  width: 140
+                  border_width: 0
+                  text_color: cadetblue # Цвет подписанных цифр  на циферблате
+                  bg_color: color_steel_blue #  если убрать параметр bg_color (в этом случае фон будет прозрачным по умолчанию)
+                  bg_opa: 20% # 0% фон циферблата полностью прозрачный
+                  clickable: false            # запрещаем интерактивность
+                  scales:
+                    - range_from: 10 # scale for the needle value
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      indicators:
+                        - line:
+                            id: boiler_31_temperature_needle
+                            width: 2
+                            color: color_misty_blue  # <-- здесь задаётся цвет стрелки
+                            r_mod: -4 # Длинна стрелки
+                    - range_from: 10 # scale for the value labels
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      ticks:
+                        color: color_misty_blue
+                        width: 1
+                        count: 36
+                        length: 10
+                        major:
+                          stride: 10
+                          width: 2
+                          length: 15
+                          color: 0x7AA9E9 #color_misty_blue
+                          label_gap: 10 # отступ подписи от деления
+                      indicators: 
+                        - tick_style:
+                            start_value: 10
+                            end_value: 80
+                            color_start: 0x0000bd
+                            color_end: 0xbd0000
+                            width: 1
+                  widgets:
+                    - label:
+                        id: boiler_31_btn_temperature_text_label
+                        text_color: color_misty_blue
+                        text_font: nunito_30
+                        text: "-.-°C"
+                        align: CENTER
+                        y: 35
+                        clickable: false     # запретить интерактивность у label
+                    - label:
+                        id: boiler_31_btn_name_label
+                        text_color: color_misty_blue
+                        text_font: nunito_20
+                        text: "Бойлер 31"
+                        align: CENTER
+                        y: 57
+                        clickable: false     # запретить интерактивность у label
+
+        # Кнопка Бойлер 34
+        - button:
+            id: boiler_34_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 325                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 20                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            on_press:
+              then:
+                - lvgl.widget.hide: menu_controls_main
+                - lvgl.page.show:
+                    id: boiler_34_page
+            widgets:
+              - meter:
+                  align: CENTER
+                  height: 140
+                  width: 140
+                  border_width: 0
+                  text_color: cadetblue # Цвет подписанных цифр  на циферблате
+                  bg_color: color_steel_blue #  если убрать параметр bg_color (в этом случае фон будет прозрачным по умолчанию)
+                  bg_opa: 20% # 0% фон циферблата полностью прозрачный
+                  clickable: false            # запрещаем интерактивность
+                  scales:
+                    - range_from: 10 # scale for the needle value
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      indicators:
+                        - line:
+                            id: boiler_34_temperature_needle
+                            width: 2
+                            color: color_misty_blue  # <-- здесь задаётся цвет стрелки
+                            r_mod: -4 # Длинна стрелки
+                    - range_from: 10 # scale for the value labels
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      ticks:
+                        color: color_misty_blue
+                        width: 1
+                        count: 36
+                        length: 10
+                        major:
+                          stride: 10
+                          width: 2
+                          length: 15
+                          color: 0x7AA9E9 #color_misty_blue
+                          label_gap: 10 # отступ подписи от деления
+                      indicators: 
+                        - tick_style:
+                            start_value: 10
+                            end_value: 80
+                            color_start: 0x0000bd
+                            color_end: 0xbd0000
+                            width: 1
+                  widgets:
+                    - label:
+                        id: boiler_34_btn_temperature_text_label
+                        text_color: color_misty_blue
+                        text_font: nunito_30
+                        text: "-.-°C"
+                        align: CENTER
+                        y: 35
+                        clickable: false     # запретить интерактивность у label
+                    - label:
+                        id: boiler_34_btn_name_label
+                        text_color: color_misty_blue
+                        text_font: nunito_20
+                        text: "Бойлер 34"
+                        align: CENTER
+                        y: 57
+                        clickable: false     # запретить интерактивность у label
+        # Кнопка Бойлер 2 этаж
+        - button:
+            id: boiler_2floor_btn
+            height: 150                 # Высота контейнера (площадка) в пикселях
+            width: 150                  # Ширина контейнера (площадка) в пикселях
+            align: top_left              # Выравнивание контейнера (раскомментировать для центрирования)
+            x: 5                      # Смещение контейнера по горизонтали от левого края экрана
+            y: 180                     # Смещение контейнера по вертикали от верхнего края экрана
+            bg_color: color_steel_blue # Цвет фона контейнера (можно заменить на другой цвет)
+            bg_opa: 30%                # Прозрачность фона контейнера Внутренний круг в шкале с надписями (0% - полностью прозрачный, 100% - полностью непрозрачный)
+            border_opa: 50%         # Прозрачность рамки контейнера (transp - полностью прозрачная рамка)
+            border_color: color_misty_blue
+            border_width: 2            # Толщина рамки контейнера (0 — рамка не отображается)
+            shadow_opa: transp         # Прозрачность тени контейнера (transp - тень не отображается)
+            pad_all: 5                # Внутренний отступ (padding) со всех сторон в пикселях
+            on_press:
+              then:
+                - lvgl.widget.hide: menu_controls_main
+                - lvgl.page.show:
+                    id: boiler_2floor_page
+            widgets:
+              - meter:
+                  align: CENTER
+                  height: 140
+                  width: 140
+                  border_width: 0
+                  text_color: cadetblue # Цвет подписанных цифр  на циферблате
+                  bg_color: color_steel_blue #  если убрать параметр bg_color (в этом случае фон будет прозрачным по умолчанию)
+                  bg_opa: 20% # 0% фон циферблата полностью прозрачный
+                  clickable: false            # запрещаем интерактивность
+                  scales:
+                    - range_from: 10 # scale for the needle value
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      indicators:
+                        - line:
+                            id: boiler_2floor_temperature_needle
+                            width: 2
+                            color: color_misty_blue  # <-- здесь задаётся цвет стрелки
+                            r_mod: -4 # Длинна стрелки
+                    - range_from: 10 # scale for the value labels
+                      range_to: 80
+                      angle_range: 240
+                      rotation: 150
+                      ticks:
+                        color: color_misty_blue
+                        width: 1
+                        count: 36
+                        length: 10
+                        major:
+                          stride: 10
+                          width: 2
+                          length: 15
+                          color: 0x7AA9E9 #color_misty_blue
+                          label_gap: 10 # отступ подписи от деления
+                      indicators: 
+                        - tick_style:
+                            start_value: 10
+                            end_value: 80
+                            color_start: 0x0000bd
+                            color_end: 0xbd0000
+                            width: 1
+                  widgets:
+                    - label:
+                        id: boiler_2floor_btn_temperature_text_label
+                        text_color: color_misty_blue
+                        text_font: nunito_30
+                        text: "-.-°C"
+                        align: CENTER
+                        y: 35
+                        clickable: false     # запретить интерактивность у label
+                    - label:
+                        id: boiler_2floor_btn_name_label
+                        text_color: color_misty_blue
+                        text_font: nunito_20
+                        text: "Бойлер 2 этаж"
+                        align: CENTER
+                        y: 57
+                        clickable: false     # запретить интерактивность у label
+
+        # Кнопка выхода
+        - obj:
+            id: boiler_panel_back_bg
+            x: 20
+            y: 400
+            width: 60
+            height: 60
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_panel_back_label
+                  align: center
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: devices_page # Показываем страницу Devices вместо текущей
+              - lvgl.widget.show: menu_controls_main 

@@ -1,0 +1,958 @@
+# https://esphome.io/components/climate/thermostat.html
+
+substitutions:
+
+  thermostat_name:                "Boiler 31"
+  thermostat_temperature_entity: "sensor.boiler_31_temperature"
+  boiler_31_state:  "binary_sensor.boiler_31_state"
+  boiler_31_ten1:  "switch.boiler_31_ten1" # Тен 1
+  boiler_31_ten2:  "switch.boiler_31_ten2" # Тен 2
+  boiler_31_power:   "sensor.power_boiler_31"   # Мощность
+  boiler_31_voltage: "sensor.voltage_boiler_31" # Напряжение
+  boiler_31_current: "sensor.current_boiler_31" # Сила тока
+  boiler_31_temperature: "sensor.boiler_31_temperature" # Температура
+  boiler_31_temperature_alarm: "number.boiler_31_water_alarm" # Температура отключения
+  boiler_31_night_mode:  "switch.boiler_31_night"
+  boiler_31_day_mode:  "switch.boiler_31_day"
+  boiler_31_full_mode:  "switch.boiler_31_full_on"
+
+  heating_icon:       "\U0000e936"
+  temperature_icon:   "\U0000e939"
+  pm_home_icon:       "\U000F0826"
+  pm_away_icon:       "\U000F1A46"
+  heating_coil_icon:  "\U000F1AAF"
+  water_boiler_alert: "\U000F11B3"
+  water_boiler_auto:  "\U000F1B98"
+  weather_night:      "\U000F0594"
+  weather_sunny:      "\U000F0599"
+  all_inclusive:      "\U000F06BE"
+  current_icon:       "\U000F1480"
+  voltage_icon:       "\U000F095B"
+  power_icon:         "\U000F0241"
+  boiler_icon:        "\U000F0F92"
+
+
+sensor:
+    # Значение мощности
+  - platform: homeassistant
+    id: boiler_31_sensor_power
+    entity_id: "${boiler_31_power}"
+    on_value:
+      - lvgl.label.update:
+          id: boiler_31_power_state_label
+          text: !lambda |-
+            if (isnan(x)) return "N/A";
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%.0f W", x);
+            return buf;
+    # Значение напряжения
+  - platform: homeassistant
+    id: boiler_31_sensor_voltage
+    entity_id: "${boiler_31_voltage}"
+    on_value:
+      - lvgl.label.update:
+          id: boiler_31_voltage_state_label
+          text: !lambda |-
+            if (isnan(x)) return "N/A";
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%.0f V", x);
+            return buf;
+#    # Значение силы тока
+#  - platform: homeassistant
+#    id: boiler_31_sensor_current
+#    entity_id: "${boiler_31_current}"
+#    on_value:
+#      - lvgl.label.update:
+#          id: boiler_31_current_state_label
+#          text: !lambda |-
+#            if (isnan(x)) return "N/A";
+#            char buf[16];
+#            snprintf(buf, sizeof(buf), "%.1f", x);
+#            return buf;
+  # Thermostat temperature sensor
+  - platform: homeassistant
+    id: thermostate_temperature_sensor
+    entity_id: "${thermostat_temperature_entity}"
+
+  # Текущая Температура бойлера
+  - platform: homeassistant
+    id: thermostat_sensor_target_temp
+    entity_id: "${boiler_31_temperature}"
+    on_value: 
+      then:
+        - lvgl.arc.update:
+            id: boiler_31_arc_main
+            value: !lambda 'return x;'
+
+        - lvgl.label.update:
+            id: thermostat_target_temperature_whole
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(thermostat_sensor_target_temp).state);
+              snprintf(buf, 10, "%d", whole_part);
+              return buf;
+
+        - lvgl.label.update:
+            id: thermostat_target_temperature_fraction
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(thermostat_sensor_target_temp).state);
+              int fractional_part = static_cast<int>((id(thermostat_sensor_target_temp).state - whole_part) * 10);
+              snprintf(buf, 10, ".%01d", fractional_part);
+              return buf;
+number:
+  # температура бойлера перегрев авария
+  - platform: homeassistant
+    id: thermostat_sensor_current_temp
+    entity_id: "${boiler_31_temperature_alarm}"
+    on_value:
+      - lvgl.label.update:
+          id: thermostat_target_temperature_value
+          text: !lambda |-
+            char buf[8]; 
+            sprintf(buf, "%.1f", x); 
+            return std::string(buf);
+      - lvgl.arc.update:
+          id: boiler_31_arc_alarm_temp
+          value: !lambda 'return x;'
+
+binary_sensor:
+  - platform: homeassistant
+    id: boiler_31_state
+    entity_id: "${boiler_31_state}"
+    on_press:
+      then:
+      - lvgl.label.update:
+          id: boiler_31_power_state_label
+          text_color: color_deep_orange
+
+      - lvgl.meter.update:
+          id: thermostat_meter
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: heating_status
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: boiler_31_state_icon
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_icon
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_value
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_whole
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_fraction
+          text_color: color_deep_orange
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_measurement
+          text_color: color_deep_orange
+    on_release:
+      then:
+      - lvgl.label.update:
+          id: boiler_31_power_state_label
+          text_color: color_steel_blue
+
+      - lvgl.meter.update:
+          id: thermostat_meter
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: heating_status
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: boiler_31_state_icon
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_icon
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_value
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_whole
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_fraction
+          text_color: color_steel_blue
+
+      - lvgl.label.update:
+          id: thermostat_target_temperature_measurement
+          text_color: color_steel_blue
+text_sensor:
+
+  # Thermostat name
+#  - platform: homeassistant
+#    id: thermostat_sensor_name
+#    entity_id: "${boiler_31_ten1}"
+#    attribute: friendly_name
+#    on_value:
+#      - lvgl.label.update:
+#          id: thermostat_name_label
+#          text: !lambda return x;
+
+  # Единицы измерения мощности
+#  - platform: homeassistant
+#    id: boiler_31_sensor_power_uom
+#    entity_id: "${boiler_31_power}"
+#    attribute: unit_of_measurement
+#    on_value:
+#      - lvgl.label.update:
+#          id: boiler_31_power_state_uom_label
+#          text: !lambda 'return x;'
+#  # Единицы измерения напряжения
+#  - platform: homeassistant
+#    id: boiler_31_sensor_voltage_uom
+#    entity_id: "${boiler_31_voltage}"
+#    attribute: unit_of_measurement
+#    on_value:
+#      - lvgl.label.update:
+#          id: boiler_31_voltage_state_uom_label
+#          text: !lambda 'return x;'
+#  # Единицы измерения силы тока
+#  - platform: homeassistant
+#    id: boiler_31_sensor_current_uom
+#    entity_id: "${boiler_podval_current}"
+#    attribute: unit_of_measurement
+#    on_value:
+#      - lvgl.label.update:
+#          id: boiler_31_current_state_uom_label
+#          text: !lambda 'return x;'
+
+  # Thermostat state
+  - platform: homeassistant
+    id: boiler_31_ten1_state
+    entity_id: "${boiler_31_ten1}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(boiler_31_ten1_state).state == "off";'
+          then:
+            - lvgl.obj.update:
+                id: boiler_31_ten1_bg
+                bg_color: color_misty_blue
+            - lvgl.label.update:
+                id: boiler_31_ten1_icon
+                text_color: color_misty_blue
+          else:
+            - lvgl.obj.update:
+                id: boiler_31_ten1_bg
+                bg_color: color_deep_orange
+            - lvgl.label.update:
+                id: boiler_31_ten1_icon
+                text_color: color_deep_orange
+  - platform: homeassistant
+    id: boiler_31_ten2_state
+    entity_id: "${boiler_31_ten2}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(boiler_31_ten2_state).state == "off";'
+          then:
+            - lvgl.obj.update:
+                id: boiler_31_ten2_bg
+                bg_color: color_misty_blue
+            - lvgl.label.update:
+                id: boiler_31_ten2_icon
+                text_color: color_misty_blue
+          else:
+            - lvgl.obj.update:
+                id: boiler_31_ten2_bg
+                bg_color: color_deep_orange
+            - lvgl.label.update:
+                id: boiler_31_ten2_icon
+                text_color: color_deep_orange
+  - platform: homeassistant
+    id: boiler_31_day_mode_state
+    entity_id: "${boiler_31_day_mode}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(boiler_31_day_mode_state).state == "off";'
+          then:
+#            - lvgl.obj.update:
+#                id: boiler_31_day_mode_bg
+#                bg_color: color_misty_blue
+            - lvgl.label.update:
+                id: boiler_31_day_mode_icon
+                text_color: color_misty_blue
+          else:
+#            - lvgl.obj.update:
+#                id: boiler_31_day_mode_bg
+#                bg_color: color_deep_orange
+            - lvgl.label.update:
+                id: boiler_31_day_mode_icon
+                text_color: color_deep_orange
+  - platform: homeassistant
+    id: boiler_31_night_mode_state
+    entity_id: "${boiler_31_night_mode}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(boiler_31_night_mode_state).state == "off";'
+          then:
+#            - lvgl.obj.update:
+#                id: boiler_31_night_mode_bg
+#                bg_color: color_misty_blue
+            - lvgl.label.update:
+                id: boiler_31_night_mode_icon
+                text_color: color_misty_blue
+          else:
+#            - lvgl.obj.update:
+#                id: boiler_31_night_mode_bg
+#                bg_color: color_deep_orange
+            - lvgl.label.update:
+                id: boiler_31_night_mode_icon
+                text_color: color_deep_orange
+  - platform: homeassistant
+    id: boiler_31_full_mode_state
+    entity_id: "${boiler_31_full_mode}"
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(boiler_31_full_mode_state).state == "off";'
+          then:
+#            - lvgl.obj.update:
+#                id: boiler_31_full_mode_bg
+#                bg_color: color_misty_blue
+            - lvgl.label.update:
+                id: boiler_31_full_mode_icon
+                text_color: color_misty_blue
+          else:
+#            - lvgl.obj.update:
+#                id: boiler_31_full_mode_bg
+#                bg_color: color_deep_orange
+            - lvgl.label.update:
+                id: boiler_31_full_mode_icon
+                text_color: color_deep_orange
+lvgl:
+
+  gradients:
+    - id: thermostat_temp_gradient
+      direction: ver
+      dither: none
+      stops:
+        - color: 0xFF0000   # красный (вверху)
+          position: 0
+        - color: 0xFF3300
+          position: 32
+        - color: 0xFF6600
+          position: 64
+        - color: 0xFF9900
+          position: 96
+        - color: 0xFFFF00   # жёлтый (середина)
+          position: 128
+        - color: 0xCCCC33
+          position: 160
+        - color: 0x666699
+          position: 192
+        - color: 0x3333CC
+          position: 224
+        - color: 0x0000FF   # синий (внизу)
+          position: 255
+
+  pages:
+    - id: thermostat_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        # Объект с идикатором мощности
+        - obj:
+            id: boiler_31_power_bg
+            x: 10
+            y: 10
+            width: 170
+            height: 70
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_31_power_icon_label
+                  x: 5                            # Делаем небольшой отступ слева
+                  align: left_mid
+                  text_font: mdi_icons_40
+                  text_color: color_misty_blue
+                  text: "${power_icon}"
+              - label:
+                  id: boiler_31_power_state_label
+                  x: 50                             # Делаем отступ от значка
+                  align: left_mid
+                  text_font: nunito_30
+                  text_color: color_misty_blue
+                  text: " "                         # Передаем данные из сенсора
+
+        # Объект с идикатором напряжения
+        - obj:
+            id: boiler_31_voltage_bg
+            x: 190
+            y: 10
+            width: 180
+            height: 70
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_31_voltage_icon_label
+                  x: 5                             # Делаем небольшой отступ слева
+                  align: left_mid
+                  text_font: mdi_icons_40
+                  text_color: color_misty_blue
+                  text: "${voltage_icon}"
+              - label:
+                  id: boiler_31_voltage_state_label
+                  x: 50                             # Делаем отступ от значка
+                  align: left_mid
+                  text_font: nunito_30
+                  text_color: color_misty_blue
+                  text: " "                         # Пустое поле, передадим действием
+
+        # Состояние тенов и управление ими
+        - obj:
+            id: boiler_31_ten_controls
+            x: 100
+            y: 100
+            width: 260
+            height: 280
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - obj:
+                  id: boiler_31_ten1_bg # Кнопка вкл\выкл ТЕН 1
+                  x: 35
+                  y: -60
+                  align: left_mid
+                  width: 70
+                  height: 70
+                  radius: 35
+                  pad_all: 0
+                  bg_color: color_deep_orange
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  widgets:
+                    - label:
+                        id: boiler_31_ten1_icon
+                        align: center
+                        text_font: mdi_icons_40
+                        text_color: color_deep_orange
+                        text: "${heating_coil_icon}"
+                    - label:
+                        id: boiler_31_ten1_icon_label
+                        x: -55
+                        align: RIGHT_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "1"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${boiler_31_ten1}"
+
+              - obj:
+                  id: boiler_31_ten2_bg # Кнопка вкл\выкл ТЕН 2
+                  x: 35
+                  y: 60
+                  align: left_mid
+                  width: 70
+                  height: 70
+                  radius: 35
+                  pad_all: 0
+                  bg_color: color_deep_orange
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  widgets:
+                    - label:
+                        id: boiler_31_ten2_icon
+                        align: center
+                        text_font: mdi_icons_40
+                        text_color: color_deep_orange
+                        text: "${heating_coil_icon}"
+                    - label:
+                        id: boiler_31_ten2_icon_label
+                        x: -55
+                        align: RIGHT_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "2"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${boiler_31_ten2}"
+
+        # Режимы работы
+        - obj:
+            x: 5
+            y: -100
+            width: 90
+            height: 90
+            align: left_mid
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${boiler_31_full_mode}"
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  id: boiler_31_full_mode_bg
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        id: boiler_31_full_mode_icon
+                        y: -2
+                        align: center
+                        text_font: mdi_icons_40
+                        text_color: color_misty_blue
+                        text: "${all_inclusive}"
+
+        - obj:
+            x: 5
+            y: 0
+            width: 90
+            height: 90
+            align: left_mid
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${boiler_31_day_mode}"
+
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  id: boiler_31_day_mode_bg
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        y: -2
+                        id: boiler_31_day_mode_icon
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${weather_sunny}"
+        - obj:
+            x: 5
+            y: 100
+            width: 90
+            height: 90
+            align: left_mid
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${boiler_31_night_mode}"
+
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  id: boiler_31_night_mode_bg
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        id: boiler_31_night_mode_icon
+                        y: -2
+                        align: CENTER
+                        text_font: mdi_icons_40
+                        text_color: color_misty_blue
+                        text: "${weather_night}"
+
+        # Name
+        - obj:
+            id: thermostat_name
+            x: 100
+            y: 400
+            width: 360
+            height: 60
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: thermostat_name_label
+                  x: 20
+                  align: LEFT_MID
+                  text_font: nunito_36
+                  text_color: color_misty_blue
+                  text: "Boiler 31"
+
+        # main
+        - obj:
+            id: thermostat_bg_main
+            width: 250
+            height: 480
+            align: RIGHT_MID
+            pad_all: 0
+            bg_opa: TRANSP
+            scrollable: false
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              - obj:
+                  id: thermostat_bg_placeholder
+                  radius: 240
+                  x: 235
+                  width: 480
+                  height: 480
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - obj:
+                  id: thermostat_temp_arc_bg
+                  radius: 230
+                  x: 230
+                  width: 460
+                  height: 460
+                  align: RIGHT_MID
+                  bg_grad: thermostat_temp_gradient
+                  bg_grad_dir: ver
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - meter:
+                  id: thermostat_meter
+                  x: 200
+                  height: 400
+                  width: 400
+                  border_width: 0
+                  bg_color: color_slate_blue_gray
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  scales:
+                    - range_from: 10
+                      range_to: 80
+                      angle_range: 160
+                      rotation: 100.0
+                      ticks:
+                        width: 1
+                        count: 70 # Количество деление на диапазон
+                        length: 10
+                        color: color_white
+                        major:
+                          stride: 10  # крупная метка каждые 5 делений
+                          width: 5
+                          length: 15
+                          color: color_white
+                          label_gap: 15
+                      indicators:
+                        - tick_style:
+                            start_value: 10
+                            end_value: 80
+                            color_start: color_yellow #Цвет снизу
+                            color_end: color_red # Цвет сверху
+                            width: 1
+
+              - arc:
+                  id: boiler_31_arc_main
+                  clickable: false
+                  align: RIGHT_MID
+                  arc_width: 40
+                  x: 235
+                  width: 470
+                  height: 470
+                  min_value: 10
+                  max_value: 80
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 10
+                  end_angle: 170
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_opa: TRANSP
+                    arc_width: 40
+                  knob:
+                    border_color: color_misty_blue
+                    border_width: 5
+                    bg_color: color_dark_gray
+                    bg_opa: 80%
+
+              - arc:
+                  id: boiler_31_arc_alarm_temp
+                  clickable: false
+                  align: RIGHT_MID
+                  arc_width: 10
+                  x: 230
+                  width: 450
+                  height: 450
+                  min_value: 10
+                  max_value: 80
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 10
+                  end_angle: 170
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_opa: TRANSP
+                  knob:
+                    bg_color: color_gray
+                    border_width: 0
+                    bg_opa: 80%
+#                  on_release:
+#                    - homeassistant.action:
+#                        action: number.set
+#                        data:
+#                          entity_id: number.boiler_31_water_alarm
+#                          value: !lambda return x;
+
+              - obj:
+                  width: 140
+                  height: 120
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+
+                    - label:
+                        id: thermostat_target_temperature_whole # Температура переграва -отключение
+                        x: -40
+                        y: 0
+                        align: RIGHT_MID
+                        text_font: nunito_84
+                        text_color: color_steel_blue
+                        text: " "
+                
+                    - label:
+                        id: thermostat_target_temperature_fraction # Температура переграва -отключение
+                        x: -10
+                        y: 15
+                        align: RIGHT_MID
+                        text_font: nunito_36
+                        text_color: color_steel_blue
+                        text: " "
+
+                    - label:
+                        id: thermostat_target_temperature_measurement
+                        x: -12
+                        y: -20
+                        align: RIGHT_MID
+                        text_font: nunito_30
+                        text_color: color_steel_blue
+                        text: "°C"
+
+              - label:
+                  id: boiler_31_state_icon
+                  x: -10
+                  y: -90
+                  align: RIGHT_MID
+                  text_font: mdi_icons_52
+                  text_color: color_steel_blue
+                  text: "${heating_coil_icon}"
+
+              - label:
+                  id: thermostat_target_temperature_icon
+                  x: -70
+                  y: 80
+                  align: RIGHT_MID
+                  text_font: icons_28
+                  text_color: color_steel_blue
+                  text: "${temperature_icon}"
+
+              - label:
+                  id: thermostat_target_temperature_value # Текущая температура бойлера
+                  x: -10
+                  y: 80
+                  align: RIGHT_MID
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: " "
+
+        # Return
+        - button:
+            id: thermostat_back
+            x: 20
+            y: 400
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: thermostat_back_label
+                  align: CENTER
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: devices_page
+              - lvgl.widget.show: menu_controls_main

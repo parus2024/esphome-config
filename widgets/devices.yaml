@@ -1,0 +1,195 @@
+substitutions:
+
+  music_icon:             "\U0000e91b"
+  shutter_icon:           "\U0000e91d"
+  air_conditioner_icon:   "\U0000e93b"
+  boiler_icon:            "\U000F0F92"
+  boiler1_icon:           "\U0000e800" # boiler
+
+packages:
+  media_player: !include media_player/media_player.yaml
+  media_player2: !include media_player/media_player2.yaml
+  shutter:      !include shutter/shutter_config.yaml
+  air_conditioner: !include air_conditioner/air_conditioner_config.yaml
+  boiler_config:   !include boiler/boiler_config.yaml
+  alarm:           !include alarm/alarm_config.yaml
+  checked: !include checked/checked.yaml
+
+
+lvgl:
+  pages:
+    - id: devices_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        - obj:
+            id: devices_main
+            y: 20
+            width: 440
+            height: 340
+            pad_all: 0
+            align: TOP_MID
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            border_opa: TRANSP
+            border_width: 0
+            radius: 10
+            widgets:
+              - obj:
+                  y: 10
+                  width: 440
+                  height: 150
+                  pad_all: 0
+                  align: TOP_MID
+                  bg_opa: TRANSP
+                  shadow_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  radius: 10
+                  widgets:
+
+                    - button:
+                        id: media_player_page_btn
+                        x: 35
+                        align: LEFT_MID
+                        width: 100
+                        height: 100
+                        radius: 10
+                        bg_color: color_slate_blue_gray
+                        shadow_opa: TRANSP
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_color: color_steel_blue
+                              text_font: icons_90
+                              text: "${music_icon}"
+                        on_press:
+                          - lvgl.widget.hide: menu_controls_main
+                          - lvgl.page.show: 
+                              id: media_player_page
+                              animation: OUT_RIGHT
+                              time: 300ms
+
+                    - button:
+                        id: shutters_page_btn
+                        x: 170
+                        align: LEFT_MID
+                        width: 100
+                        height: 100
+                        radius: 10
+                        bg_color: color_slate_blue_gray
+                        shadow_opa: TRANSP
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_color: color_steel_blue
+                              text_font: icons_72
+                              text: "${shutter_icon}"
+                        on_press:
+                          - lvgl.page.show: 
+                              id: shutter_group_page
+                              animation: OUT_RIGHT
+                              time: 300ms
+
+                    - button:
+                        id: alarm_page_btn
+                        x: 305
+                        align: LEFT_MID
+                        width: 100
+                        height: 100
+                        radius: 10
+                        bg_color: color_slate_blue_gray
+                        shadow_opa: TRANSP
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_color: color_steel_blue
+                              text_font: mdi_icons_72
+                              text: "${alarm_out_off}"
+                        on_press:
+                          - lvgl.widget.hide: menu_controls_main
+                          - lvgl.page.show:
+                              id: alarm_panel_page
+                              animation: OUT_RIGHT
+                              time: 300ms
+
+              - obj:
+                  y: 120
+                  width: 440
+                  height: 150
+                  pad_all: 0
+                  align: TOP_MID
+                  bg_opa: TRANSP
+                  shadow_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  radius: 10
+                  widgets:
+
+                    - button:
+                        id: air_conditioner_btn
+                        x: 170
+                        align: LEFT_MID
+                        width: 100
+                        height: 100
+                        radius: 10
+                        bg_color: color_slate_blue_gray
+                        shadow_opa: TRANSP
+                        widgets:
+                          - label:
+                              id: air_conditioner_btn_label
+                              align: CENTER
+                              text_color: color_steel_blue
+                              text_font: icons_72
+                              text: "${air_conditioner_icon}"
+                        on_press:
+                          - lvgl.widget.hide: menu_controls_main
+                          - lvgl.page.show: 
+                              id: air_conditioner_panel_page
+                              animation: OUT_RIGHT
+                              time: 300ms
+
+                    - button:
+                        id: alarm_panel_page_btn
+                        x: 305
+                        align: LEFT_MID
+                        width: 100
+                        height: 100
+                        radius: 10
+                        bg_color: color_slate_blue_gray
+                        shadow_opa: TRANSP
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_color: color_steel_blue
+                              text_font: mdi_icons_72
+                              text: "${shield_away_icon}"
+                        on_press:
+                          - lvgl.widget.hide: menu_controls_main
+                          - lvgl.page.show: 
+                              id: checked_page
+                              animation: OUT_RIGHT
+                              time: 300ms
+# Ссылка на бойлер  
+                    - button:
+                        id: boiler_page_btn
+                        x: 35
+                        align: LEFT_MID
+                        width: 100
+                        height: 100
+                        radius: 10
+                        bg_color: color_slate_blue_gray
+                        shadow_opa: TRANSP
+                        widgets:
+                          - label:
+                              id: boiler_page_btn_label
+                              align: CENTER
+                              text_color: color_steel_blue
+                              text_font: parus_icons_64
+                              text: "${boiler1_icon}"
+                        on_press:
+                          - lvgl.widget.hide: menu_controls_main
+                          - lvgl.page.show: 
+                              id: boiler_panel_page
+                              animation: OUT_RIGHT
+                              time: 300ms

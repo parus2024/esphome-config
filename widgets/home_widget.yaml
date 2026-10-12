@@ -1,0 +1,1256 @@
+substitutions:
+
+  weather_entity: "weather.openweathermap"
+  temperature_entity: "sensor.davis_vantage_temperature"
+  humidity_entity: "sensor.humidity_garage"
+  atm_entity: "sensor.davis_vantage_barometric_pressure"
+  poliv_gazon: "switch.poliv_gazon"
+  button_vorota: "button.gate_onetouchcontrol"
+  vorota_state: "binary_sensor.gate_state"
+  button_garage: "button.garage"
+  garage_state: "binary_sensor.garage_state"
+  water_pressure: "sensor.water_pressure"
+  sauna: "switch.sauna_ten"
+  sauna_temperature: "sensor.sauna_temperature"
+  phase1_voltage: "sensor.phase_1_voltage"
+  phase1_power: "sensor.phase_1_power"
+  phase2_voltage: "sensor.phase_2_voltage"
+  phase2_power: "sensor.phase_2_power"
+  phase3_voltage: "sensor.phase_3_voltage"
+  phase3_power: "sensor.phase_3_power"
+  gate_position: "sensor.gate_position_sensor"
+  wind_speed: "sensor.davis_vantage_wind_speed"
+  switch1_hood: "switch.hood_fan_speed1"
+
+  windsock_icon:                "\U000F15FA" # windsock    +
+  lock_icon:               "\U0000e92e"
+  air_conditioner_icon:    "\U0000e93b" 
+  heating_icon:            "\U0000e936"
+  info_icon:               "\U0000e904"
+  restart_icon:            "\U000F0709"
+  ha_icon:                 "\U0000e935" # home assistant
+  wifi_25_icon:            "\U0000e931" # wifi signal from 25% to 1%
+  wifi_50_icon:            "\U0000e932" # wifi signal from 50% to 25%
+  wifi_75_icon:            "\U0000e933" # wifi signal from 75% to 50%
+  wifi_100_icon:           "\U0000e934" # wifi signal from 100% to 75% or disable
+  humidity_icon:           "\U0000e938" 
+  co2_icon:                "\U0000e937" 
+  tvoc:                    "\U0000e93a" # air quality
+  temperature_icon:        "\U0000e939" 
+  illumination:            "\U0000e92f" # lux
+  lightbulb_icon:          "\U0000e908"
+## parus ##
+  boiler_icon:             "\U0000e800" # boiler
+  gate0_icon:              "\U0000e801" # gate0
+  gate25_icon:             "\U0000e802" # gate25
+  gate50_icon:             "\U0000e803" # gate50
+  gate75_icon:             "\U0000e804" # gate75
+  gate100_icon:            "\U0000e805" # gate100
+  hood_icon:               "\U0000e806" # hood
+  irrigation_icon:         "\U0000e807" # irrigarion
+  lamp1_icon:              "\U0000e808" # lamp1
+  rgb_bulb_on:             "\U0000e809" # rgb-bulb-on
+  rgb_bulb_off:            "\U0000e80a" # rgb-bulb-off
+  sauna1_icon:             "\U0000e80b" # sauna1
+  sauna2_icon:             "\U0000e80c" # sauna2
+  sauna3_icon:             "\U0000e80d" # sauna3
+  spotlight_on_icon:       "\U0000e80e" # spotlight-on
+  spotlight_off_icon:      "\U0000e80f" # spotlight-off
+  led_strip_icon:          "\U0000e810" # led-strip
+  atm_pressure_icon:       "\U0000e811" # atm-pressure
+  sauna4_icon:             "\U0000e812" # sauna4
+  hood1_icon:              "\U0000e813" # hood1
+  sauna5_icon:             "\U0000e814" # sauna5
+  bell_cog_icon:           "\U000F1A29" # bell
+## end parus ##
+globals:
+  - id: display_lock
+    type: bool
+    restore_value: true
+    initial_value: "false"
+
+sensor:
+  # WI-FI Signal
+  - platform: wifi_signal
+    id: wifi_signal_percent
+    update_interval: 30s
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: wifi_status
+            text_color: !lambda |-
+              if (id(wifi_signal_percent).state > 0) {
+              return lv_color_hex(0x5CA848);
+              }
+              return lv_color_hex(0x5CA848);
+            text: !lambda |-
+              if (id(wifi_signal_percent).state > 0 && id(wifi_signal_percent).state < 26) {
+              return "${wifi_25_icon}";
+              } else if (id(wifi_signal_percent).state > 25 && id(wifi_signal_percent).state < 51) {
+              return "${wifi_50_icon}";
+              } else if (id(wifi_signal_percent).state > 50 && id(wifi_signal_percent).state < 76) {
+              return "${wifi_75_icon}";
+              } else if (id(wifi_signal_percent).state > 75) {
+              return "${wifi_100_icon}";
+              }
+              return "${wifi_100_icon}";
+
+  # Weather temperature sensor
+  - platform: homeassistant
+    id: weather_temp
+    entity_id: "${weather_entity}"
+    attribute: temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: weather_temperature
+            text:
+              format: "%.0f°"
+              args: [id(weather_temp).state]
+
+  # Temperature Home Sensor
+  - platform: homeassistant
+    id: temperature_sensor
+    entity_id: "${temperature_entity}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: temperature_sensor_label
+            text:
+              format: "%.1f °C"
+              args: [id(temperature_sensor).state]
+  # Temperature Sauna Sensor
+  - platform: homeassistant
+    id: sauna_temperature_sensor
+    entity_id: "${sauna_temperature}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: sauna_temperature_label
+            text:
+              format: "%.0f °C"
+              args: [id(sauna_temperature_sensor).state]
+
+  # Humidity Home Sensor
+  - platform: homeassistant
+    id: humidity_sensor
+    entity_id: "${humidity_entity}"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: humidity_sensor_label
+            text:
+              format: "%.0f %%" 
+              args: [id(humidity_sensor).state]
+  # Atmosthere Home Sensor
+  - platform: homeassistant
+    id: atm_sensor_local
+    entity_id: "${atm_entity}"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: atm_sensor_label
+            text:
+              format: "%.0f mmHg%" 
+              args: [id(atm_sensor_local).state]
+  # Wind Speed Sensor
+  - platform: homeassistant
+    id: wind_speed_local
+    entity_id: "${wind_speed}"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: wind_speed_text
+            text:
+              format: "%.0f м/с" 
+              args: [id(wind_speed_local).state]
+  # Давление воды
+  - platform: homeassistant
+    id: water_pressure_current
+    entity_id: "${water_pressure}"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: water_pressure_text_label
+            text:
+              format: "%.1f"
+              args: ['x']
+### 3 Phase Sensor
+  - platform: homeassistant
+    id: phase1_voltage_sensor
+    entity_id: "${phase1_voltage}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: phase1_voltage_label
+            text:
+              format: "%.0f v"
+              args: [id(phase1_voltage_sensor).state]
+  - platform: homeassistant
+    id: phase1_power_sensor
+    entity_id: "${phase1_power}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: phase1_power_label
+            text:
+              format: "%.0f w"
+              args: [id(phase1_power_sensor).state]
+  - platform: homeassistant
+    id: phase2_voltage_sensor
+    entity_id: "${phase2_voltage}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: phase2_voltage_label
+            text:
+              format: "%.0f v"
+              args: [id(phase2_voltage_sensor).state]
+  - platform: homeassistant
+    id: phase2_power_sensor
+    entity_id: "${phase2_power}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: phase2_power_label
+            text:
+              format: "%.0f w"
+              args: [id(phase2_power_sensor).state]
+  - platform: homeassistant
+    id: phase3_voltage_sensor
+    entity_id: "${phase3_voltage}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: phase3_voltage_label
+            text:
+              format: "%.0f v"
+              args: [id(phase3_voltage_sensor).state]
+  - platform: homeassistant
+    id: phase3_power_sensor
+    entity_id: "${phase3_power}"
+    on_value:
+      then:   
+        - lvgl.label.update:
+            id: phase3_power_label
+            text:
+              format: "%.0f w"
+              args: [id(phase3_power_sensor).state]
+  # Gate Position sensor
+  - platform: homeassistant
+    id: gate_position_local
+    entity_id: "${gate_position}"
+    unit_of_measurement: "%"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: gate_state_label
+            text:
+              format: "%.0f%%"
+              args: [id(gate_position_local).state]
+        - lvgl.label.update:
+            id: vorota_state_icon
+            text_color: !lambda |-
+              if (id(gate_position_local).state > 5) {
+              return lv_color_hex(0xFF8C00); // darkorange
+              }
+              return lv_color_hex(0x006400); // darkgreen
+            text: !lambda |-
+              if (id(gate_position_local).state > 5 && id(gate_position_local).state < 37) {
+              return "${gate25_icon}";
+              } else if (id(gate_position_local).state > 37 && id(gate_position_local).state < 63) {
+              return "${gate50_icon}";
+              } else if (id(gate_position_local).state > 63 && id(gate_position_local).state < 87) {
+              return "${gate75_icon}";
+              } else if (id(gate_position_local).state > 87) {
+              return "${gate100_icon}";
+              }
+              return "${gate0_icon}";
+
+text_sensor:
+  # Sun horizon sensor
+  - platform: homeassistant
+    id: sun_state_sensor
+    entity_id: sun.sun
+
+  # Weather state sensor
+  - platform: homeassistant
+    id: weather_state_sensor
+    entity_id: "${weather_entity}"
+    on_value: 
+      then:
+        - delay: 1s
+        - script.execute: update_weather_image
+    # garage state
+
+binary_sensor:
+  - platform: homeassistant
+    id: garage_state_local
+    entity_id: binary_sensor.garage_state
+    trigger_on_initial_state: true
+    on_press:
+      - lvgl.label.update:
+          id: garage_state_icon
+          text_color: color_deep_orange
+          text: "${garage_open}"
+    on_release:
+      - lvgl.label.update:
+          id: garage_state_icon
+          text_color: darkgreen
+          text: "${garage_closed}"
+    # vorota state
+#  - platform: homeassistant
+#    id: gate_state_local
+#    entity_id: binary_sensor.gate_state
+#    trigger_on_initial_state: true
+#    on_press:
+#      - lvgl.label.update:
+#          id: vorota_state_icon
+#          text_color: color_deep_orange
+#          text: "${gate100_icon}"
+#    on_release:
+#      - lvgl.label.update:
+#          id: vorota_state_icon
+#          text_color: darkgreen
+#          text: "${gate0_icon}"
+switch:
+    # poliv state
+  - platform: homeassistant
+    id: poliv_state_local
+    entity_id: switch.poliv_gazon
+    on_turn_on:
+      - lvgl.label.update:
+          id: poliv_state_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: poliv_state_icon
+          text_color: color_misty_blue
+    # вытяжка
+  - platform: homeassistant
+    id: hood_state_local
+    entity_id: switch.hood_fan_speed1
+    on_turn_on:
+      - lvgl.label.update:
+          id: hood_state_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: hood_state_icon
+          text_color: color_misty_blue
+    # sauna
+  - platform: homeassistant
+    id: sauna_local
+    entity_id: switch.sauna_ten
+    on_turn_on:
+      - lvgl.label.update:
+          id: sauna_label
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: sauna_temperature_label
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: sauna_label
+          text_color: color_misty_blue
+      - lvgl.label.update:
+          id: sauna_temperature_label
+          text_color: color_misty_blue
+
+  - platform: template
+    name: "Touchscreen block"
+    id: display_lock_switch
+    lambda: |-
+      return id(display_lock);
+    turn_on_action:
+      - lambda: 'id(display_lock) = true;' 
+      - lvgl.button.update: 
+          id: home_page_btn
+          clickable: false
+      - lvgl.button.update: 
+          id: lights_group_page_btn
+          clickable: false
+      - lvgl.button.update: 
+          id: devices_page_btn
+          clickable: false
+      - lvgl.button.update: 
+          id: settings_page_btn
+          clickable: false
+      - lvgl.label.update:
+          id: lock_status
+          text_color: color_green
+      - lvgl.label.update:
+          id: display_lock_btn
+          text_color: color_deep_orange
+    turn_off_action:
+      - lambda: 'id(display_lock) = false;' 
+      - lvgl.button.update: 
+          id: home_page_btn
+          clickable: true
+      - lvgl.button.update: 
+          id: lights_group_page_btn
+          clickable: true
+      - lvgl.button.update: 
+          id: devices_page_btn
+          clickable: true
+      - lvgl.button.update: 
+          id: settings_page_btn
+          clickable: true
+      - lvgl.label.update:
+          id: lock_status
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: display_lock_btn
+          text_color: color_steel_blue
+lvgl:  
+  pages:
+    - id: home_page
+      bg_color: color_slate_blue_gray 
+      widgets:
+
+        # indicators
+        - obj:
+            id: home_bg_indicators
+            y: 10
+            width: 460
+            height: 40
+            align: TOP_MID
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              # date
+              - label:
+                  id: display_date
+                  x: 10
+                  align: LEFT_MID
+                  text_font: nunito_20
+                  text_color: color_misty_blue
+                  text: "31.01"
+
+              # Wi-Fi status
+              - label:
+                  id: wifi_status
+                  align: RIGHT_MID
+                  x: -10
+                  text: "${wifi_100_icon}"
+                  text_color: color_steel_blue
+                  text_font: icons_24
+
+              # Home Assistant status
+              - label:
+                  id: ha_status
+                  align: RIGHT_MID
+                  x: -50
+                  text: "${ha_icon}"
+                  text_color: color_steel_blue
+                  text_font: icons_24
+
+              # Boiler status
+              - label:
+                  id: heating_status
+                  align: RIGHT_MID
+                  x: -90
+                  text: "${boiler_icon}"
+                  text_color: color_steel_blue
+                  text_font: mdi_icons_24
+
+              # AC status
+              - label:
+                  id: ac_status
+                  align: RIGHT_MID
+                  x: -130
+                  y: 2
+                  text: "${air_conditioner_icon}"
+                  text_color: color_steel_blue
+                  text_font: icons_24
+
+              # Lock status
+              - label:
+                  id: lock_status
+                  align: RIGHT_MID
+                  x: -170
+                  text: "${lock_icon}"
+                  text_color: color_steel_blue
+                  text_font: icons_24
+
+              # Alarm panel status
+              - label:
+                  id: alarm_panel_status
+                  align: RIGHT_MID
+                  x: -210
+                  text: "${shield_arming_icon}"
+                  text_color: color_steel_blue
+                  text_font: mdi_icons_24
+              # Alarm status
+              - label:
+                  id: alarm_status
+                  align: RIGHT_MID
+                  x: -250
+                  text: "${alarm_on}"
+                  text_color: color_steel_blue
+                  text_font: mdi_icons_24
+              # Leak status
+              - label:
+                  id: leak_status
+                  align: RIGHT_MID
+                  x: -290
+                  text: "${water_alert}"
+                  text_color: color_steel_blue
+                  text_font: mdi_icons_24
+
+        # time
+        - obj:
+            id: home_bg_weather_time
+            x: 10
+            y: 60
+            width: 220
+            height: 100
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              - label:
+                  id: display_time
+                  align: CENTER
+                  text_font: nunito_72
+                  text_color: color_misty_blue
+                  text: "23:59"
+              - label:
+                  y: -10
+                  id: time_colon
+                  align: CENTER
+                  text_font: nunito_72
+                  text_color: color_misty_blue
+                  text: " "
+
+        # weather
+        - obj:
+            id: home_bg_weather
+            x: 10
+            y: 170
+            width: 220
+            height: 200
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - image:
+                  id: weather_sunny_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: sunny_img
+              - image:
+                  id: weather_clear_night_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: clear_night_img
+              - image:
+                  id: weather_cloudy_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: cloudy_img
+              - image:
+                  id: weather_partlycloudy_sun_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: partlycloudy_sun_img
+              - image:
+                  id: weather_partlycloudy_moon_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: partlycloudy_moon_img
+              - image:
+                  id: weather_rainy_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: rainy_img
+              - image:
+                  id: weather_pouring_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: pouring_img
+              - image:
+                  id: weather_snowy_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: snowy_img
+              - image:
+                  id: weather_snowy_rainy_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: snowy_rainy_img
+              - image:
+                  id: weather_fog_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: fog_img
+              - image:
+                  id: weather_hail_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: hail_img
+              - image:
+                  id: weather_lightning_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: lightning_img
+              - image:
+                  id: weather_lightning_rainy_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: lightning_rainy_img
+              - image:
+                  id: weather_windy_image
+                  hidden: true
+                  x: 25
+                  y: 20
+                  align: TOP_LEFT
+                  src: windy_img
+              - image:
+                  id: weather_windy_variant_image
+                  hidden: true
+                  x: 10
+                  y: 20
+                  align: TOP_LEFT
+                  src: windy_variant_img
+
+              - label:
+                  x: -10
+                  y: 5
+                  align: TOP_RIGHT
+                  id: weather_temperature
+                  text_font: nunito_48
+                  text_color: color_misty_blue
+                  text: "15°"
+
+              - label:
+                  id: weather_state_label
+                  y: 0
+                  x: 10
+                  width: 180
+                  height: 20
+                  align:  TOP_LEFT
+                  text_font: nunito_18
+                  text_color: color_misty_blue
+#                  long_mode: SCROLL_CIRCULAR
+                  text: " "
+              # temperature
+              - obj:
+                  x: 5
+                  y: -40
+                  width: 100
+                  height: 40
+                  align: BOTTOM_LEFT
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+                    - label:
+                        id: temperature_sensor_icon
+                        align: LEFT_MID
+                        x: 10
+                        text: "${temperature_icon}"
+                        text_color: color_green
+                        text_font: icons_28
+                    - label:
+                        id: temperature_sensor_label
+                        align: LEFT_MID
+                        x: 40
+                        text: " "
+                        text_color: color_misty_blue
+                        text_font: nunito_16
+              # humidity
+              - obj:
+                  x: 105
+                  y: -40
+                  width: 100
+                  height: 40
+                  align: BOTTOM_LEFT
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+                    - label:
+                        id: humidity_sensor_icon
+                        align: LEFT_MID
+                        x: 10
+                        text: "${humidity_icon}"
+                        text_color: color_blue
+                        text_font: icons_28
+                    - label:
+                        id: humidity_sensor_label
+                        align: LEFT_MID
+                        x: 40
+                        text: " "
+                        text_color: color_misty_blue
+                        text_font: nunito_16
+              # Атмосферное давление
+              - obj:
+                  x: 10
+                  y: -10
+                  width: 120
+                  height: 30
+                  align: BOTTOM_LEFT
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+                    - label:
+                        id: atm_label
+                        align: LEFT_MID
+                        x: 5
+                        text: "${atm_pressure_icon}"
+                        text_color: color_violet
+                        text_font: parus_icons_26
+                    - label:
+                        id: atm_sensor_label
+                        align: LEFT_MID
+                        x: 35
+                        text: " "
+                        text_color: color_misty_blue
+                        text_font: nunito_16
+              # Ветер
+              - obj:
+                  x: 135
+                  y: -10
+                  width: 85
+                  height: 30
+                  align: BOTTOM_LEFT
+                  pad_all: 0
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+                    - label:
+                        id: wind_speed_label
+                        align: LEFT_MID
+                        x: 5
+                        text: "${windsock_icon}"
+                        text_color: color_dark_blue
+                        text_font: mdi_icons_24
+                    - label:
+                        id: wind_speed_text
+                        align: LEFT_MID
+                        x: 35
+                        text: " "
+                        text_color: color_misty_blue
+                        text_font: nunito_16
+        # garage_bg
+        - obj:
+            id: home_bg_garage
+            x: 240
+            y: 60
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: garage_state_icon
+                  align: center
+                  text_font: mdi_icons_52
+                  text_color: color_misty_blue
+                  text: "${garage_closed}"
+            on_click:
+              - homeassistant.action:
+                  action: button.press
+                  data:
+                    entity_id: "${button_garage}"
+        # vorota
+        - obj:
+            id: home_bg_gate
+            x: 320
+            y: 60
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: 0
+                  align: TOP_MID
+                  id: gate_state_label
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "0%"
+              - label:
+                  y: -15
+                  id: vorota_state_icon
+                  align: BOTTOM_MID
+                  text_font: parus_icons_26
+                  text_color: color_misty_blue
+                  text: "${gate0_icon}"
+            on_press:
+              - homeassistant.action:
+                  action: button.press
+                  data:
+                    entity_id: button.gate_onetouchcontrol
+        # уведомления
+        - obj:
+            id: notice_btn
+            x: 400
+            y: 60
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: 0
+                  align: TOP_MID
+                  id: notice_label
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "notice"
+              - label:
+                  y: -15
+                  id: notice_icon
+                  align: BOTTOM_MID
+                  text_font: mdi_icons_24
+                  text_color: color_misty_blue
+                  text: "${bell_cog_icon}"
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: 
+                  id: checked_page
+                  animation: OUT_RIGHT
+                  time: 300ms
+        # hood_bg
+        - obj:
+            id: home_bg_hood
+            x: 240
+            y: 140
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: hood_state_icon
+                  align: center
+                  text_font: parus_icons_36
+                  text_color: color_misty_blue
+                  text: "${hood_icon}"
+            on_click:
+              - homeassistant.action:
+                  action: switch.toggle
+                  data:
+                    entity_id: "${switch1_hood}"
+        # sauna
+        - obj:
+            id: home_bg_sauna
+            x: 240
+            y: 220
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: 0
+                  align: TOP_MID
+                  id: sauna_temperature_label
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "20°"
+              - label:
+                  y: 0
+                  id: sauna_label
+                  align: BOTTOM_MID
+                  text_font: parus_icons_36
+                  text_color: color_misty_blue
+                  text: "${sauna5_icon}"
+            on_click:
+              - homeassistant.action:
+                  action: switch.toggle
+                  data:
+                    entity_id: "${sauna}"
+        # poliv_gazon
+        - obj:
+            id: home_bg_poliv_gazon
+            x: 320
+            y: 220
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: poliv_state_icon
+                  align: center
+                  text_font: parus_icons_58
+                  text_color: color_misty_blue
+                  text: "${irrigation_icon}"
+            on_click:
+              - homeassistant.action:
+                  action: switch.toggle
+                  data:
+                    entity_id: "${poliv_gazon}"
+
+        # давление воды
+        - obj:
+            id: water_pressure_label
+            x: 400
+            y: 220
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: water_pressure_text_label
+                  text_color: color_misty_blue
+                  text_font: nunito_30
+                  text: "-.-"
+                  align: center
+                  clickable: false # запретить интерактивность у label
+              - label:
+                  y: 0
+                  id: water_pressure_name_label
+                  text_color: color_misty_blue
+                  text_font: nunito_20
+                  text: "bar"
+                  align: BOTTOM_MID
+                  clickable: false 
+
+######## 3 phase
+        # фаза1
+        - obj:
+            id: phase1
+            x: 240
+            y: 300
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: 10%   #TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: 0
+                  align: TOP_MID
+                  id: phase1_label
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "фаза 1"
+              - label:
+                  y: 25
+                  id: phase1_voltage_label
+                  text_color: color_misty_blue
+                  text_font: nunito_18
+                  text: "-.-"
+                  align: TOP_MID
+                  clickable: false
+              - label:
+                  y: 45
+                  id: phase1_power_label
+                  text_color: color_misty_blue
+                  text_font: nunito_18
+                  text: "-.-"
+                  align: TOP_MID
+                  clickable: false
+        # фаза2
+        - obj:
+            id: phase2
+            x: 320
+            y: 300
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: 0
+                  align: TOP_MID
+                  id: phase2_label
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "фаза 2"
+              - label:
+                  y: 25
+                  id: phase2_voltage_label
+                  text_color: color_misty_blue
+                  text_font: nunito_18
+                  text: "-.-"
+                  align: TOP_MID
+                  clickable: false
+              - label:
+                  y: 45
+                  id: phase2_power_label
+                  text_color: color_misty_blue
+                  text_font: nunito_18
+                  text: "-.-"
+                  align: TOP_MID
+                  clickable: false
+        # фаза3
+        - obj:
+            id: phase3
+            x: 400
+            y: 300
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: 0
+                  align: TOP_MID
+                  id: phase3_label
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "фаза 3"
+              - label:
+                  y: 25
+                  id: phase3_voltage_label
+                  text_color: color_misty_blue
+                  text_font: nunito_18
+                  text: "-.-"
+                  align: TOP_MID
+                  clickable: false
+              - label:
+                  y: 45
+                  id: phase3_power_label
+                  text_color: color_misty_blue
+                  text_font: nunito_18
+                  text: "-.-"
+                  align: TOP_MID
+                  clickable: false
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Moscow
+    servers:
+     - ntp0.ntp-servers.net
+     - ntp1.ntp-servers.net
+     - ntp2.ntp-servers.net
+    on_time_sync:
+      - script.execute: time_update
+    on_time:
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update
+interval:
+  - interval: 1s
+    then:
+      - script.execute: blink_colon
+script:
+  - id: time_update
+    then:
+      - lvgl.label.update:
+          id: display_time
+          text: !lambda |-
+            static char time_buf[16];
+            auto now = id(sntp_time).now();
+            // В начальный момент двоеточие всегда видно
+            snprintf(time_buf, sizeof(time_buf), "%02d %02d", now.hour, now.minute);
+            return time_buf;
+
+      - lvgl.label.update:
+          id: display_date
+          text: !lambda |-
+            static char date_buf[16];
+            auto now = id(sntp_time).now();
+            snprintf(date_buf, sizeof(date_buf), "%02d.%02d.%04d", now.day_of_month, now.month, now.year);
+            return date_buf;
+  - id: blink_colon
+    then:
+      - lvgl.label.update:
+          id: time_colon
+          text: !lambda |-
+            static bool visible = true;
+            visible = !visible;
+            return visible ? ":" : " ";
+
+
+  - id: update_weather_image
+    then:
+      - lambda: |-
+          std::string weather = id(weather_state_sensor).state;
+          bool is_night = (id(sun_state_sensor).state == "below_horizon");
+          
+          if (weather == "cloudy") {
+              lv_obj_clear_flag(id(weather_cloudy_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "partlycloudy") {
+            if (is_night) {
+              lv_obj_clear_flag(id(weather_partlycloudy_moon_image), LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_obj_clear_flag(id(weather_partlycloudy_sun_image), LV_OBJ_FLAG_HIDDEN);
+            }
+          } else if (weather == "sunny" || weather == "clear-night") {
+            if (is_night) {
+              lv_obj_clear_flag(id(weather_clear_night_image), LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_obj_clear_flag(id(weather_sunny_image), LV_OBJ_FLAG_HIDDEN);
+            }
+          } else if (weather == "rainy") {
+            lv_obj_clear_flag(id(weather_rainy_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "lightning-rainy") {
+            lv_obj_clear_flag(id(weather_lightning_rainy_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "lightning") {
+            lv_obj_clear_flag(id(weather_lightning_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "pouring") {
+            lv_obj_clear_flag(id(weather_pouring_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "snowy") {
+            lv_obj_clear_flag(id(weather_snowy_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "snowy-rainy") {
+            lv_obj_clear_flag(id(weather_snowy_rainy_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "fog") {
+            lv_obj_clear_flag(id(weather_fog_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "hail") {
+            lv_obj_clear_flag(id(weather_hail_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "windy") {
+            lv_obj_clear_flag(id(weather_windy_image), LV_OBJ_FLAG_HIDDEN);
+          } else if (weather == "windy-variant") {
+            lv_obj_clear_flag(id(weather_windy_variant_image), LV_OBJ_FLAG_HIDDEN);
+          }
+
+      # - if:
+      #     condition:
+      #       lambda: 'return id(display_lock) == true;'
+      #     then:
+      #       - switch.turn_on: display_lock_switch
+      #     else:
+      #       - switch.turn_off: display_lock_switch
+
+                
+api:
+  on_client_connected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.label.update: 
+              id: ha_status
+              text_color: color_blue
+
+    # - if:
+    #     condition:
+    #       lambda: 'return id(display_lock) == true;'
+    #     then:
+    #       - switch.turn_on: display_lock_switch
+    #     else:
+    #       - switch.turn_off: display_lock_switch
+
+  on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.label.update: 
+              id: ha_status
+              text_color: color_steel_blue
+
+

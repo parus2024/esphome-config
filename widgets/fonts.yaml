@@ -1,0 +1,460 @@
+#- file: "fonts/materialdesignicons-webfont.ttf"
+#  id: mdi_icons_52
+#  size: 52
+#  bpp: 4
+#  glyphs: [
+#    "\U000F0426" # power_setting_icon
+#    "\U000F0238", # heat
+#    "\U000F0717", # cool
+#    "\U000F0210", # fan
+#    "\U000F171D", # fan_auto_icon
+#    "\U000F1472", # fan_1_icon
+#    "\U000F1473", # fan_2_icon
+#    "\U000F1474", # fan_3_icon
+#    "\U000F1471", # fan_remove_icon
+#    "\U000F081D", # fan_off_icon
+#    "\U000F1B18", # auto
+#    "\U000F0425", # off
+#    "\U000F068A", # shield home
+#    "\U000F1828", # shield moon
+#    "\U000F099D", # shield lock
+#    "\U000F06BB", # shield plane
+#    "\U000F099E", # shield off
+#    "\U000F0498", # shield # arming
+#    "\U000F0826", # home
+#    "\U000F1A46", # away
+#    "\U000F0F92", # boiler
+#    "\U000F1AAF", # heating_coil
+#    "\U000F11B3", # water_boiler_alert
+#    "\U000F1B98", # water_boiler_auto
+#    "\U000F0594", # weather_night
+#    "\U000F0599", # weather_sunny
+#    "\U000F06BE", # all_inclusive
+#    "\U000F171F", # alarm_out_off
+#    "\U000F0BEA", # alarm_out_on
+#    "\U000F078F", # alarm_on
+#    "\U000F171E", # alarm_off
+#    "\U000F0D91", # motion_sensor
+#    "\U000F1435", # motion_sensor_off
+#    "\U000F180B", # smoke
+#    "\U000F1930", # smoke_alert
+#    "\U000F058D", # water_off
+#    "\U000F1502", # water_alert
+#    "\U000F05E0", # check_circle
+#    "\U000F0028", # check_circle_alert
+#    "\U000F0026", # alert
+#    "\U000F002A", # alert_out
+#    "\U000F1107", # socket
+#    "\U000F1480", # current
+#    "\U000F095B", # voltage
+#    "\U000F0241", # power
+#    "\U000F1510", # grass
+#    "\U000F12D4", # garage_open
+#    "\U000F12D3", # garage_close
+#    "\U000F0299", # gate_close
+#    "\U000F116A", # gate_open
+#    "\U000F00E6", # horn
+#    "\U000F04C9", # spotlight
+#    "\U000F1067", # valve_closed
+#    "\U000F1068", # valve_open
+#  ]
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_16
+  size: 16
+  bpp: 4
+  glyphsets:
+    - GF_Latin_Core
+    - GF_Cyrillic_Core
+  glyphs: "²"
+  extras:
+    - file: "fonts/Jua-Regular.ttf"
+      glyphs: [
+        "\U0000C774",
+        "\U0000B8E8",
+        "\U0000B9C8",        
+      ]
+# - file: "fonts/MPLUSRounded1c-Regular.ttf"
+#   id: mplus_16
+#   size: 16
+#   bpp: 4
+#   glyphs: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя .,!?-_:°²³¹"
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_18
+  size: 18
+  bpp: 4
+  glyphs: |-
+    ~*<>!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_20
+  size: 20
+  bpp: 4
+  glyphs: |-
+    ~*<>!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_30
+  size: 30
+  bpp: 4
+  glyphs: |-
+    ~*<>«»!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_32
+  size: 32
+  bpp: 4
+  glyphs: |-
+    ~*<>«»!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_36
+  size: 36
+  bpp: 4
+  glyphs: |-
+    %()+=,-_.:°0123456789 
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_48
+  size: 48
+  bpp: 4
+  glyphs: |-
+    %()+=,-_.:°0123456789 
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_72
+  size: 72
+  bpp: 4
+  glyphs: |-
+    %()+=,-_.:°0123456789 
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_84
+  size: 84
+  bpp: 4
+  glyphs: |-
+    %()+=,-_.:°0123456789 
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_24
+  size: 24
+  bpp: 4
+  glyphs: [
+    "\U0000e900", # brightness
+    "\U0000e901", # saturation
+    "\U0000e925", # thermostat
+    "\U0000e93b", # air_conditioner 
+    "\U0000e936", # heating
+    "\U0000e92e", # lock
+    "\U0000e935", # home assistant
+    "\U0000e931", # wifi signal from 25% to 1%
+    "\U0000e932", # wifi signal from 50% to 25%
+    "\U0000e933", # wifi signal from 75% to 50%
+    "\U0000e934", # wifi signal from 100% to 75% or disable
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_28
+  size: 28
+  bpp: 4
+  glyphs: [
+    "\U0000e902", # exit
+    "\U0000e926", # fan
+    "\U0000e927", # room_plan
+    "\U0000e938", # humidity 
+    "\U0000e937", # co2
+    "\U0000e93a", # air quality (tvoc)
+    "\U0000e939", # temperature 
+    "\U0000e92f", # illumination (lux)
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_32
+  size: 32
+  bpp: 4
+  glyphs: [
+    "\U0000e91f", # arrow_up
+    "\U0000e920", # arrow_down
+    "\U0000e91c", # stop
+    "\U0000e90e", # volume_off
+    "\U0000e90f", # volume_on
+    "\U0000e910", # volume_minus
+    "\U0000e911", # volume_plus
+    "\U0000e938", # humidity
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_36
+  size: 36
+  bpp: 4
+  glyphs: [
+    "\U0000e903", # settings
+    "\U0000e904", # info
+    "\U0000e905", # devices
+    "\U0000e906", # home
+    "\U0000e907", # ceiling
+    "\U0000e918", # ceiling_lamp
+    "\U0000e908", # lightbulb
+    "\U0000e91a", # swipe
+    "\U0000e92e", # lock
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_38
+  size: 38
+  bpp: 4
+  glyphs: [
+    "\U0000e909", # power
+    "\U0000e90c", # back step
+    "\U0000e90d", # forward step
+    "\U0000e912", # repeat_all
+    "\U0000e913", # repeat_off
+    "\U0000e914", # repeat_one
+    "\U0000e90a", # play
+    "\U0000e90b", # pause
+    "\U0000e91c", # stop
+    "\U0000e923", # locate
+    "\U0000e924", # docked
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_48
+  size: 48
+  bpp: 4
+  glyphs: [
+    "\U0000e90a", # play
+    "\U0000e90b", # pause
+    "\U0000e91f", # arrow_up
+    "\U0000e920", # arrow_down
+    "\U0000e91c", # stop
+    "\U0000e923", # locate
+    "\U0000e924", # docked
+    "\U0000e93b", # air_conditioner 
+    "\U0000e936", # heating
+    "\U0000e938", # humidity
+    "\U0000e939", # temperature 
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_72
+  size: 72
+  bpp: 4
+  glyphs: [
+    "\U0000e91b", # music
+    "\U0000e91d", # shutter_close
+    "\U0000e922", # vacuum
+    "\U0000e925", # thermostat
+    "\U0000e93b", # air_conditioner
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_90
+  size: 90
+  bpp: 4
+  glyphs: [
+    "\U0000e908", # lightbulb
+    "\U0000e915", # spotlights_group
+    "\U0000e916", # desk_lamp
+    "\U0000e917", # pendant_lamp
+    "\U0000e918", # ceiling_lamp
+    "\U0000e921", # ceiling_lamp_variant
+    "\U0000e919", # night_lamp
+    "\U0000e91d", # 0 - shutter_closed
+    "\U0000e93d", # 10 - shutter
+    "\U0000e93e", # 20 - shutter
+    "\U0000e93f", # 30 - shutter
+    "\U0000e940", # 40 - shutter
+    "\U0000e941", # 50 - shutter
+    "\U0000e93c", # 60 - shutter
+    "\U0000e943", # 70 - shutter
+    "\U0000e944", # 80 - shutter
+    "\U0000e942", # 90 - shutter
+    "\U0000e91e",  # 100 - shutter_open
+    "\U0000e91b", # music
+    "\U0000e91f", # arrow_up
+    "\U0000e920", # arrow_down
+    "\U0000e922", # vacuum
+  ]
+
+- file: "fonts/icons_v2.ttf"
+  id: icons_300
+  size: 300
+  bpp: 4
+  glyphs: [
+    "\U0000e91d", # 0 - shutter_closed
+    "\U0000e93d", # 10 - shutter
+    "\U0000e93e", # 20 - shutter
+    "\U0000e93f", # 30 - shutter
+    "\U0000e940", # 40 - shutter
+    "\U0000e941", # 50 - shutter
+    "\U0000e93c", # 60 - shutter
+    "\U0000e943", # 70 - shutter
+    "\U0000e944", # 80 - shutter
+    "\U0000e942", # 90 - shutter
+    "\U0000e91e"  # 100 - shutter_open
+  ]
+
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_24
+  size: 24
+  bpp: 4
+  glyphs: [
+    "\U000F15FA", # windsock    +
+    "\U000F0498", # shield # arming     +
+    "\U000F0F92", # boiler              +
+    "\U000F078F", # alarm_on             +
+    "\U000F1502", # water_alert         +
+    "\U000F1A29", # bell_cog         +
+  ]
+
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_28
+  size: 28
+  bpp: 4
+  glyphs: [
+    "\U000F0709" # restart_icon
+  ]
+            
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_40
+  size: 40
+  bpp: 4
+  glyphs: [
+    "\U000F095B", # voltage         +
+    "\U000F0241", # power            +
+    "\U000F0426", # power_setting_icon
+    "\U000F1AAF", # heating_coil      +
+    "\U000F0594", # weather_night     +
+    "\U000F06BE", # all_inclusive     +
+    "\U000F1510", # grass               +
+    "\U000F12D3", # garage_close        +
+    "\U000F12D4", # garage_open
+    "\U000F116A", # gate_open
+    "\U000F0299", # gate_close          +
+  ]
+
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_52
+  size: 52
+  bpp: 4
+  glyphs: [
+    "\U000F0238", # heat            +
+    "\U000F0717", # cool                +
+    "\U000F0210", # fan                +
+    "\U000F171D", # fan_auto_icon
+    "\U000F1472", # fan_1_icon
+    "\U000F1473", # fan_2_icon
+    "\U000F1474", # fan_3_icon
+    "\U000F1471", # fan_remove_icon
+    "\U000F081D", # fan_off_icon
+    "\U000F1B18", # auto                +
+    "\U000F0425", # off                +
+    "\U000F1AAF", # heating_coil        +
+    "\U000F0599", # weather_sunny        +
+    "\U000F12D3", # garage_close        +
+    "\U000F12D4", # garage_open
+  ]
+
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_68
+  size: 68
+  bpp: 4
+  glyphs: [
+    "\U000F0F92", # boiler
+    "\U000F171F", # alarm_out_off
+    "\U000F0BEA", # alarm_out_on
+    "\U000F078F", # alarm_on
+    "\U000F171E", # alarm_off
+  ]
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_72
+  size: 72
+  bpp: 4
+  glyphs: [
+    "\U000F099D", # shield lock
+    "\U000F171F", # alarm_out_off
+    "\U000F0BEA", # alarm_out_on
+    "\U000F078F", # alarm_on
+    "\U000F171E", # alarm_off
+  ]
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_96
+  size: 96
+  bpp: 4
+  glyphs: [
+    "\U000F0238", # mdi-fire
+#    "\U000F171F", # alarm_out_off
+#    "\U000F0BEA", # alarm_out_on
+    "\U000F078F", # alarm_on
+    "\U000F171E", # alarm_off
+    "\U000F0D91", # motion_sensor
+    "\U000F1435", # motion_sensor_off
+    "\U000F180B", # smoke
+    "\U000F1930", # smoke_alert
+    "\U000F058D", # water_off
+    "\U000F1502", # water_alert
+    "\U000F0026", # alert
+    "\U000F14BC", # alert_off
+    "\U000F002A", # alert_out
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_36
+  size: 36
+  bpp: 4
+  glyphs: [
+    "\U0000e806", # hood
+    "\U0000e809", # rgb-bulb-on
+    "\U0000e80a", # rgb-bulb-off
+    "\U0000e80b", # sauna1
+    "\U0000e80c", # sauna2
+    "\U0000e80d", # sauna3
+    "\U0000e810", # led-strip
+    "\U0000e808", # lamp1
+    "\U0000e812", # sauna4
+    "\U0000e813", # hood1
+    "\U0000e814", # sauna5
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_58
+  size: 58
+  bpp: 4
+  glyphs: [
+    "\U0000e807", # irrigarion
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_64
+  size: 64
+  bpp: 4
+  glyphs: [
+    "\U0000e800", # boiler
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_26
+  size: 26
+  bpp: 4
+  glyphs: [
+    "\U0000e801", # gate0
+    "\U0000e802", # gate25
+    "\U0000e803", # gate50
+    "\U0000e804", # gate75
+    "\U0000e805", # gate100
+    "\U0000e808", # lamp1
+    "\U0000e811", # atmospheric-pressure
+    "\U0000e80e", # spotlight-on
+    "\U0000e80f", # spotlight-off
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_24
+  size: 24
+  bpp: 4
+  glyphs: [
+    "\U0000e808", # lamp1
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_30
+  size: 30
+  bpp: 4
+  glyphs: [
+    "\U0000e808", # lamp1
+  ]

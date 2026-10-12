@@ -1,0 +1,43 @@
+substitutions:
+
+  exit_icon:          "\U0000e902"
+  boiler_icon:        "\U000F0F92"
+  heating_icon:       "\U0000e936"
+  temperature_icon:   "\U0000e939"
+  pm_home_icon:       "\U000F0826"
+  pm_away_icon:       "\U000F1A46"
+  heating_coil_icon:  "\U000F1AAF"
+  water_boiler_alert: "\U000F11B3"
+  water_boiler_auto:  "\U000F1B98"
+  weather_night:      "\U000F0594"
+  weather_sunny:      "\U000F0599"
+  all_inclusive:      "\U000F06BE"
+  current_icon:       "\U000F1480"
+  voltage_icon:       "\U000F095B"
+  power_icon:         "\U000F0241"
+
+
+packages:
+#  boiler_podval:   !include boiler_podval.yaml
+#  boiler_2floor:   !include boiler_2floor.yaml
+#  boiler_31:       !include boiler_31.yaml
+#  boiler_34:       !include boiler_34.yaml
+  boiler_panel:    !include boiler_panel.yaml
+#  boiler_template: !include boiler_template.yaml
+
+  boiler_podval: !include
+    file: boiler_template.yaml
+    vars:
+      room_number: "podval"
+  boiler_2floor: !include
+    file: boiler_template.yaml
+    vars:
+      room_number: "2floor"
+  boiler_31: !include
+    file: boiler_template.yaml
+    vars:
+      room_number: "31"
+  boiler_34: !include
+    file: boiler_template.yaml
+    vars:
+      room_number: "34"

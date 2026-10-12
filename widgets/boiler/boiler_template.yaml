@@ -1,0 +1,852 @@
+
+sensor:
+    # Значение мощности
+  - platform: homeassistant
+    id: boiler_${room_number}_sensor_power
+    entity_id: "sensor.power_boiler_${room_number}"
+    on_value:
+      - lvgl.label.update:
+          id: boiler_${room_number}_power_state_label
+          text: !lambda |-
+            if (isnan(x)) return "N/A";
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%.0f W", x);
+            return buf;
+    # Значение напряжения
+  - platform: homeassistant
+    id: boiler_${room_number}_sensor_voltage
+    entity_id: "sensor.voltage_boiler_${room_number}"
+    on_value:
+      - lvgl.label.update:
+          id: boiler_${room_number}_voltage_state_label
+          text: !lambda |-
+            if (isnan(x)) return "N/A";
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%.0f V", x);
+            return buf;
+
+  # boiler_${room_number} temperature sensor
+  - platform: homeassistant
+    id: boiler_${room_number}_temperature_sensor
+    entity_id: "sensor.boiler_${room_number}_temperature"
+
+  # Текущая Температура бойлера
+  - platform: homeassistant
+    id: boiler_${room_number}_sensor_target_temp
+    entity_id: "sensor.boiler_${room_number}_temperature"
+    on_value: 
+      then:
+        - lvgl.arc.update:
+            id: boiler_${room_number}_arc_main
+            value: !lambda 'return x;'
+
+        - lvgl.label.update:
+            id: boiler_${room_number}_target_temperature_whole
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(boiler_${room_number}_sensor_target_temp).state);
+              snprintf(buf, 10, "%d", whole_part);
+              return buf;
+
+        - lvgl.label.update:
+            id: boiler_${room_number}_target_temperature_fraction
+            text: !lambda |-
+              static char buf[10];
+              int whole_part = static_cast<int>(id(boiler_${room_number}_sensor_target_temp).state);
+              int fractional_part = static_cast<int>((id(boiler_${room_number}_sensor_target_temp).state - whole_part) * 10);
+              snprintf(buf, 10, ".%01d", fractional_part);
+              return buf;
+        - lvgl.indicator.update: # Для страница boiler_panel
+            id: boiler_${room_number}_temperature_needle 
+            value: !lambda 'return x;'
+        - lvgl.label.update: # Для страница boiler_panel
+            id: boiler_${room_number}_btn_temperature_text_label
+            text:
+              format: "%.0f°C"
+              args: ['x']
+  # температура бойлера перегрев авария
+  - platform: homeassistant
+    id: boiler_${room_number}_sensor_current_temp
+    entity_id: "number.boiler_${room_number}_water_alarm"
+    on_value:
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_value
+          text: !lambda |-
+            char buf[8]; 
+            sprintf(buf, "%.1f", x); 
+            return std::string(buf);
+      - lvgl.arc.update:
+          id: boiler_${room_number}_arc_alarm_temp
+          value: !lambda 'return x;'
+binary_sensor:
+    # boiler_${room_number} state
+  - platform: homeassistant
+    id: boiler_${room_number}_state_local
+    entity_id: "binary_sensor.boiler_${room_number}_state"
+    trigger_on_initial_state: true
+    on_press:
+      - lvgl.label.update:
+          id: boiler_${room_number}_btn_name_label
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_btn_temperature_text_label
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_power_state_label
+          text_color: color_deep_orange
+      - lvgl.meter.update:
+          id: boiler_${room_number}_meter
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: heating_status
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_state_icon
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_icon
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_value
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_whole
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_fraction
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_measurement
+          text_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_page_btn_label
+          text_color: color_deep_orange
+    on_release:
+      - lvgl.label.update:
+          id: boiler_${room_number}_btn_name_label
+          text_color: color_misty_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_btn_temperature_text_label
+          text_color: color_misty_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_power_state_label
+          text_color: color_steel_blue
+      - lvgl.meter.update:
+          id: boiler_${room_number}_meter
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: heating_status
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_state_icon
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_icon
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_value
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_whole
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_fraction
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_target_temperature_measurement
+          text_color: color_steel_blue
+      - lvgl.label.update:
+          id: boiler_page_btn_label
+          text_color: color_steel_blue
+
+switch:
+  - platform: homeassistant
+    id: switch_boiler_${room_number}_ten1_local
+    entity_id: "switch.boiler_${room_number}_ten1"
+    on_turn_on:
+      - lvgl.obj.update:
+          id: boiler_${room_number}_ten1_bg
+          bg_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_ten1_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.obj.update:
+          id: boiler_${room_number}_ten1_bg
+          bg_color: color_misty_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_ten1_icon
+          text_color: color_misty_blue
+
+  - platform: homeassistant
+    id: switch_boiler_${room_number}_ten2_local
+    entity_id: "switch.boiler_${room_number}_ten2"
+    on_turn_on:
+      - lvgl.obj.update:
+          id: boiler_${room_number}_ten2_bg
+          bg_color: color_deep_orange
+      - lvgl.label.update:
+          id: boiler_${room_number}_ten2_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.obj.update:
+          id: boiler_${room_number}_ten2_bg
+          bg_color: color_misty_blue
+      - lvgl.label.update:
+          id: boiler_${room_number}_ten2_icon
+          text_color: color_misty_blue
+  - platform: homeassistant
+    id: switch_boiler_${room_number}_day_mode_local
+    entity_id: "switch.boiler_${room_number}_day"
+    on_turn_on:
+      - lvgl.label.update:
+          id: boiler_${room_number}_day_mode_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: boiler_${room_number}_day_mode_icon
+          text_color: color_misty_blue
+
+  - platform: homeassistant
+    id: switch_boiler_${room_number}_night_mode_local
+    entity_id: "switch.boiler_${room_number}_night"
+    on_turn_on:
+      - lvgl.label.update:
+          id: boiler_${room_number}_night_mode_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: boiler_${room_number}_night_mode_icon
+          text_color: color_misty_blue
+
+  - platform: homeassistant
+    id: switch_boiler_${room_number}_full_mode_local
+    entity_id: "switch.boiler_${room_number}_full_on"
+    on_turn_on:
+      - lvgl.label.update:
+          id: boiler_${room_number}_full_mode_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.label.update:
+          id: boiler_${room_number}_full_mode_icon
+          text_color: color_misty_blue
+lvgl:
+  gradients:
+    - id: boiler_${room_number}_temp_gradient
+      direction: ver
+      dither: none
+      stops:
+        - color: 0xFF0000   # красный (вверху)
+          position: 0
+        - color: 0xFF3300
+          position: 32
+        - color: 0xFF6600
+          position: 64
+        - color: 0xFF9900
+          position: 96
+        - color: 0xFFFF00   # жёлтый (середина)
+          position: 128
+        - color: 0xCCCC33
+          position: 160
+        - color: 0x666699
+          position: 192
+        - color: 0x3333CC
+          position: 224
+        - color: 0x0000FF   # синий (внизу)
+          position: 255
+
+  pages:
+    - id: boiler_${room_number}_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        # Объект с идикатором мощности
+        - obj:
+            id: boiler_${room_number}_power_bg
+            x: 10
+            y: 10
+            width: 170
+            height: 70
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_${room_number}_power_icon_label
+                  x: 5                            # Делаем небольшой отступ слева
+                  align: left_mid
+                  text_font: mdi_icons_40
+                  text_color: color_misty_blue
+                  text: "${power_icon}"
+              - label:
+                  id: boiler_${room_number}_power_state_label
+                  x: 50                             # Делаем отступ от значка
+                  align: left_mid
+                  text_font: nunito_30
+                  text_color: color_misty_blue
+                  text: " "                         # Передаем данные из сенсора
+
+        # Объект с идикатором напряжения
+        - obj:
+            id: boiler_${room_number}_voltage_bg
+            x: 190
+            y: 10
+            width: 180
+            height: 70
+            align: top_left
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: transp
+            border_width: 0
+            shadow_opa: transp
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_${room_number}_voltage_icon_label
+                  x: 5                             # Делаем небольшой отступ слева
+                  align: left_mid
+                  text_font: mdi_icons_40
+                  text_color: color_misty_blue
+                  text: "${voltage_icon}"
+              - label:
+                  id: boiler_${room_number}_voltage_state_label
+                  x: 50                             # Делаем отступ от значка
+                  align: left_mid
+                  text_font: nunito_30
+                  text_color: color_misty_blue
+                  text: " "                         # Пустое поле, передадим действием
+
+        # Состояние тенов и управление ими
+        - obj:
+            id: boiler_${room_number}_ten_controls
+            x: 100
+            y: 100
+            width: 260
+            height: 280
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - obj:
+                  id: boiler_${room_number}_ten1_bg # Кнопка вкл\выкл ТЕН 1
+                  x: 35
+                  y: -60
+                  align: left_mid
+                  width: 70
+                  height: 70
+                  radius: 35
+                  pad_all: 0
+                  bg_color: color_deep_orange
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  widgets:
+                    - label:
+                        id: boiler_${room_number}_ten1_icon
+                        align: center
+                        text_font: mdi_icons_40
+                        text_color: color_deep_orange
+                        text: "${heating_coil_icon}"
+                    - label:
+                        id: boiler_${room_number}_ten1_icon_label
+                        x: -55
+                        align: RIGHT_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "1"
+                  on_click:
+                    - switch.toggle: switch_boiler_${room_number}_ten1_local
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${boiler_${room_number}_ten1}"
+
+              - obj:
+                  id: boiler_${room_number}_ten2_bg # Кнопка вкл\выкл ТЕН 2
+                  x: 35
+                  y: 60
+                  align: left_mid
+                  width: 70
+                  height: 70
+                  radius: 35
+                  pad_all: 0
+                  bg_color: color_deep_orange
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  widgets:
+                    - label:
+                        id: boiler_${room_number}_ten2_icon
+                        align: center
+                        text_font: mdi_icons_40
+                        text_color: color_deep_orange
+                        text: "${heating_coil_icon}"
+                    - label:
+                        id: boiler_${room_number}_ten2_icon_label
+                        x: -55
+                        align: RIGHT_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "2"
+                  on_click:
+                    - switch.toggle: switch_boiler_${room_number}_ten2_local
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${boiler_${room_number}_ten2}"
+
+        # Режимы работы
+        - obj:
+            x: 5
+            y: -100
+            width: 90
+            height: 90
+            align: left_mid
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_click:
+                    - switch.toggle: switch_boiler_${room_number}_full_mode_local
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${boiler_${room_number}_full_mode}"
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  id: boiler_${room_number}_full_mode_bg
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        id: boiler_${room_number}_full_mode_icon
+                        y: -2
+                        align: center
+                        text_font: mdi_icons_40
+                        text_color: color_misty_blue
+                        text: "${all_inclusive}"
+
+        - obj:
+            x: 5
+            y: 0
+            width: 90
+            height: 90
+            align: left_mid
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_click:
+                    - switch.toggle: switch_boiler_${room_number}_day_mode_local
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${boiler_${room_number}_day_mode}"
+
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  id: boiler_${room_number}_day_mode_bg
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        y: -2
+                        id: boiler_${room_number}_day_mode_icon
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_misty_blue
+                        text: "${weather_sunny}"
+        - obj:
+            x: 5
+            y: 100
+            width: 90
+            height: 90
+            align: left_mid
+            pad_all: 0
+            bg_opa: transp
+            shadow_opa: transp
+            border_opa: transp
+            widgets:
+              - obj:
+                  width: 70
+                  height: 70
+                  align: center
+                  clickable: true
+                  radius: 50
+                  pad_all: 0
+                  bg_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  shadow_width: 8
+                  shadow_spread: 2
+                  shadow_color: color_black
+                  pressed:
+                    bg_color: 0x3A3A4C
+                    shadow_width: 5
+                  on_click:
+                    - switch.toggle: switch_boiler_${room_number}_night_mode_local
+#                    - homeassistant.action:
+#                        action: switch.toggle
+#                        data:
+#                          entity_id: "${boiler_${room_number}_night_mode}"
+
+              - obj:
+                  width: 60
+                  height: 60
+                  align: center
+                  clickable: false
+                  radius: 45
+                  pad_all: 0
+                  bg_opa: transp 
+                  border_opa: transp
+                  shadow_width: 4
+                  shadow_color: 0xFFFFFF
+                  shadow_ofs_x: -4
+                  shadow_ofs_y: -2
+                  shadow_opa: 30%
+
+              - obj:
+                  id: boiler_${room_number}_night_mode_bg
+                  width: 65
+                  height: 65
+                  pad_all: 0
+                  align: center
+                  clickable: false
+                  radius: 50
+                  border_opa: transp
+                  bg_color: color_slate_blue_gray
+                  widgets:
+                    - label:
+                        id: boiler_${room_number}_night_mode_icon
+                        y: -2
+                        align: CENTER
+                        text_font: mdi_icons_40
+                        text_color: color_misty_blue
+                        text: "${weather_night}"
+
+        # Name
+        - obj:
+            id: boiler_${room_number}_name
+            x: 100
+            y: 400
+            width: 360
+            height: 60
+            align: TOP_LEFT
+            pad_all: 0
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_${room_number}_name_label
+                  x: 20
+                  align: LEFT_MID
+                  text_font: nunito_32
+                  text_color: color_misty_blue
+                  text: "Бойлер ${room_number}"
+
+        # main
+        - obj:
+            id: boiler_${room_number}_bg_main
+            width: 250
+            height: 480
+            align: RIGHT_MID
+            pad_all: 0
+            bg_opa: TRANSP
+            scrollable: false
+            border_opa: TRANSP
+            border_width: 0
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+
+              - obj:
+                  id: boiler_${room_number}_bg_placeholder
+                  radius: 240
+                  x: 235
+                  width: 480
+                  height: 480
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - obj:
+                  id: boiler_${room_number}_temp_arc_bg
+                  radius: 230
+                  x: 230
+                  width: 460
+                  height: 460
+                  align: RIGHT_MID
+                  bg_grad: boiler_${room_number}_temp_gradient
+                  bg_grad_dir: ver
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+
+              - meter:
+                  id: boiler_${room_number}_meter
+                  x: 200
+                  height: 400
+                  width: 400
+                  border_width: 0
+                  bg_color: color_slate_blue_gray
+                  align: RIGHT_MID
+                  text_color: color_steel_blue
+                  scales:
+                    - range_from: 10
+                      range_to: 80
+                      angle_range: 160
+                      rotation: 100.0
+                      ticks:
+                        width: 1
+                        count: 70 # Количество деление на диапазон
+                        length: 10
+                        color: color_white
+                        major:
+                          stride: 10  # крупная метка каждые 5 делений
+                          width: 5
+                          length: 15
+                          color: color_white
+                          label_gap: 15
+                      indicators:
+                        - tick_style:
+                            start_value: 10
+                            end_value: 80
+                            color_start: color_yellow #Цвет снизу
+                            color_end: color_red # Цвет сверху
+                            width: 1
+
+              - arc:
+                  id: boiler_${room_number}_arc_main
+                  clickable: false
+                  align: RIGHT_MID
+                  arc_width: 40
+                  x: 235
+                  width: 470
+                  height: 470
+                  min_value: 10
+                  max_value: 80
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 10
+                  end_angle: 170
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_opa: TRANSP
+                    arc_width: 40
+                  knob:
+                    border_color: color_misty_blue
+                    border_width: 5
+                    bg_color: color_dark_gray
+                    bg_opa: 80%
+
+              - arc:
+                  id: boiler_${room_number}_arc_alarm_temp
+                  clickable: false
+                  align: RIGHT_MID
+                  arc_width: 10
+                  x: 230
+                  width: 450
+                  height: 450
+                  min_value: 10
+                  max_value: 80
+                  adjustable: true
+                  adv_hittest: true
+                  rotation: 90.0
+                  start_angle: 10
+                  end_angle: 170
+                  arc_opa: TRANSP
+                  indicator:
+                    arc_opa: TRANSP
+                  knob:
+                    bg_color: color_gray
+                    border_width: 0
+                    bg_opa: 80%
+#                  on_release:
+#                    - homeassistant.action:
+#                        action: number.set
+#                        data:
+#                          entity_id: number.boiler_${room_number}_water_alarm
+#                          value: !lambda return x;
+
+              - obj:
+                  width: 140
+                  height: 120
+                  align: RIGHT_MID
+                  bg_color: color_slate_blue_gray
+                  pad_all: 0
+                  border_opa: TRANSP
+                  border_width: 0
+                  shadow_opa: TRANSP
+                  widgets:
+
+                    - label:
+                        id: boiler_${room_number}_target_temperature_whole # Температура переграва -отключение
+                        x: -40
+                        y: 0
+                        align: RIGHT_MID
+                        text_font: nunito_84
+                        text_color: color_steel_blue
+                        text: " "
+                
+                    - label:
+                        id: boiler_${room_number}_target_temperature_fraction # Температура переграва -отключение
+                        x: -10
+                        y: 15
+                        align: RIGHT_MID
+                        text_font: nunito_36
+                        text_color: color_steel_blue
+                        text: " "
+
+                    - label:
+                        id: boiler_${room_number}_target_temperature_measurement
+                        x: -12
+                        y: -20
+                        align: RIGHT_MID
+                        text_font: nunito_30
+                        text_color: color_steel_blue
+                        text: "°C"
+
+              - label:
+                  id: boiler_${room_number}_state_icon
+                  x: -10
+                  y: -90
+                  align: RIGHT_MID
+                  text_font: mdi_icons_52
+                  text_color: color_steel_blue
+                  text: "${heating_coil_icon}"
+
+              - label:
+                  id: boiler_${room_number}_target_temperature_icon
+                  x: -70
+                  y: 80
+                  align: RIGHT_MID
+                  text_font: icons_28
+                  text_color: color_steel_blue
+                  text: "${temperature_icon}"
+
+              - label:
+                  id: boiler_${room_number}_target_temperature_value # Текущая температура бойлера
+                  x: -10
+                  y: 80
+                  align: RIGHT_MID
+                  text_font: nunito_30
+                  text_color: color_steel_blue
+                  text: " "
+
+        # Return
+        - button:
+            id: boiler_${room_number}_back
+            x: 20
+            y: 400
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  id: boiler_${room_number}_back_label
+                  align: CENTER
+                  text_font: icons_28
+                  text_color: color_misty_blue
+                  text: "${exit_icon}"
+            on_press:
+              - lvgl.page.show: boiler_panel_page
+

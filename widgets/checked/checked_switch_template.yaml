@@ -1,0 +1,16 @@
+switch:
+  - platform: homeassistant
+    id: ${checked_name}_local
+    entity_id: ${checked_id}
+    on_turn_on:
+      - lvgl.checkbox.update:
+          id: ${checked_name}_label
+          state:
+            checked: true
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.checkbox.update:
+          id: ${checked_name}_label
+          state:
+            checked: false
+          text_color: color_misty_blue

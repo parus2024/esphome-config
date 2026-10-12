@@ -1,0 +1,880 @@
+substitutions:
+
+  exit_icon:                     "\U0000e902"
+  settings_icon:                 "\U0000e903"
+  info_icon:                     "\U0000e904"
+  devices_icon:                  "\U0000e905"
+  home_icon:                     "\U0000e906"
+  ceiling_icon:                  "\U0000e907"
+  lightbulb_icon:                "\U0000e908"
+  spotlight_group_icon:          "\U0000e915"
+  desk_lamp_icon:                "\U0000e916"
+  pendant_lamp_icon:             "\U0000e917" 
+  ceiling_lamp_icon:             "\U0000e918"
+  ceiling_lamp_variant_icon:     "\U0000e921"
+  night_lamp_icon:               "\U0000e919"
+  swipe_icon:                    "\U0000e91a"
+## light ##
+  holl_light1: "switch.holl_light1"
+  holl_light2: "switch.holl_light2"
+  holl_light3: "switch.holl_light3"
+  kitchen_light1: "light.kitchen_1"
+  kitchen_light2: "light.kitchen_2"
+  kitchen_light3: "light.kitchen_3"
+  holl_spotlight: "switch.ir_dexp65_spot_light"
+  bathroom_light1: "switch.bathroom_light"
+  bathroom_light2: "switch.bathroom_wall"
+  bathroom_light3: "switch.bathroom_light_wash"
+  workshop_light: "switch.workshop_light"
+  garage_light: "switch.light_garage"
+  dvor_light: "switch.light_dvor"
+  zabor_light: "switch.light_zabor"
+  floor2_light: "switch.light_2floor_terrace_switch"
+  floor3_light: "switch.light_3floor"
+  floor4_light: "switch.alarm_4floor_light"
+
+packages:
+  # Холл
+  holl_light1: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${holl_light1}"
+      light_label_id: "holl_light1_label"
+      light_device_name: "holl_light1"
+  holl_light2: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${holl_light2}"
+      light_label_id: "holl_light2_label"
+      light_device_name: "holl_light2"
+  holl_light3: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${holl_light3}"
+      light_label_id: "holl_light3_label"
+      light_device_name: "holl_light3"
+  # Кухня
+  kitchen_light1: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${kitchen_light1}"
+      light_label_id: "kitchen_light1_label"
+      light_device_name: "kitchen_light1"
+  kitchen_light2: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${kitchen_light2}"
+      light_label_id: "kitchen_light2_label"
+      light_device_name: "kitchen_light2"
+  kitchen_light3: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${kitchen_light3}"
+      light_label_id: "kitchen_light3_label"
+      light_device_name: "kitchen_light3"
+  # Санузел
+  bathroom_light1: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${bathroom_light1}"
+      light_label_id: "bathroom_light1_label"
+      light_device_name: "bathroom_light1"
+  bathroom_light2: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${bathroom_light2}"
+      light_label_id: "bathroom_light2_label"
+      light_device_name: "bathroom_light2"
+  bathroom_light3: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${bathroom_light3}"
+      light_label_id: "bathroom_light3_label"
+      light_device_name: "bathroom_light3"
+  workshop_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${workshop_light}"
+      light_label_id: "workshop_light_label"
+      light_device_name: "workshop_light_local"
+  garage_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${garage_light}"
+      light_label_id: "garage_light_label"
+      light_device_name: "garage_light_local"
+  dvor_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${dvor_light}"
+      light_label_id: "dvor_light_label"
+      light_device_name: "dvor_light_local"
+  zabor_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${zabor_light}"
+      light_label_id: "zabor_light_label"
+      light_device_name: "zabor_light_local"
+  floor2_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${floor2_light}"
+      light_label_id: "floor2_light_label"
+      light_device_name: "floor2_light_local"
+  floor3_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${floor3_light}"
+      light_label_id: "floor3_light_label"
+      light_device_name: "floor3_light_local"
+  floor4_light: !include
+    file: light_switch_template.yaml
+    vars:
+      light_entity_id: "${floor4_light}"
+      light_label_id: "floor4_light_label"
+      light_device_name: "floor4_light_local"
+switch:
+  # Уведомление движения
+  - platform: homeassistant
+    id: holl_spotlight_local
+    entity_id: "${holl_spotlight}"
+    on_turn_on:
+      - lvgl.label.update:
+          id: holl_spotlight_label
+          text_color: color_deep_orange
+          text: "${spotlight_on_icon}"
+    on_turn_off:
+      - lvgl.label.update:
+          id: holl_spotlight_label
+          text_color: color_misty_blue
+          text: "${spotlight_off_icon}"
+lvgl:
+  pages:
+    - id: lights_group_page
+      bg_color: color_slate_blue_gray
+      widgets:
+        # Рамка гостиная
+        - obj:
+            id: holl_border
+            x: 10 # Смещение контейнера по горизонтали от левого края экрана
+            y: 10 # Смещение контейнера по вертикали от верхнего края экрана
+            width: 460
+            height: 60 # Ширина контейнера (площадка) в пикселях
+            align: top_left # Выравнивание контейнера (раскомментировать для центрирования)
+            bg_opa: 0          # полностью прозрачный фон
+            border_opa: 80%    # полупрозрачная рамка (80 % видимости)
+            border_color: color_misty_blue
+            border_width: 1
+            shadow_opa: 0%      # тень отключена
+            pad_all: 0
+        - obj:
+            id: holl_btn
+            x: 10
+            y: 10
+            width: 180
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: transp
+            border_opa: transp
+            scrollable: "OFF"
+            radius: 10
+            widgets:
+              - label:
+                  x: 0
+                  y: 8
+                  id: holl_light1_label
+                  align: BOTTOM_LEFT
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${lamp1_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${holl_light1}"
+              - label:
+                  x: 0
+                  y: 8
+                  id: holl_light2_label
+                  align: BOTTOM_MID
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${lamp1_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${holl_light2}"
+              - label:
+                  x: 0
+                  y: 8
+                  id: holl_light3_label
+                  align: BOTTOM_RIGHT
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${lamp1_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${holl_light3}"
+              - label:
+                  x: 0
+                  y: -15
+                  id: holl_label_name
+                  align: TOP_MID
+                  text_font: nunito_18
+                  text_color: color_misty_blue
+                  text: "ГОСТИНАЯ"
+        - button:
+            id: ${light_widget_name_1}_btn
+            x: 200
+            y: 10
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            scrollable: "OFF"
+            widgets:
+              - label:
+                  x: 0
+                  y: -10
+                  id: ${light_widget_name_1}_lable_name
+                  align: TOP_MID
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "${light_label_name_1}"
+              - label:
+                  y: 8
+                  id: ${light_widget_name_1}_light_on
+                  align: CENTER
+                  text_color: color_steel_blue
+                  text_font: parus_icons_36
+                  text: "${rgb_bulb_on}"
+        # подсветка растений гостиная
+        - obj:
+            x: 270
+            y: 10
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: transp
+            border_opa: transp
+            radius: 10
+            scrollable: "OFF"
+            widgets:
+              - label:
+                  x: 0
+                  y: -15
+                  id: spotlight_label_name
+                  align: TOP_MID
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "цветы"
+              - label:
+                  y: 8
+                  id: holl_spotlight_label
+                  align: CENTER
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${spotlight_off_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${holl_spotlight}"
+        # Рамка кухня
+        - obj:
+            id: kitchen_border
+            x: 10
+            y: 75
+            width: 460
+            height: 60
+            align: top_left
+            bg_opa: 0
+            border_opa: 80%
+            border_color: color_misty_blue
+            border_width: 1
+            shadow_opa: 0%
+            pad_all: 0
+        - obj:
+            id: kitchen_btn
+            x: 10
+            y: 80
+            width: 180
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: transp
+            border_opa: transp
+            scrollable: "OFF"
+            radius: 10
+            widgets:
+              - label:
+                  x: 0
+                  y: 10
+                  id: kitchen_light1_label
+                  align: BOTTOM_LEFT
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${lamp1_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${kitchen_light1}"
+              - label:
+                  x: 0
+                  y: 10
+                  id: kitchen_light2_label
+                  align: BOTTOM_MID
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${lamp1_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${kitchen_light2}"
+              - label:
+                  x: 0
+                  y: 10
+                  id: kitchen_light3_label
+                  align: BOTTOM_RIGHT
+                  text_color: color_steel_blue
+                  text_font: parus_icons_26
+                  text: "${lamp1_icon}"
+                  on_press:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: "${kitchen_light3}"
+              - label:
+                  x: 0
+                  y: -10
+                  align: TOP_MID
+                  text_font: nunito_18
+                  text_color: color_misty_blue
+                  text: "КУХНЯ"
+        # лента кухня
+        - button:
+            id: ${light_widget_name_2}_btn
+            x: 200
+            y: 80
+            width: 60
+            height: 60
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            shadow_opa: TRANSP
+            radius: 10
+            widgets:
+              - label:
+                  y: -15
+                  id: ${light_widget_name_2}_lable_name
+                  align: TOP_MID
+                  text_font: nunito_16
+                  text_color: color_misty_blue
+                  text: "${light_label_name_2}"
+              - label:
+                  y: 8
+                  id: ${light_widget_name_2}_light_on
+                  align: CENTER
+                  text_color: color_steel_blue
+                  text_font: parus_icons_36
+                  text: "${led_strip_icon}"
+        # Рамка 1 этаж
+        - obj:
+            id: floor1_border
+            x: 10
+            y: 140
+            width: 460
+            height: 60
+            align: top_left
+            bg_opa: 0
+            border_opa: 80%
+            border_color: color_misty_blue
+            border_width: 1
+            shadow_opa: 0%
+            scrollable: "OFF"
+            pad_all: 0
+            widgets:
+              - obj:
+                  id: bathroom_btn
+                  x: 0
+                  y: 0
+                  width: 180
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  scrollable: "OFF"
+                  radius: 10
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -10
+                        align: TOP_MID
+                        text_font: nunito_18
+                        text_color: color_misty_blue
+                        text: "С/У 1 ЭТАЖ"
+                    - label:
+                        x: 0
+                        y: 10
+                        id: bathroom_light1_label
+                        align: BOTTOM_LEFT
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${bathroom_light1}"
+                    - label:
+                        x: 0
+                        y: 10
+                        id: bathroom_light2_label
+                        align: BOTTOM_MID
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${bathroom_light2}"
+                    - label:
+                        x: 0
+                        y: 10
+                        id: bathroom_light3_label
+                        align: BOTTOM_RIGHT
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${bathroom_light3}"
+              # мастерская свет
+              - obj:
+                  x: 190
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: workshop_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "мастер"
+                    - label:
+                        y: 8
+                        id: workshop_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${workshop_light}"
+              # гараж свет
+              - obj:
+                  x: 260
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: garage_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "гараж"
+                    - label:
+                        y: 8
+                        id: garage_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${garage_light}"
+        # Рамка двор
+        - obj:
+            id: dvor_border
+            x: 10
+            y: 205
+            width: 460
+            height: 60
+            align: top_left
+            bg_opa: 0
+            border_opa: 80%
+            border_color: color_misty_blue
+            border_width: 1
+            shadow_opa: 0%
+            pad_all: 0
+            scrollable: "OFF"
+            widgets:
+#              - label:
+#                  x: 0
+#                  y: 0
+#                  align: TOP_MID
+#                  text_font: nunito_18
+#                  text_color: color_misty_blue
+#                  text: "ДВОР"
+              # двор свет
+              - obj:
+                  x: 0
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: dvor_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "двор"
+                    - label:
+                        y: 8
+                        id: dvor_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${dvor_light}"
+              # забор свет
+              - obj:
+                  x: 70
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: zabor_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "забор"
+                    - label:
+                        y: 8
+                        id: zabor_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${zabor_light}"
+              - button:
+                  id: ${light_widget_name_3}_btn
+                  x: 140
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: TRANSP
+                  radius: 10
+                  widgets:
+                    - label:
+                        id: ${light_widget_name_3}_light_on
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: icons_36
+                        text: "${ceiling_icon}"
+                    - label:
+                        id: ${light_widget_name_3}_lable_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "${light_label_name_3}"
+              - button:
+                  id: ${light_widget_name_4}_btn
+                  x: 210
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: TRANSP
+                  radius: 10
+                  widgets:
+                    - label:
+                        id: ${light_widget_name_4}_light_on
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: icons_36
+                        text: "${ceiling_icon}"
+                    - label:
+                        id: ${light_widget_name_4}_lable_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "${light_label_name_4}"
+        # 2-3-4 этаж
+        - obj:
+            id: floor2_3_4_border
+            x: 10
+            y: 270
+            width: 460
+            height: 60
+            align: top_left
+            bg_opa: 0
+            border_opa: 80%
+            border_color: color_misty_blue
+            border_width: 1
+            shadow_opa: 0%
+            pad_all: 0
+            widgets:
+              - label:
+                  x: 0
+                  y: 0
+                  align: TOP_MID
+                  text_font: nunito_18
+                  text_color: color_misty_blue
+                  text: "2-3-4 ЭТАЖ"
+              # 2 этаж свет
+              - obj:
+                  x: 0
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: floor2_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "2 этаж"
+                    - label:
+                        y: 8
+                        id: floor2_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${floor2_light}"
+              # 3 этаж свет
+              - obj:
+                  x: 70
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: floor3_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "3 этаж"
+                    - label:
+                        y: 8
+                        id: floor3_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${floor3_light}"
+              # 4 этаж свет
+              - obj:
+                  x: 140
+                  y: 0
+                  width: 60
+                  height: 60
+                  align: TOP_LEFT
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  shadow_opa: transp
+                  border_opa: transp
+                  radius: 10
+                  scrollable: "OFF"
+                  widgets:
+                    - label:
+                        x: 0
+                        y: -15
+                        id: floor4_label_name
+                        align: TOP_MID
+                        text_font: nunito_16
+                        text_color: color_misty_blue
+                        text: "4 этаж"
+                    - label:
+                        y: 8
+                        id: floor4_light_label
+                        align: CENTER
+                        text_color: color_steel_blue
+                        text_font: parus_icons_26
+                        text: "${lamp1_icon}"
+                        on_press:
+                          - homeassistant.action:
+                              action: switch.toggle
+                              data:
+                                entity_id: "${floor4_light}"
+binary_sensor:
+  - platform: lvgl
+    id: ${light_widget_name_1}_btn_long_sensor
+    widget: ${light_widget_name_1}_btn
+    on_click:
+    - min_length: 50ms
+      max_length: 500ms
+      then:
+        - homeassistant.service:
+            service: light.toggle
+            data:
+              entity_id: "${light_entity_1}"
+    - min_length: 800ms
+      max_length: 3000ms
+      then:
+        - lvgl.widget.hide: menu_controls_main
+        - lvgl.page.show: 
+            id: ${light_widget_name_1}_light_rgb_page
+            animation: OUT_RIGHT
+            time: 300ms
+
+  - platform: lvgl
+    id: ${light_widget_name_2}_btn_long_sensor
+    widget: ${light_widget_name_2}_btn
+    on_click:
+    - min_length: 50ms
+      max_length: 500ms
+      then:
+        - homeassistant.service:
+            service: light.toggle
+            data:
+              entity_id: "${light_entity_2}"
+    - min_length: 800ms
+      max_length: 3000ms
+      then:
+        - lvgl.widget.hide: menu_controls_main
+        - lvgl.page.show: 
+            id: ${light_widget_name_2}_light_rgb_page
+            animation: OUT_RIGHT
+            time: 300ms
+
+  - platform: lvgl
+    id: ${light_widget_name_3}_btn_long_sensor
+    widget: ${light_widget_name_3}_btn
+    on_click:
+    - min_length: 50ms
+      max_length: 500ms
+      then:
+        - homeassistant.service:
+            service: light.toggle
+            data:
+              entity_id: "${light_entity_3}"
+    - min_length: 800ms
+      max_length: 3000ms
+      then:
+        - lvgl.widget.hide: menu_controls_main
+        - lvgl.page.show: 
+            id: ${light_widget_name_3}_light_rgb_page
+            animation: OUT_RIGHT
+            time: 300ms
+
+  - platform: lvgl
+    id: ${light_widget_name_4}_btn_long_sensor
+    widget: ${light_widget_name_4}_btn
+    on_click:
+    - min_length: 50ms
+      max_length: 500ms
+      then:
+        - homeassistant.service:
+            service: light.toggle
+            data:
+              entity_id: "${light_entity_4}"
+    - min_length: 800ms
+      max_length: 3000ms
+      then:
+        - lvgl.widget.hide: menu_controls_main
+        - lvgl.page.show: 
+            id: ${light_widget_name_4}_light_rgb_page
+            animation: OUT_RIGHT
+            time: 300ms

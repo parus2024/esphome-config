@@ -22,7 +22,7 @@ substitutions:
   wind_speed: "sensor.davis_vantage_wind_speed"
   switch1_hood: "switch.hood_fan_speed1"
 
-  windsock_icon:                "\U000F15FA" # windsock    +
+  windsock_icon:           "\U000F15FA" # windsock    +
   lock_icon:               "\U0000e92e"
   air_conditioner_icon:    "\U0000e93b" 
   heating_icon:            "\U0000e936"
@@ -39,6 +39,12 @@ substitutions:
   temperature_icon:        "\U0000e939" 
   illumination:            "\U0000e92f" # lux
   lightbulb_icon:          "\U0000e908"
+  energy_icon:             "\U000F0241"   # lightning-bolt (MDI)
+  cart_icon:               "\U000F0110" # (MDI)
+  valve_closed_icon:       "\U000F1067" # (MDI)
+  valve_open_icon:         "\U000F1068" # (MDI)
+  pipe_valve_icon:         "\U000F184D" # (MDI)
+  fan1_icon:               "\U0000e926"
 ## parus ##
   boiler_icon:             "\U0000e800" # boiler
   gate0_icon:              "\U0000e801" # gate0
@@ -109,7 +115,7 @@ sensor:
             id: weather_temperature
             text:
               format: "%.0f°"
-              args: [id(weather_temp).state]
+              args: [x]
 
   # Temperature Home Sensor
   - platform: homeassistant
@@ -121,7 +127,7 @@ sensor:
             id: temperature_sensor_label
             text:
               format: "%.1f °C"
-              args: [id(temperature_sensor).state]
+              args: [x]
   # Temperature Sauna Sensor
   - platform: homeassistant
     id: sauna_temperature_sensor
@@ -132,7 +138,7 @@ sensor:
             id: sauna_temperature_label
             text:
               format: "%.0f °C"
-              args: [id(sauna_temperature_sensor).state]
+              args: [x]
 
   # Humidity Home Sensor
   - platform: homeassistant
@@ -144,7 +150,7 @@ sensor:
             id: humidity_sensor_label
             text:
               format: "%.0f %%" 
-              args: [id(humidity_sensor).state]
+              args: [x]
   # Atmosthere Home Sensor
   - platform: homeassistant
     id: atm_sensor_local
@@ -154,8 +160,8 @@ sensor:
         - lvgl.label.update:
             id: atm_sensor_label
             text:
-              format: "%.0f mmHg%" 
-              args: [id(atm_sensor_local).state]
+              format: "%.0f mmHg" 
+              args: [x]
   # Wind Speed Sensor
   - platform: homeassistant
     id: wind_speed_local
@@ -166,7 +172,7 @@ sensor:
             id: wind_speed_text
             text:
               format: "%.0f м/с" 
-              args: [id(wind_speed_local).state]
+              args: [x]
   # Давление воды
   - platform: homeassistant
     id: water_pressure_current
@@ -178,67 +184,6 @@ sensor:
             text:
               format: "%.1f"
               args: ['x']
-### 3 Phase Sensor
-  - platform: homeassistant
-    id: phase1_voltage_sensor
-    entity_id: "${phase1_voltage}"
-    on_value:
-      then:   
-        - lvgl.label.update:
-            id: phase1_voltage_label
-            text:
-              format: "%.0f v"
-              args: [id(phase1_voltage_sensor).state]
-  - platform: homeassistant
-    id: phase1_power_sensor
-    entity_id: "${phase1_power}"
-    on_value:
-      then:   
-        - lvgl.label.update:
-            id: phase1_power_label
-            text:
-              format: "%.0f w"
-              args: [id(phase1_power_sensor).state]
-  - platform: homeassistant
-    id: phase2_voltage_sensor
-    entity_id: "${phase2_voltage}"
-    on_value:
-      then:   
-        - lvgl.label.update:
-            id: phase2_voltage_label
-            text:
-              format: "%.0f v"
-              args: [id(phase2_voltage_sensor).state]
-  - platform: homeassistant
-    id: phase2_power_sensor
-    entity_id: "${phase2_power}"
-    on_value:
-      then:   
-        - lvgl.label.update:
-            id: phase2_power_label
-            text:
-              format: "%.0f w"
-              args: [id(phase2_power_sensor).state]
-  - platform: homeassistant
-    id: phase3_voltage_sensor
-    entity_id: "${phase3_voltage}"
-    on_value:
-      then:   
-        - lvgl.label.update:
-            id: phase3_voltage_label
-            text:
-              format: "%.0f v"
-              args: [id(phase3_voltage_sensor).state]
-  - platform: homeassistant
-    id: phase3_power_sensor
-    entity_id: "${phase3_power}"
-    on_value:
-      then:   
-        - lvgl.label.update:
-            id: phase3_power_label
-            text:
-              format: "%.0f w"
-              args: [id(phase3_power_sensor).state]
   # Gate Position sensor
   - platform: homeassistant
     id: gate_position_local
@@ -248,9 +193,13 @@ sensor:
       then:
         - lvgl.label.update:
             id: gate_state_label
-            text:
-              format: "%.0f%%"
-              args: [id(gate_position_local).state]
+            text: !lambda |-
+              char buf[24];
+              if (x < 0.5f) {
+                return std::string("Закрыто");
+              }
+              snprintf(buf, sizeof(buf), "Открыто %.0f%%", x);
+              return std::string(buf);
         - lvgl.label.update:
             id: vorota_state_icon
             text_color: !lambda |-
@@ -284,7 +233,52 @@ text_sensor:
       then:
         - delay: 1s
         - script.execute: update_weather_image
-    # garage state
+
+    # Список покупок из НА     
+  - platform: homeassistant
+    id: shopping_list_content
+    entity_id: sensor.shopping_list_content
+    on_value:
+      - lvgl.label.update:
+          id: shopping_list_popup_body
+          text: !lambda 'return x;'
+  # --- Клапан подвал ---
+  - platform: homeassistant
+    id: valve_podval_state
+    entity_id: valve.vent_podval_valve
+    on_value:
+      - if:
+          condition:
+            lambda: 'return x == "open" || x == "opening";'
+          then:
+            - lvgl.label.update:
+                id: valve_podval_icon
+                text_color: color_deep_orange
+                text: "${valve_open_icon}"
+          else:
+            - lvgl.label.update:
+                id: valve_podval_icon
+                text_color: color_steel_blue
+                text: "${valve_closed_icon}"
+
+#  # --- Клапан спортзал ---
+#  - platform: homeassistant
+#    id: valve_sport_state
+#    entity_id: valve.vent_sport
+#    on_value:
+#      - if:
+#          condition:
+#            lambda: 'return x == "open" || x == "opening";'
+#          then:
+#            - lvgl.label.update:
+#                id: valve_sport_icon
+#                text_color: color_deep_orange
+#                text: "${valve_open_icon}"
+#          else:
+#            - lvgl.label.update:
+#                id: valve_sport_icon
+#                text_color: color_steel_blue
+#                text: "${valve_closed_icon}"
 
 binary_sensor:
   - platform: homeassistant
@@ -302,20 +296,57 @@ binary_sensor:
           text_color: darkgreen
           text: "${garage_closed}"
     # vorota state
+  # --- Клапан вентиляции спортзал ---
+  - platform: homeassistant
+    id: valve_sport_state
+    entity_id: binary_sensor.sport_vent_valve_state
+    on_state:
+      - if:
+          condition:
+            lambda: 'return x;'
+          then:
+            - lvgl.label.update:
+                id: valve_sport_icon
+                text_color: color_deep_orange
+                text: "${valve_open_icon}"
+          else:
+            - lvgl.label.update:
+                id: valve_sport_icon
+                text_color: color_steel_blue
+                text: "${valve_closed_icon}"
+  # --- Кран воды (подвал) ---
+  - platform: homeassistant
+    id: water_valve_state
+    entity_id: binary_sensor.podval_water_kran_state
+    on_state:
+      - if:
+          condition:
+            lambda: 'return x;'  # x == true, если открыт
+          then:
+            - lvgl.widget.update:
+                id: water_valve_icon
+                text_color: color_deep_orange
+          else:
+            - lvgl.widget.update:
+                id: water_valve_icon
+                text_color: color_steel_blue
+
+  # --- Кран газа (подвал) ---
 #  - platform: homeassistant
-#    id: gate_state_local
-#    entity_id: binary_sensor.gate_state
-#    trigger_on_initial_state: true
-#    on_press:
-#      - lvgl.label.update:
-#          id: vorota_state_icon
-#          text_color: color_deep_orange
-#          text: "${gate100_icon}"
-#    on_release:
-#      - lvgl.label.update:
-#          id: vorota_state_icon
-#          text_color: darkgreen
-#          text: "${gate0_icon}"
+#    id: gas_valve_state
+#    entity_id: binary_sensor.podval_main_unit_gas_kran_state
+#    on_state:
+#      - if:
+#          condition:
+#            lambda: 'return x;'
+#          then:
+#            - lvgl.widget.update:
+#                id: gas_valve_icon
+#                text_color: color_deep_orange
+#          else:
+#            - lvgl.widget.update:
+#                id: gas_valve_icon
+#                text_color: color_steel_blue
 switch:
     # poliv state
   - platform: homeassistant
@@ -359,6 +390,36 @@ switch:
       - lvgl.label.update:
           id: sauna_temperature_label
           text_color: color_misty_blue
+
+  # --- Вытяжка детская ---
+  - platform: homeassistant
+    id: vent_child_state
+    entity_id: switch.child_wc_fan
+    on_turn_on:
+      - lvgl.animation.start: spin_fan_child    # ← запуск вращения
+      - lvgl.widget.update:
+          id: vent_child_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.animation.stop: spin_fan_child     # ← остановка
+      - lvgl.widget.update:
+          id: vent_child_icon
+          text_color: color_steel_blue
+
+  # --- Вытяжка подвал ---
+  - platform: homeassistant
+    id: vent_podval_state
+    entity_id: switch.vent_podval_fan
+    on_turn_on:
+      - lvgl.animation.start: spin_fan_podval
+      - lvgl.widget.update:
+          id: vent_podval_icon
+          text_color: color_deep_orange
+    on_turn_off:
+      - lvgl.animation.stop: spin_fan_podval
+      - lvgl.widget.update:
+          id: vent_podval_icon
+          text_color: color_steel_blue
 
   - platform: template
     name: "Touchscreen block"
@@ -820,7 +881,7 @@ lvgl:
             id: home_bg_gate
             x: 320
             y: 60
-            width: 70
+            width: 150
             height: 70
             align: TOP_LEFT
             pad_all: 0
@@ -835,14 +896,14 @@ lvgl:
                   y: 0
                   align: TOP_MID
                   id: gate_state_label
-                  text_font: nunito_16
+                  text_font: nunito_18
                   text_color: color_misty_blue
                   text: "0%"
               - label:
-                  y: -15
+                  y: 0
                   id: vorota_state_icon
                   align: BOTTOM_MID
-                  text_font: parus_icons_26
+                  text_font: parus_icons_40
                   text_color: color_misty_blue
                   text: "${gate0_icon}"
             on_press:
@@ -850,46 +911,50 @@ lvgl:
                   action: button.press
                   data:
                     entity_id: button.gate_onetouchcontrol
-        # уведомления
-        - obj:
-            id: notice_btn
-            x: 400
-            y: 60
+
+        # hood_bg
+        - label:
+            id: hood_state_icon
+            x: 240
+            y: 140
             width: 70
             height: 70
             align: TOP_LEFT
-            pad_all: 0
             bg_color: color_steel_blue
             bg_opa: 20%
-            border_opa: TRANSP
-            border_width: 0
-            shadow_opa: TRANSP
             radius: 10
-            widgets:
-              - label:
-                  y: 0
-                  align: TOP_MID
-                  id: notice_label
-                  text_font: nunito_16
-                  text_color: color_misty_blue
-                  text: "notice"
-              - label:
-                  y: -15
-                  id: notice_icon
-                  align: BOTTOM_MID
-                  text_font: mdi_icons_24
-                  text_color: color_misty_blue
-                  text: "${bell_cog_icon}"
+            text_font: parus_icons_36
+            text_color: color_misty_blue
+            text: "${hood_icon}"
+            text_align: CENTER
+            pad_top: 15
+            on_click:
+              - homeassistant.action:
+                  action: switch.toggle
+                  data:
+                    entity_id: "${switch1_hood}"
+        # energy (переход на solar_page)
+        - label:
+            id: energy_icon_label
+            x: 320
+            y: 140
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            bg_color: color_steel_blue
+            bg_opa: 20%
+            radius: 10
+            text_font: mdi_icons_52
+            text_color: color_misty_blue
+            text: "${icon_grid}"
+            text_align: CENTER
+            pad_top: 10
             on_press:
               - lvgl.widget.hide: menu_controls_main
-              - lvgl.page.show: 
-                  id: checked_page
-                  animation: OUT_RIGHT
-                  time: 300ms
-        # hood_bg
-        - obj:
-            id: home_bg_hood
-            x: 240
+              - lvgl.page.show: solar_page
+        - button:
+            id: notice_btn
+            x: 400
             y: 140
             width: 70
             height: 70
@@ -903,16 +968,15 @@ lvgl:
             radius: 10
             widgets:
               - label:
-                  id: hood_state_icon
-                  align: center
-                  text_font: parus_icons_36
+                  y: -15
+                  id: notice_icon
+                  align: BOTTOM_MID
+                  text_font: mdi_icons_40
                   text_color: color_misty_blue
-                  text: "${hood_icon}"
-            on_click:
-              - homeassistant.action:
-                  action: switch.toggle
-                  data:
-                    entity_id: "${switch1_hood}"
+                  text: "${bell_cog_icon}"
+            on_press:
+              - lvgl.widget.hide: menu_controls_main
+              - lvgl.page.show: checked_page
         # sauna
         - obj:
             id: home_bg_sauna
@@ -949,27 +1013,21 @@ lvgl:
                   data:
                     entity_id: "${sauna}"
         # poliv_gazon
-        - obj:
-            id: home_bg_poliv_gazon
+        - label:
+            id: poliv_state_icon
             x: 320
             y: 220
             width: 70
             height: 70
             align: TOP_LEFT
-            pad_all: 0
             bg_color: color_steel_blue
             bg_opa: 20%
-            border_opa: TRANSP
-            border_width: 0
-            shadow_opa: TRANSP
             radius: 10
-            widgets:
-              - label:
-                  id: poliv_state_icon
-                  align: center
-                  text_font: parus_icons_58
-                  text_color: color_misty_blue
-                  text: "${irrigation_icon}"
+            text_font: parus_icons_64
+            text_color: color_misty_blue
+            text: "${irrigation_icon}"
+            text_align: CENTER
+            pad_top: 10
             on_click:
               - homeassistant.action:
                   action: switch.toggle
@@ -977,119 +1035,76 @@ lvgl:
                     entity_id: "${poliv_gazon}"
 
         # давление воды
-        - obj:
-            id: water_pressure_label
+        # 1. Фон и текст (ВОДА + bar)
+        - label:
             x: 400
             y: 220
             width: 70
             height: 70
             align: TOP_LEFT
-            pad_all: 0
             bg_color: color_steel_blue
             bg_opa: 20%
-            border_opa: TRANSP
-            border_width: 0
-            shadow_opa: TRANSP
             radius: 10
-            widgets:
-              - label:
-                  id: water_pressure_text_label
-                  text_color: color_misty_blue
-                  text_font: nunito_30
-                  text: "-.-"
-                  align: center
-                  clickable: false # запретить интерактивность у label
-              - label:
-                  y: 0
-                  id: water_pressure_name_label
-                  text_color: color_misty_blue
-                  text_font: nunito_20
-                  text: "bar"
-                  align: BOTTOM_MID
-                  clickable: false 
+            text_color: color_misty_blue
+            text_font: nunito_16
+            text: "ВОДА\n\nbar"
+            text_align: CENTER
+            clickable: false
 
-######## 3 phase
-        # фаза1
-        - obj:
-            id: phase1
+        # 2. Цифры по центру (накладываются поверх)
+        - label:
+            id: water_pressure_text_label
+            x: 400
+            y: 220
+            width: 70
+            height: 70
+            align: TOP_LEFT
+            text_color: color_misty_blue
+            text_font: nunito_30
+            text: "-.-"
+            text_align: CENTER
+            clickable: false
+            pad_top: 16       # <-- сдвиг цифр вниз, чтобы встали между ВОДА и bar
+
+        # Список покупок
+        - label:
+            id: shopping_list_icon
             x: 240
             y: 300
             width: 70
             height: 70
             align: TOP_LEFT
-            pad_all: 0
             bg_color: color_steel_blue
             bg_opa: 20%
-            border_opa: 10%   #TRANSP
-            border_width: 0
-            shadow_opa: TRANSP
             radius: 10
-            widgets:
-              - label:
-                  y: 0
-                  align: TOP_MID
-                  id: phase1_label
-                  text_font: nunito_16
-                  text_color: color_misty_blue
-                  text: "фаза 1"
-              - label:
-                  y: 25
-                  id: phase1_voltage_label
-                  text_color: color_misty_blue
-                  text_font: nunito_18
-                  text: "-.-"
-                  align: TOP_MID
-                  clickable: false
-              - label:
-                  y: 45
-                  id: phase1_power_label
-                  text_color: color_misty_blue
-                  text_font: nunito_18
-                  text: "-.-"
-                  align: TOP_MID
-                  clickable: false
-        # фаза2
-        - obj:
-            id: phase2
+            text_font: mdi_icons_40
+            text_color: color_misty_blue
+            text: "${cart_icon}"
+            text_align: CENTER
+            pad_top: 15
+            on_press:
+              - lvgl.widget.show: shopping_list_popup
+        # Вентиляция
+        - label:
+            id: ventilation_icon
             x: 320
             y: 300
             width: 70
             height: 70
             align: TOP_LEFT
-            pad_all: 0
             bg_color: color_steel_blue
             bg_opa: 20%
-            border_opa: TRANSP
-            border_width: 0
-            shadow_opa: TRANSP
             radius: 10
-            widgets:
-              - label:
-                  y: 0
-                  align: TOP_MID
-                  id: phase2_label
-                  text_font: nunito_16
-                  text_color: color_misty_blue
-                  text: "фаза 2"
-              - label:
-                  y: 25
-                  id: phase2_voltage_label
-                  text_color: color_misty_blue
-                  text_font: nunito_18
-                  text: "-.-"
-                  align: TOP_MID
-                  clickable: false
-              - label:
-                  y: 45
-                  id: phase2_power_label
-                  text_color: color_misty_blue
-                  text_font: nunito_18
-                  text: "-.-"
-                  align: TOP_MID
-                  clickable: false
-        # фаза3
-        - obj:
-            id: phase3
+            text_font: icons_48
+            text_color: color_misty_blue
+            text: "${fan1_icon}"
+            text_align: CENTER
+            pad_top: 10
+            on_press:
+              - lvgl.widget.show: ventilation_popup
+          # Управление вентилями газа и воды
+        - label:
+            id: water_gas_icon
             x: 400
             y: 300
             width: 70
@@ -1098,35 +1113,322 @@ lvgl:
             pad_all: 0
             bg_color: color_steel_blue
             bg_opa: 20%
-            border_opa: TRANSP
-            border_width: 0
-            shadow_opa: TRANSP
             radius: 10
+            text_font: mdi_icons_40
+            text_color: color_misty_blue
+            text: "${pipe_valve_icon}"
+            text_align: CENTER
+            pad_top: 15
+            on_press:
+              - lvgl.widget.show: water_gas_popup
+  msgboxes:
+    - id: shopping_list_popup
+      width: 320
+      title: "Shopping List"
+#      bg_color: color_steel_blue
+#      text_color: color_misty_blue
+      close_button: true
+      widgets:
+        - label:
+            y: -20
+            pad_left: 20        # ← отступ слева на 10px
+            pad_top: 0
+            id: shopping_list_popup_body
+            text: "Список покупок"
+            text_font: nunito_16
+            bg_color: color_steel_blue
+            text_color: color_misty_blue
+            width: 280
+            long_mode: WRAP
+      buttons:
+        - id: msgbox_update
+          text_font: nunito_16
+          text: "Обновить"
+          on_click:
+            - homeassistant.action:
+                action: script.turn_on
+                data:
+                  entity_id: script.update_shopping_list
+            - lvgl.widget.hide: shopping_list_popup
+        - id: msgbox_telegram
+          text_font: nunito_16
+          text: "Telegram"
+          on_click:
+            - homeassistant.action:
+                action: script.turn_on
+                data:
+                  entity_id: script.telegram_shopping_list
+            - lvgl.widget.hide: shopping_list_popup
+        - id: msgbox_delete
+          text_font: nunito_16
+          text: "Очистить"
+          on_click:
+            - homeassistant.action:
+                action: script.turn_on
+                data:
+                  entity_id: script.delete_shopping_list
+            - lvgl.widget.hide: shopping_list_popup
+      # == Ventilation ===
+    - id: ventilation_popup
+      title: "Ventilation"
+#      bg_color: color_steel_blue
+      bg_opa: 100%
+      width: 340
+      close_button: true
+      body:
+        text: ""
+      widgets:
+        - obj:
+            id: vent_grid
+            width: 330
+            height: 280
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            shadow_opa: TRANSP
+            pad_all: 0
+            scrollable: "OFF"
             widgets:
-              - label:
+              # --- Вытяжка детская ---
+              - obj:
+                  id: vent_child_bg
+                  x: 10
                   y: 0
-                  align: TOP_MID
-                  id: phase3_label
-                  text_font: nunito_16
-                  text_color: color_misty_blue
-                  text: "фаза 3"
-              - label:
-                  y: 25
-                  id: phase3_voltage_label
-                  text_color: color_misty_blue
-                  text_font: nunito_18
-                  text: "-.-"
-                  align: TOP_MID
-                  clickable: false
-              - label:
-                  y: 45
-                  id: phase3_power_label
-                  text_color: color_misty_blue
-                  text_font: nunito_18
-                  text: "-.-"
-                  align: TOP_MID
-                  clickable: false
+                  width: 150
+                  height: 120
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  radius: 10
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        id: vent_child_name
+                        x: 0
+                        y: 0
+                        align: TOP_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "Детская"
+                    - label:
+                        x: 0
+                        y: 10
+                        id: vent_child_icon
+                        align: CENTER
+                        text_font: icons_72
+                        text_color: color_steel_blue
+                        text: "${fan1_icon}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: switch.child_wc_fan
 
+              # --- Вытяжка подвал ---
+              - obj:
+                  id: vent_podval_bg
+                  x: 170
+                  y: 0
+                  width: 150
+                  height: 120
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  radius: 10
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 0
+                        align: TOP_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "Подвал"
+                    - label:
+                        x: 0
+                        y: 10
+                        id: vent_podval_icon
+                        align: CENTER
+                        text_font: icons_72
+                        text_color: color_steel_blue
+                        text: "${fan1_icon}"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: switch.vent_podval_fan
+
+              # --- Клапан подвал ---
+              - obj:
+                  id: valve_podval_bg
+                  x: 10
+                  y: 130
+                  width: 150
+                  height: 120
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  radius: 10
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 0
+                        align: TOP_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "Подвал"
+                    - label:
+                        y: 10
+                        id: valve_podval_icon
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_steel_blue
+                        text: "${valve_closed_icon}"
+                  on_click:
+                    - homeassistant.action:
+                        action: valve.toggle
+                        data:
+                          entity_id: valve.vent_podval_valve
+
+              # --- Клапан спортзал ---
+              - obj:
+                  id: valve_sport_bg
+                  x: 170
+                  y: 130
+                  width: 150
+                  height: 120
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  radius: 10
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 0
+                        align: TOP_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "Спортзал"
+                    - label:
+                        y: 10
+                        id: valve_sport_icon
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_steel_blue
+                        text: "${valve_open_icon}"
+                  on_click:
+                    - homeassistant.action:
+                        action: valve.toggle
+                        data:
+                          entity_id: valve.vent_sport
+    - id: water_gas_popup
+      title: "Water & Gas"
+      bg_opa: 100%
+      width: 340
+      close_button: true
+#      body:
+#        text: ""
+      widgets:
+        - obj:
+            id: wg_grid
+            width: 330
+            height: 140
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            shadow_opa: TRANSP
+            pad_all: 0
+            scrollable: "OFF"
+            widgets:
+
+              # --- Вода подвал ---
+              - obj:
+                  id: water_valve_bg
+                  x: 10
+                  y: 0
+                  width: 150
+                  height: 120
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  radius: 10
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 0
+                        align: TOP_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "Вода"
+                    - label:
+                        y: 10
+                        id: water_valve_icon
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_steel_blue
+                        text: "${pipe_valve_icon}"
+                  on_click:
+                    - homeassistant.action:
+                        action: valve.toggle
+                        data:
+                          entity_id: valve.water_pressure_podval_water_valve
+
+              # --- Газ ---
+              - obj:
+                  id: gas_valve_bg
+                  x: 170
+                  y: 0
+                  width: 150
+                  height: 120
+                  bg_color: color_steel_blue
+                  bg_opa: 20%
+                  radius: 10
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 0
+                        align: TOP_MID
+                        text_font: nunito_20
+                        text_color: color_misty_blue
+                        text: "Газ"
+                    - label:
+                        y: 10
+                        id: gas_valve_icon
+                        align: CENTER
+                        text_font: mdi_icons_52
+                        text_color: color_steel_blue
+                        text: "${pipe_valve_icon}"
+                  on_click:
+                    - homeassistant.action:
+                        action: valve.toggle
+                        data:
+                          entity_id: valve.gas_valve
+  animations:
+    - id: spin_fan_child
+      duration: 2s
+      loop: true
+      widgets:
+        - id: vent_child_icon
+          transform_rotation:
+            from: 0
+            to: 360
+          transform_pivot_x:
+            from: 36
+            to: 36
+          transform_pivot_y:
+            from: 36
+            to: 36
+    - id: spin_fan_podval
+      duration: 2s
+      loop: true
+      widgets:
+        - id: vent_podval_icon
+          transform_rotation:
+            from: 0
+            to: 360
+          transform_pivot_x: # Пивот 36,36 — центр глифа 72×72.
+            from: 36
+            to: 36
+          transform_pivot_y:
+            from: 36
+            to: 36
 time:
   - platform: sntp
     id: sntp_time
@@ -1252,5 +1554,3 @@ api:
           - lvgl.label.update: 
               id: ha_status
               text_color: color_steel_blue
-
-

@@ -57,7 +57,25 @@
 #    "\U000F04C9", # spotlight
 #    "\U000F1067", # valve_closed
 #    "\U000F1068", # valve_open
+#    "\U000F0D9B", # solar_panel
+#    "\U000F0D75", # transmission-tower
+#    "\U000F007A", # battery-high
+#    "\U000F0826", # home
+#    "\U000F0241", # lightning-bolt (MDI)
 #  ]
+
+# - file: "fonts/MPLUSRounded1c-Regular.ttf"
+#   id: mplus_16
+#   size: 16
+#   bpp: 4
+#   glyphs: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя .,!?-_:°²³¹"
+
+- file: "fonts/Nunito-SemiBold.ttf"
+  id: nunito_14
+  size: 14
+  bpp: 4
+  glyphs: |-
+    ~*<>!"%()+=,`-_.·:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_16
@@ -74,60 +92,55 @@
         "\U0000B8E8",
         "\U0000B9C8",        
       ]
-# - file: "fonts/MPLUSRounded1c-Regular.ttf"
-#   id: mplus_16
-#   size: 16
-#   bpp: 4
-#   glyphs: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя .,!?-_:°²³¹"
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_18
   size: 18
   bpp: 4
   glyphs: |-
-    ~*<>!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+    ~*<>!"%()+=,`-_.·:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_20
   size: 20
   bpp: 4
   glyphs: |-
-    ~*<>!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+    ~*<>!"%()+=,`-_.·:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_30
   size: 30
   bpp: 4
   glyphs: |-
-    ~*<>«»!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+    ~*<>«»!"%()+=,`-_.·:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_32
   size: 32
   bpp: 4
   glyphs: |-
-    ~*<>«»!"%()+=,`-_.:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
+    ~*<>«»!"%()+=,`-_.·:°0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ абвгдеёжзийклмнопрстуфхцчшщьыъэюяabcdefghijklmnopqrstuvwxyz'/
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_36
   size: 36
   bpp: 4
   glyphs: |-
-    %()+=,-_.:°0123456789 
+    %()+=,-_.:·°0123456789 кВтчАa
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_48
   size: 48
   bpp: 4
   glyphs: |-
-    %()+=,-_.:°0123456789 
+    %()+=,-_.:·°0123456789 кВтчАa
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_72
   size: 72
   bpp: 4
   glyphs: |-
-    %()+=,-_.:°0123456789 
+    %()+=,-_.:·°0123456789 кВтчАa
 
 - file: "fonts/Nunito-SemiBold.ttf"
   id: nunito_84
@@ -141,6 +154,7 @@
   size: 24
   bpp: 4
   glyphs: [
+    "\U0000e920", # arrow_down
     "\U0000e900", # brightness
     "\U0000e901", # saturation
     "\U0000e925", # thermostat
@@ -216,6 +230,7 @@
     "\U0000e91c", # stop
     "\U0000e923", # locate
     "\U0000e924", # docked
+    "\U0000e926", # fan
   ]
 
 - file: "fonts/icons_v2.ttf"
@@ -233,7 +248,8 @@
     "\U0000e93b", # air_conditioner 
     "\U0000e936", # heating
     "\U0000e938", # humidity
-    "\U0000e939", # temperature 
+    "\U0000e939", # temperature
+    "\U0000e926", # fan
   ]
 
 - file: "fonts/icons_v2.ttf"
@@ -246,6 +262,7 @@
     "\U0000e922", # vacuum
     "\U0000e925", # thermostat
     "\U0000e93b", # air_conditioner
+    "\U0000e926", # fan
   ]
 
 - file: "fonts/icons_v2.ttf"
@@ -277,23 +294,23 @@
     "\U0000e922", # vacuum
   ]
 
-- file: "fonts/icons_v2.ttf"
-  id: icons_300
-  size: 300
-  bpp: 4
-  glyphs: [
-    "\U0000e91d", # 0 - shutter_closed
-    "\U0000e93d", # 10 - shutter
-    "\U0000e93e", # 20 - shutter
-    "\U0000e93f", # 30 - shutter
-    "\U0000e940", # 40 - shutter
-    "\U0000e941", # 50 - shutter
-    "\U0000e93c", # 60 - shutter
-    "\U0000e943", # 70 - shutter
-    "\U0000e944", # 80 - shutter
-    "\U0000e942", # 90 - shutter
-    "\U0000e91e"  # 100 - shutter_open
-  ]
+#- file: "fonts/icons_v2.ttf"
+#  id: icons_300
+#  size: 300
+#  bpp: 4
+#  glyphs: [
+#    "\U0000e91d", # 0 - shutter_closed
+#    "\U0000e93d", # 10 - shutter
+#    "\U0000e93e", # 20 - shutter
+#    "\U0000e93f", # 30 - shutter
+#    "\U0000e940", # 40 - shutter
+#    "\U0000e941", # 50 - shutter
+#    "\U0000e93c", # 60 - shutter
+#    "\U0000e943", # 70 - shutter
+#    "\U0000e944", # 80 - shutter
+#    "\U0000e942", # 90 - shutter
+#    "\U0000e91e"  # 100 - shutter_open
+#  ]
 
 - file: "fonts/materialdesignicons-webfont.ttf"
   id: mdi_icons_24
@@ -332,6 +349,11 @@
     "\U000F12D4", # garage_open
     "\U000F116A", # gate_open
     "\U000F0299", # gate_close          +
+    "\U000F1B18", # auto                +
+    "\U000F04CD", # stair
+    "\U000F0110", # cart (mdi)
+    "\U000F1A29", # bell_cog
+    "\U000F184D", # pipe-valve
   ]
 
 - file: "fonts/materialdesignicons-webfont.ttf"
@@ -354,8 +376,27 @@
     "\U000F0599", # weather_sunny        +
     "\U000F12D3", # garage_close        +
     "\U000F12D4", # garage_open
+    "\U000F0D9B", # solar_panel
+    "\U000F0D3E", # transmission-tower
+    "\U000F007A", # battery-high
+    "\U000F0826", # home
+    "\U000F0241", # lightning-bolt (MDI)
+    "\U000F04CD", # stair (MDI)
+    "\U000F0110", # cart (mdi)
+    "\U000F1067", # valve closed
+    "\U000F1068", # valve closed
+    "\U000F184D", # pipe-valve
   ]
-
+- file: "fonts/materialdesignicons-webfont.ttf"
+  id: mdi_icons_64_arrows
+  size: 64
+  bpp: 4
+  glyphs: [
+    "\U000F035D", # menu-down
+    "\U000F035E", # menu-left
+    "\U000F035F", # menu-right
+    "\U000F0360", # menu-up
+  ]
 - file: "fonts/materialdesignicons-webfont.ttf"
   id: mdi_icons_68
   size: 68
@@ -366,6 +407,10 @@
     "\U000F0BEA", # alarm_out_on
     "\U000F078F", # alarm_on
     "\U000F171E", # alarm_off
+    "\U000F0D9B", # solar_panel
+    "\U000F0D3E", # transmission-tower
+    "\U000F007A", # battery-high
+    "\U000F0826", # home
   ]
 - file: "fonts/materialdesignicons-webfont.ttf"
   id: mdi_icons_72
@@ -377,6 +422,22 @@
     "\U000F0BEA", # alarm_out_on
     "\U000F078F", # alarm_on
     "\U000F171E", # alarm_off
+    "\U000F0D9B", # solar_panel
+    "\U000F0D3E", # transmission-tower
+    "\U000F007A", # battery-high
+    "\U000F0826", # home
+  ]
+- file: "fonts/icons_v2.ttf"
+  id: icons_72_battery
+  size: 72
+  bpp: 4
+  glyphs: [
+    "\U0000e92d", # battery full (4/4)
+    "\U0000e92c", # battery 3/4
+    "\U0000e92b", # battery 2/4
+    "\U0000e92a", # battery 1/4
+    "\U0000e929", # battery empty (0/4)
+    "\U0000e928", # battery shell
   ]
 - file: "fonts/materialdesignicons-webfont.ttf"
   id: mdi_icons_96
@@ -397,6 +458,7 @@
     "\U000F0026", # alert
     "\U000F14BC", # alert_off
     "\U000F002A", # alert_out
+    "\U000F0826", # home
   ]
 - file: "fonts/parus.ttf"
   id: parus_icons_36
@@ -428,22 +490,9 @@
   bpp: 4
   glyphs: [
     "\U0000e800", # boiler
+    "\U0000e807", # irrigarion
   ]
-- file: "fonts/parus.ttf"
-  id: parus_icons_26
-  size: 26
-  bpp: 4
-  glyphs: [
-    "\U0000e801", # gate0
-    "\U0000e802", # gate25
-    "\U0000e803", # gate50
-    "\U0000e804", # gate75
-    "\U0000e805", # gate100
-    "\U0000e808", # lamp1
-    "\U0000e811", # atmospheric-pressure
-    "\U0000e80e", # spotlight-on
-    "\U0000e80f", # spotlight-off
-  ]
+
 - file: "fonts/parus.ttf"
   id: parus_icons_24
   size: 24
@@ -452,9 +501,46 @@
     "\U0000e808", # lamp1
   ]
 - file: "fonts/parus.ttf"
+  id: parus_icons_26
+  size: 26
+  bpp: 4
+  glyphs: [
+    "\U0000e808", # lamp1
+    "\U0000e811", # atmospheric-pressure
+    "\U0000e80e", # spotlight-on
+    "\U0000e80f", # spotlight-off
+  ]
+
+- file: "fonts/parus.ttf"
   id: parus_icons_30
   size: 30
   bpp: 4
   glyphs: [
     "\U0000e808", # lamp1
+    "\U0000e801", # gate0
+    "\U0000e802", # gate25
+    "\U0000e803", # gate50
+    "\U0000e804", # gate75
+    "\U0000e805", # gate100
+    "\U0000e811", # atmospheric-pressure
+    "\U0000e80e", # spotlight-on
+    "\U0000e80f", # spotlight-off
+  ]
+- file: "fonts/parus.ttf"
+  id: parus_icons_40
+  size: 40
+  bpp: 4
+  glyphs: [
+    "\U0000e801", # gate0
+    "\U0000e802", # gate25
+    "\U0000e803", # gate50
+    "\U0000e804", # gate75
+    "\U0000e805", # gate100
+  ]
+- file: "fonts/parus1.ttf"
+  id: parus1_icons_30
+  size: 30
+  bpp: 4
+  glyphs: [
+    "\U0000e816", # Беседка
   ]
